@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.8 $
-// $Date: 2004/08/29 23:46:58 $
+// $Revision: 1.9 $
+// $Date: 2004/08/30 00:25:46 $
 //
 
 #include "Channel.hpp"
@@ -264,7 +264,7 @@ void Channel::UserJoin (Client *Cl)
 {
 	struct channel_user *newuser;
 	int i, max_list = Users.GetCount ();
-	char *users_list, *msgtopic;
+	char *users_list, *msgtopic, name_string[CL_MAXNAME + 7 + 2];
 
 	newuser = new struct channel_user (Cl->GetUsername (), Cl);
 
@@ -277,10 +277,12 @@ void Channel::UserJoin (Client *Cl)
 		  (newuser->status & STATUS_ADMIN) ? "Admin" : "Normal", newuser->name);
 
 	// enviar aviso al resto de los usuarios conectados
+	snprintf (name_string, CL_MAXNAME + 7 + 2, "%s:%s", newuser->name,
+		  (newuser->status & STATUS_ADMIN) ? "admin" : "normal");
 	for (i = 0; i <= max_list - 1; ++i)
 	{
 		Users[i]->client->AddBuffer (Session::MainIndex, Session::ChatJoin,
-					     newuser->name);
+					     name_string);
 		Application.Add (Owner::Client | Owner::Send, Users[i]->client->ShowSocket ());
 	}
 

@@ -2,6 +2,8 @@
 
 	* src/Channel.cpp:
 		- The user list is now sent with user's status.
+		- The username is sent with status string when a user joins the
+		channel. 
 
 
 2004-08-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
