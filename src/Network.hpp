@@ -19,13 +19,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/04/24 20:13:43 $
 //
 
 #ifndef __NETWORK_HPP__
 #define __NETWORK_HPP__
 
+#include <ctime>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
@@ -39,6 +40,13 @@ struct sditem
 	struct sditem *next;
 };
 
+struct checkcl
+{
+	time_t timeout;
+	int sd;
+	struct checkcl *next;
+};
+
 class Network
 {
 private:
@@ -48,6 +56,7 @@ private:
 	Client *ClientList;
 	int connections;
 	struct sditem *sdlist;
+	struct checkcl *checklist;
 	SSL_METHOD *ssl_method;
 	SSL_CTX *ssl_context;
 
@@ -69,10 +78,15 @@ public:
 	int DropClient (Client *Cl);
 	int DropConnection (int sd);
 	void CloseConnection (int sd, bool send_disc = true);
+
 	int ReceiveData (int sd);
 	int SendData (int sd);
+
 	void SendToAllClients (Pckt::Type PktType, char *buf = NULL);
 	void SendProcessLogs (Client *Cl);
+	
+	void AddWatch (Client *Cl);
+	void RemoveWatch (Client *Cl);
 	void DropNotValidClients (void);
 };
 

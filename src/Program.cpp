@@ -19,14 +19,19 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Program.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/04/24 20:13:43 $
 //
+
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <sys/types.h>
 #include <unistd.h>
 #include <cstdio>
 #include <cstdlib>
+#include <cerrno>
 #include <sys/stat.h>
 
 #include "Config.hpp"
@@ -34,8 +39,6 @@
 #include "Process.hpp"
 #include "Network.hpp"
 #include "Main.hpp"
-
-#define VERSION "0.1"
 
 int main (int argc, char **argv)
 {
@@ -78,9 +81,9 @@ int main (int argc, char **argv)
 	// usamos /etc/sags/sags.conf
 	if (config_file == NULL)
 	{
-		int len = strlen ("/etc/sags/sags.conf");
+		int len = strlen (PACKAGE_SYSCONF_DIR "/" PACKAGE ".conf");
 		config_file = new char [len + 1];
-		strncpy (config_file, "/etc/sags/sags.conf", len);
+		strncpy (config_file, PACKAGE_SYSCONF_DIR "/" PACKAGE ".conf", len);
 	}
 
 	// si debug_mode es false hacemos fork
@@ -104,7 +107,7 @@ int main (int argc, char **argv)
 		}
 
 		// config_file debe tener la ruta absoluta
-		// hay que borrar los .. y . de la ruta
+		// TODO: habría que borrar los .. y . de la ruta
 		if (config_file[0] != '/')
 		{
 			path = getcwd (NULL, 0);
@@ -121,10 +124,19 @@ int main (int argc, char **argv)
 		}
 
 		// abrimos el archivo de configuración
-		configuration.open (absolute_config_file);
+		if (absolute_config_file != NULL)
+			configuration.open (absolute_config_file);
+		else
+			configuration.open (config_file);
+
 		if (!configuration.is_open ())
 		{
-			perror ("open");
+			if (absolute_config_file != NULL)
+				fprintf (stderr, "open: %s: %s\n",
+					 absolute_config_file, strerror (errno));
+			else
+				fprintf (stderr, "open: %s: %s\n",
+					 config_file, strerror (errno));
 			exit (EXIT_FAILURE);
 		}
 
@@ -141,7 +153,7 @@ int main (int argc, char **argv)
 		configuration.open (config_file);
 		if (!configuration.is_open ())
 		{
-			perror ("open");
+			fprintf (stderr, "open: %s: %s\n", config_file, strerror (errno));
 			exit (EXIT_FAILURE);
 		}
 	}

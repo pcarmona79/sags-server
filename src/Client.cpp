@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/04/24 20:13:43 $
 //
 
 #include <cstring>
@@ -76,7 +76,7 @@ int Client::Send (void)
 			return -1; 
 		}
 
-		// cliente desconectandose
+		// cliente desconectándose
 		if (Sending->GetType () == Pckt::SessionDisconnect)
 			return -2;
 

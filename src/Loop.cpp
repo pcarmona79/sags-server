@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/04/24 20:13:43 $
 //
 
 #include <csignal>
@@ -180,7 +180,6 @@ void SelectLoop::Run (void)
 {
 	struct fditem *list;
 	struct timespec *tmout;
-	time_t acttime;
 	int select_output;
 	fd_set rd, wr;
 
@@ -207,10 +206,8 @@ void SelectLoop::Run (void)
 			continue;
 		}
 
-		time (&acttime);
 		if (tmout != NULL)
-			if (acttime >= last_add + timeout->tv_sec)
-				TimeoutEvent ();
+			TimeoutEvent ();
 
 		for (list = fdlist; list; list = list->next)
 		{
@@ -272,13 +269,17 @@ void SelectLoop::Remove (int owner, int fd)
 void SelectLoop::AddTimeout (int seconds)
 {
 	if (timeout != NULL)
-		delete timeout;
+	{
+		if (timeout->tv_sec != seconds)
+			delete timeout;
+		else
+			return;
+	}
 
 	timeout = new struct timespec;
 	timeout->tv_sec = seconds;
 	timeout->tv_nsec = 0;
 
-	time (&last_add);
 	Logs.Add (Log::Debug, "Timeout seted to %d seconds", seconds);
 }
 

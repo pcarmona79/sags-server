@@ -1,3 +1,14 @@
+2004-04-23  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* Version 0.1.1
+	* Adapted to autotools.
+	* Implemented a list to check the clients who are authenticating. It uses
+	the timeouts to check who clients would be disconnected.
+	* The default timeout has been changed to 15 secs.
+	* Now MD5 hashes are compared with strncmp.
+	* Fixed opening method of the configuration file.
+
+
 2004-04-21  Pablo Carmona Amigo  <kernel@dday.cl>
 
 	* Added a timeout checker for clients who don't authenticate. The

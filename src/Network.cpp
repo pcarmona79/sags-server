@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/04/24 20:13:43 $
 //
 
 #include <iostream>
@@ -40,7 +40,7 @@
 #include "Main.hpp"
 #include "Process.hpp"
 
-#define MAX_TIMEOUT 30
+#define CHECK_TIMEOUT 15
 
 Network::Network ()
 {
@@ -50,6 +50,7 @@ Network::Network ()
 	ClientList = NULL;
 	connections = 0;
 	sdlist = NULL;
+	checklist = NULL;
 	ssl_method = NULL;
 	ssl_context = NULL;
 }
@@ -58,6 +59,7 @@ Network::~Network ()
 {
 	Client *UnLink;
 	struct sditem *unlink;
+	struct checkcl *cl_unlink;
 
 	// la lista de clientes debe ser liberada
 	while (ClientList)
@@ -75,6 +77,14 @@ Network::~Network ()
 		delete unlink;
 	}
 
+	// la lista de clientes a chequear también debe ser liberada
+	while (checklist)
+	{
+		cl_unlink = checklist;
+		checklist = cl_unlink->next;
+		delete cl_unlink;
+	}
+	
 	// FIXME: esto da SIGSEGV
 	//if (ssl_context != NULL)
 	//	SSL_CTX_free (ssl_context);
@@ -363,8 +373,8 @@ int Network::AcceptConnection (int sd)
 			return -1;
 		}
 
-	// finalmente le damos 30 segundos para la autentificación
-	Application.AddTimeout (MAX_TIMEOUT);
+	// finalmente le damos CHECK_TIMEOUT segundos para la autentificación
+	AddWatch (Cl);
 
 	return 0;
 }
@@ -423,6 +433,7 @@ void Network::CloseConnection (int sd, bool send_disc)
 	if (Cl != NULL)
 	{
 		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN);
+		RemoveWatch (Cl);
 		if (send_disc)
 			Cl->Disconnect (); // no importa si falla
 	}
@@ -543,6 +554,53 @@ void Network::SendProcessLogs (Client *Cl)
 	}
 }
 
+void Network::AddWatch (Client *Cl)
+{
+	struct checkcl *newitem, *searched = checklist;
+
+	newitem = new struct checkcl;
+	newitem->timeout = Cl->GetTime ();
+	newitem->sd = Cl->ShowSocket ();
+	newitem->next = NULL;
+
+	if (searched)
+	{
+		// buscamos el último elemento
+		while (searched->next)
+			searched = searched->next;
+		searched->next = newitem;
+	}
+	else
+		checklist = newitem;  // lista estaba vacía
+
+	// un timeout de CHECK_TIMEOUT/3 asegura que un cliente no autenticado
+	// podrá estar a lo más 1.33*CHECK_TIMEOUT segundos conectado
+	Application.AddTimeout ((int)(CHECK_TIMEOUT / 3.0));
+}
+
+void Network::RemoveWatch (Client *Cl)
+{
+	struct checkcl *last = NULL, *searched = checklist;
+
+	while (searched)
+	{
+		if (searched->sd == Cl->ShowSocket ())
+		{
+			if (last)
+				last->next = searched->next;
+			else
+				checklist = searched->next;
+			delete searched;
+			break;
+		}
+		last = searched;
+		searched = searched->next;
+	}
+
+	if (checklist == NULL)
+		Application.DeleteTimeout ();
+}
+
 void Network::DropNotValidClients (void)
 {
 	Client *Cl;
@@ -554,13 +612,12 @@ void Network::DropNotValidClients (void)
 	{
 		if (!Cl->IsValid ())
 		{
-			if (actualtime > MAX_TIMEOUT - 1 + Cl->GetTime ())
+			if (actualtime >= CHECK_TIMEOUT + Cl->GetTime ())
 			{
 				Logs.Add (Log::Network | Log::Warning,
 					  "Dropping timeouted client connected from %s",
 					  Cl->ShowIP ());
 				CloseConnection (Cl->ShowSocket ());
-				Application.DeleteTimeout ();
 			}
 		}
 	}

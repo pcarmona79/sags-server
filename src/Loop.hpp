@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/04/24 20:13:43 $
 //
 
 #ifndef __LOOP_HPP__
@@ -56,7 +56,6 @@ protected:
 	fd_set reading;
 	fd_set writing;
 	struct timespec *timeout;
-	time_t last_add;
 	int maxd;
 	struct fditem *fdlist;
 	sigset_t sigmask;

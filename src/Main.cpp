@@ -19,9 +19,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.5 $
+// $Date: 2004/04/24 20:13:43 $
 //
+
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <iostream>
 #include <cstdlib>
@@ -167,7 +171,11 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 					if (usr != NULL)
 					{
 						md5hash = md5_password_hash (Pkt->GetData ());
-						if (!strcmp (usr->hash, md5hash))
+						int retval = strncmp (usr->hash, md5hash,
+								      strlen (md5hash));
+						//Logs.Add (Log::Debug, "Checking \"%s\" <%d> \"%s\"",
+						//	  usr->hash, retval, md5hash);
+						if (!retval)
 						{
 							// usuario exitosamente autenticado
 							Cl->SetStatus (Usr::Real);
@@ -177,7 +185,7 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 								  Cl->GetUsername ());
 
 							// sacamos el timeout
-							DeleteTimeout ();
+							Server.RemoveWatch (Cl);
 						}
 						else
 							Logs.Add (Log::Notice,
@@ -323,7 +331,7 @@ struct user *Main::FindUser (const char *name)
 
 void Main::PrintUsage (void)
 {
-	std::cerr << "Usage: sags [-D] <config-file>" << std::endl;
+	std::cerr << "Usage: " PACKAGE " [-D] <config-file>" << std::endl;
 	std::cerr << "       -D: debug mode" << std::endl;
 	exit (EXIT_FAILURE);
 }
