@@ -3,7 +3,7 @@
 bin_PROGRAMS = sags-passwd
 
 sags_passwd_SOURCES = \
-		     sags-passwd.c
+		     sags-passwd.cpp
 
 EXTRA_DIST = \
 	     sagschk

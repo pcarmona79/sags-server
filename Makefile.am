@@ -2,4 +2,10 @@
 
 SUBDIRS = src tools doc
 
-EXTRA_DIST = TODO
+sagsmandir = @PACKAGE_MAN_DIR@
+sagsman_MANS = sags.1 sags-passwd.1
+
+EXTRA_DIST = \
+	     sags.spec         \
+	     TODO              \
+	     $(sagsman_MANS)

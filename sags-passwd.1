@@ -1,0 +1,54 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SAGS-PASSWD 1 "jan 17, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sags-passwd \- SAGS Users File Administrator
+.SH SYNOPSIS
+.B sags-passwd
+[\fB-\fP]<\fBc\fP|\fBl\fP|\fBd\fP|\fBnwp\fP|\fBh\fP> \fBusers_file\fP [\fBuser_name\fP]
+.SH DESCRIPTION
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBsags-passwd\fP allow edit your SAGS's users file. You can add, edit,
+delete and list the users in the file \fBusers_file\fP.
+.PP
+SAGS (Secure Administrator of Game Servers) is a client-server
+application to administer game servers on GNU/Linux using a SSL
+connection.
+
+.SH OPTIONS
+.TP
+.B \-c
+Add a user to \fBusers_file\fP.
+.TP
+.B \-l
+List the users.
+.TP
+.B \-d
+Deletes a user.
+.TP
+.B \-nwp
+Edit a user. Use \fB\-n\fP to change the username, \fB\-w\fP to change
+the password and \fB\-p\fP to change the allowed processes.
+.
+.TP
+.B \-h
+Gives help.
+
+.SH AUTHOR
+This manual page was written by Pablo Carmona Amigo <pcarm@users.sourceforge.net>.

@@ -1,0 +1,43 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SAGS 1 "jan 17, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sags \- Secure Administrator of Game Servers
+.SH SYNOPSIS
+.B sags
+[\fB-D\fP] [\fBconfig_file\fP]
+.SH DESCRIPTION
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+SAGS (Secure Administrator of Game Servers) is a client-server
+application to administer game servers on GNU/Linux using a SSL
+connection.
+.PP
+\fBsags\fP is the server which manages the game servers and give chat
+support for connected users.
+.PP
+It works like a system daemon and read the configuration options from
+\fBconfig_file\fP or, by default, from \fB/etc/sags/sags.conf\fP.
+
+.SH OPTIONS
+.TP
+.B -D
+Run program in debug mode.
+
+.SH AUTHOR
+This manual page was written by Pablo Carmona Amigo <pcarm@users.sourceforge.net>.

@@ -1,3 +1,25 @@
+2005-01-17  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* tools/sags-passwd.cpp:
+		- New file.
+		- Improved version of sags-passwd.c now permits better managing
+		of SAGS users file.
+
+	* src/Utils.cpp:
+		- Fixed bug in encode_password(). Comparation between unsigned
+		integer types don't work when password is empty.
+
+	* sags.1:
+	* sags-passwd.1:
+		- New manpages for SAGS server programs.
+
+	* sags.spec.in:
+		- New file to add RPM support.
+
+	* src/Channel.cpp:
+		- Adding private messaging in chat mode.
+
+
 2004-08-29  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Released 0.4.1 version.

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.9 $
-// $Date: 2004/08/30 00:25:46 $
+// $Revision: 1.10 $
+// $Date: 2005/01/17 23:13:00 $
 //
 
 #include "Channel.hpp"
@@ -395,7 +395,48 @@ int Channel::MessageChannel (Client *Cl, Packet *Pkt)
 
 int Channel::MessagePrivate (Client *Cl, Packet *Pkt)
 {
-	return -1;
+	int t, start, end;
+	char *newmsg = NULL, *hdr = NULL, *to_user = NULL;
+	struct channel_user *finded = NULL;
+
+	if (Pkt->GetIndex () != Session::MainIndex)
+		return -1;
+
+	// Obtenemos el usuario al que va dirigido el mensaje
+	// leyendo la cabecera "To:"
+	hdr = ExtractHeader (Pkt->GetData ());
+	t = SearchHeaderElement (hdr, "To:");
+
+	// extraemos el nombre
+	// la cabecera tiene un formato como "To: nombre\n"
+	for (start = t; hdr[start] != ' ' && hdr[start] != '\0'; ++start)
+		;
+	for (end = start; hdr[end] != '\n' && hdr[end] != '\0'; ++end)
+		;
+	to_user = substring (hdr, start + 1, end - 1);
+
+	// buscamos al usuario
+	struct channel_user searched (to_user);
+	finded = Users.Find (searched);
+
+	// TODO: se deberia responder con un error de que el usuario
+	//       no existe en el canal
+	if (finded == NULL)
+		return -1;
+
+	// esta funcion nos sirve ya que agrega una cabecera "From:"
+	newmsg = GenerateChannelMessage (Cl->GetUsername (), Pkt->GetData ());
+
+	if (newmsg == NULL)
+		return -1;
+
+	// replicamos el mensaje al usuario al que va dirigido
+	finded->client->AddBuffer (Pkt->GetIndex (), Pkt->GetCommand (), newmsg);
+	Application.Add (Owner::Client | Owner::Send, finded->client->ShowSocket ());
+
+	delete[] newmsg;
+
+	return 0;
 }
 
 // definimos el objeto

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Utils.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/17 08:13:23 $
+// $Revision: 1.4 $
+// $Date: 2005/01/17 23:13:02 $
 //
 
 #include <iostream>
@@ -157,12 +157,12 @@ char *md5_password_hash (const char *password)
 char *encode_password (const char *password)
 {
 	char *encoded;
-	unsigned int i;
+	int i;
 
 	encoded = new char [strlen (password) + 1];
 	memset (encoded, 0, strlen (password) + 1);
 
-	for (i = 0; i <= strlen (password) - 1; ++i)
+	for (i = 0; i <= (int) strlen (password) - 1; ++i)
 		encoded[i] = password[i] ^ 0xAA;
 
 	return encoded;

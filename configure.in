@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([sags], 0.4.1)
+AC_INIT([sags], 0.4.2)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 
@@ -41,8 +41,9 @@ fi
 
 dnl Set PACKAGE DATA & DOC DIR
 packagedatadir=share/${PACKAGE}
-packagedocdir=doc/${PACKAGE}
+packagedocdir=share/doc/${PACKAGE}
 packagesysconfdir=/etc/${PACKAGE}
+packagemandir=share/man/man1
 
 dnl Subst PACKAGE_DATA_DIR.
 NO_PREFIX_PACKAGE_DATA_DIR="${packagedatadir}"
@@ -56,17 +57,25 @@ AC_SUBST(NO_PREFIX_PACKAGE_DOC_DIR)
 PACKAGE_DOC_DIR="${packageprefix}/${packagedocdir}"
 AC_SUBST(PACKAGE_DOC_DIR)
 
+dnl Subst PACKAGE_MAN_DIR.
+NO_PREFIX_PACKAGE_MAN_DIR="${packagemandir}"
+AC_SUBST(NO_PREFIX_PACKAGE_MAN_DIR)
+PACKAGE_MAN_DIR="${packageprefix}/${packagemandir}"
+AC_SUBST(PACKAGE_MAN_DIR)
+
 dnl Subst PACKAGE_SYSCONF_DIR.
 PACKAGE_SYSCONF_DIR="${packagesysconfdir}"
 AC_SUBST(PACKAGE_SYSCONF_DIR)
 
 AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${packageprefix}/${packagedatadir}", [Data dir])
 AC_DEFINE_UNQUOTED(PACKAGE_DOC_DIR, "${packageprefix}/${packagedocdir}", [Documentation dir])
+AC_DEFINE_UNQUOTED(PACKAGE_MAN_DIR, "${packageprefix}/${packagemancdir}", [Mans dir])
 AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}", [Source dir])
 AC_DEFINE_UNQUOTED(PACKAGE_SYSCONF_DIR, "${packagesysconfdir}", [System config dir])
 
 AC_OUTPUT([
 Makefile
+sags.spec
 src/Makefile
 tools/Makefile
 doc/Makefile
