@@ -1,3 +1,24 @@
+2004-06-19  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Client.cpp:
+		- SetAuthorizedProcess() now first adds any process authorized
+		and then send a Session::Authorized packet to the client.
+
+	* src/Config.cpp:
+		- In GetOptionsFromFile() we use clear() member of ifstream
+		object to delete the EOF bit after reopen the configuration
+		file.
+
+	* src/Main.cpp:
+		- AddAuthorizedProcesses() now adds any valid process index. The
+		Client class checks if it's a valid process before to send a
+		Session::Authorized packet.
+
+	* src/Process.cpp:
+		- Launch() now send a Session::Authorized packet after send a
+		Session::ProcessStart packet.
+
+
 2004-06-17  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Main.hpp:

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.16 $
-// $Date: 2004/06/18 00:53:23 $
+// $Revision: 1.17 $
+// $Date: 2004/06/19 23:58:08 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -461,7 +461,7 @@ void Main::AddAuthorizedProcesses (Client *Cl, struct user *usr)
 	{
 		idx = (int) strtol (pcs[i], (char **)NULL, 10);
 
-		if (ProcMaster.IsProcess (idx) || idx == 0)
+		if (idx >= 0 && idx <= 252)
 			Cl->SetAuthorizedProcess (idx);
 	}
 

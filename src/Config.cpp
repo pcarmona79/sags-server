@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.6 $
+// $Date: 2004/06/19 23:58:08 $
 //
 
 #include <iostream>
@@ -64,7 +64,12 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 	{
 		// reutilizar el archivo
 		if (ConfigFile != NULL)
+		{
 			ConfigFile->open (FileName);
+
+			// archivo reabierto queda en EOF
+			ConfigFile->clear ();
+		}
 	}
 
 	for (i = 1; !ConfigFile->eof(); ++i)
