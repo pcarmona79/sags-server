@@ -1,5 +1,13 @@
-New version 0.4.0
+New version 0.4.1
 -----------------
+
+This release contains the following change:
+
+1) The users list and joins messages are now sent with user's status.
+
+
+Version 0.4.0
+-------------
 
 This new version include the following changes:
 

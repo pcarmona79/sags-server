@@ -1,5 +1,7 @@
 2004-08-29  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
+	* Released 0.4.1 version.
+
 	* src/Channel.cpp:
 		- The user list is now sent with user's status.
 		- The username is sent with status string when a user joins the
