@@ -1,3 +1,9 @@
+2004-08-11  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Packet.hpp:
+		- Added two packet types to manage the channel topic.
+
+
 2004-08-07  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Channel.hpp:
