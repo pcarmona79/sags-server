@@ -2,6 +2,13 @@
 
 	* doc/sags.conf.example:
 		- Added text indicating usage of files with full path.
+	
+	* doc/configuration_ES.html:
+		- New file. It will be contains instructions for configuration
+		of SAGS Server.
+	
+	* doc/protocol_ES.html:
+		- This is protocol_ES.txt changed to HTML format.
 
 
 2004-06-06  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>

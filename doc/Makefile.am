@@ -3,7 +3,8 @@
 sags_docsdir = @PACKAGE_DOC_DIR@
 
 sags_docs_DATA = \
-		 protocol_ES.txt   \
+		 configuration_ES.html \
+		 protocol_ES.html      \
 		 sags.conf.example
 
 EXTRA_DIST = $(sags_docs_DATA)

@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+</head>
+<body>
+<h1>Protocolo de Red SAGS versión 1<br>
+</h1>
+<p>Es un protocolo binario que se transmite por sobre un enlace SSL
+para
+proveer una mayor seguridad de los datos enviados.</p>
+<p>Los datos se transmiten en forma de paquetes. Este paquete consta de
+una cabecera y un mensaje. La cabecera consta a su vez de un campo de
+16
+bits para el tipo de mensaje, otro campo de 6 bits para la secuencia
+del paquete, y un último campo de 10 bits para indicar el tamaño del
+mensaje. El mensaje puede o no existir dependiendo del número de
+secuencia. Si este es 0, el paquete no posee un mensaje y si es mayor
+indica la sencuencia dentro de una lista de paquetes.</p>
+<p>Cuando se envía una lista de paquetes ésto son marcados con una
+secuencia en orden descendente tomando como primer valor el número de
+paquetes. El último paquete de la lista lleva la secuencia 1 (no debe
+ser 0 ya que así indicaría un paquete vacío).</p>
+<p>Según los campos de bits usados en la cabecera se puede conseguir un
+paquete de un tamaño máximo de 1024 bytes. Usando la secuencia se
+pueden enviar hasta 64 paquetes, por lo que se pueden enviar hasta 64
+KB
+de información usando este protocolo.</p>
+<h2>Tipos de mensajes</h2>
+1. Mensajes de sesión<br>
+<br>
+<table style="text-align: left; width: 767px; height: 38px;" border="1"
+ cellspacing="2" cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">SessionConsoleInput</td>
+      <td style="vertical-align: top;">0x0001 </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionConsoleOutput</td>
+      <td style="vertical-align: top;">0x0002</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionConsoleSuccess</td>
+      <td style="vertical-align: top;">0x0003</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionConsoleNeedLogs</td>
+      <td style="vertical-align: top;">0x0004</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionConsoleLogs</td>
+      <td style="vertical-align: top;">0x0005</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionProcessExits</td>
+      <td style="vertical-align: top;">0x0006</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionProcessStart</td>
+      <td style="vertical-align: top;">0x0007</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionDisconnect</td>
+      <td style="vertical-align: top;">0x000A</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SessionDrop</td>
+      <td style="vertical-align: top;">0x000B</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+2. Mensajes de autenticación<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">AuthUsername</td>
+      <td style="vertical-align: top;">0xFD00</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AuthRandomHash</td>
+      <td style="vertical-align: top;">0xFD01</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AuthPassword</td>
+      <td style="vertical-align: top;">0xFD02</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AuthSuccessful</td>
+      <td style="vertical-align: top;">0xFD03</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+3. Mensajes de sincronización<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">SyncHello</td>
+      <td style="vertical-align: top;">0xFE00</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SyncVersion</td>
+      <td style="vertical-align: top;">0xFE01</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+4. Mensajes de error<br>
+<br>
+Desconetan:<br>
+<table style="text-align: left; width: 100%;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">ErrorServerFull</td>
+      <td style="vertical-align: top;">0xFF00</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ErrorNotValidVersion</td>
+      <td style="vertical-align: top;">0xFF01</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ErrorLoginFailed</td>
+      <td style="vertical-align: top;">0xFF02 </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ErrorAuthTimeout</td>
+      <td style="vertical-align: top;">0xFF03</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"> ErrorServerQuit</td>
+      <td style="vertical-align: top;">0xFF04</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+No desconectan:<br>
+<table style="text-align: left; width: 100%;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">ErrorBadProcess</td>
+      <td style="vertical-align: top;">0xFF80</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ErrorCantWriteToProcess</td>
+      <td style="vertical-align: top;">0xFF81</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ErrorGeneric</td>
+      <td style="vertical-align: top;">0xFFFF</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+&nbsp; <br>
+</body>
+</html>
