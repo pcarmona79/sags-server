@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/04/24 20:13:43 $
+// $Revision: 1.4 $
+// $Date: 2004/05/06 00:19:04 $
 //
 
 #include <cstring>
@@ -28,6 +28,7 @@
 
 #include "Client.hpp"
 #include "Log.hpp"
+#include "Main.hpp"
 
 Client::Client (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t sslen)
 		: Protocol (ctx, sd, ss, sslen)
@@ -61,36 +62,35 @@ int Client::Send (void)
 	Packet *Sending = Outgoing;
 	int bytes = 0, total = 0;
 
-	while (Outgoing)
+	bytes = SendPacket (Sending);
+
+	if (bytes < 0)
 	{
-		bytes = SendPacket (Sending);
+		// paquete no se envió
+		Logs.Add (Log::Client | Log::Warning,
+			  "Failed to send packet: %s",
+			  strerror (errno));
 
-		if (bytes < 0)
-		{
-			// paquete no se envió
-			Logs.Add (Log::Client | Log::Warning,
-				  "Failed to send packet: %s",
-				  strerror (errno));
-
-			// esto causará que el cliente sea removido
-			return -1; 
-		}
-
-		// cliente desconectándose
-		if (Sending->GetType () == Pckt::SessionDisconnect)
-			return -2;
-
-		// avanzamos la lista en un paquete
-		// y borramos el paquete usado
-		total += bytes;
-		Outgoing = Outgoing->Next;
-		delete Sending;
-		Sending = Outgoing;
+		// esto causará que el cliente sea removido
+		return -1; 
 	}
+
+	// cliente desconectándose
+	if (Sending->GetType () == Pckt::SessionDisconnect)
+		return -2;
+
+	// avanzamos la lista en un paquete
+	// y borramos el paquete usado
+	total += bytes;
+	Outgoing = Outgoing->Next;
+	delete Sending;
 
 	Logs.Add (Log::Client | Log::Debug,
 		  "%d bytes sent to %s",
 		  total, ShowIP ());
+
+	if (Outgoing == NULL)
+		Application.Remove (Owner::Client | Owner::Send, ShowSocket ());
 
 	return bytes;
 }

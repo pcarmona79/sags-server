@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Protocol.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/05/06 00:19:04 $
 //
 
 #ifndef __PROTOCOL_HPP__
@@ -39,7 +39,7 @@ protected:
 	bool drop;
 	SSL *ssl;
 	int socketd;
-	char address[INET6_ADDRSTRLEN];
+	char address[INET6_ADDRSTRLEN + 9];
 
 public:
 	Protocol (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t sslen);

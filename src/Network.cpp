@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/04/24 20:13:43 $
+// $Revision: 1.4 $
+// $Date: 2004/05/06 00:19:04 $
 //
 
 #include <iostream>
@@ -203,7 +203,7 @@ void Network::Start (void)
 	int error, sd, success = 0;
 	const int reuseaddr = 1;
 	struct addrinfo hints, *res, *results;
-	char address[INET6_ADDRSTRLEN];
+	char address[INET6_ADDRSTRLEN + 1];
 
 	Logs.Add (Log::Network | Log::Info,
 		  "Connections limited to %d", maxclients->value);
@@ -382,12 +382,12 @@ int Network::AcceptConnection (int sd)
 int Network::DropClient (Client *Cl)
 {
 	int sd = 0;
-	char addr[INET6_ADDRSTRLEN + 1];
+	char addr[INET6_ADDRSTRLEN + 9];
 
 	if (Cl != NULL)
 	{
 		sd = Cl->ShowSocket ();
-		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN);
+		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
 	}
 	else
 		return -1;
@@ -426,13 +426,13 @@ int Network::DropConnection (int sd)
 void Network::CloseConnection (int sd, bool send_disc)
 {
 	Client *Cl;
-	char addr[INET6_ADDRSTRLEN + 1];
+	char addr[INET6_ADDRSTRLEN + 9];
 
 	// encontrar el cliente y desconectarlo
 	Cl = FindClient (sd);
 	if (Cl != NULL)
 	{
-		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN);
+		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
 		RemoveWatch (Cl);
 		if (send_disc)
 			Cl->Disconnect (); // no importa si falla
@@ -507,8 +507,6 @@ int Network::SendData (int sd)
 		CloseConnection (sd, false);
 	else if (bytes < 0)
 		CloseConnection (sd);
-
-	Application.Remove (Owner::Client | Owner::Send, sd);
 
 	return bytes;
 }

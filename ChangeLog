@@ -1,3 +1,11 @@
+2004-05-05  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* Version 0.1.2.
+	* Removed --posix from tarballs.
+	* Now the packets are sent one by one to the client, not all the list.
+	* The IP's are show with the port
+
+
 2004-04-23  Pablo Carmona Amigo  <kernel@dday.cl>
 
 	* Version 0.1.1
