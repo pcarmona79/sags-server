@@ -5,6 +5,8 @@
 		- Added integer to store the last value returned by the process.
 		- Added info "LastValueReturned".
 
+	* Released 0.3.2 version.
+
 
 2004-06-30  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
