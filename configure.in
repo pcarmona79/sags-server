@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([sags], 0.3.0)
+AC_INIT([sags], 0.3.1)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 
@@ -12,20 +12,20 @@ AC_PROG_LIBTOOL
 dnl Checks for libraries.
 AC_CHECK_LIB([ssl], [main], ,
 	AC_MSG_ERROR([
-		OpenSSL library not found!
-		Install it before compile this program.]))
+	OpenSSL library not found!
+	Install it before compile this program.]))
 AC_CHECK_HEADERS([openssl/ssl.h openssl/err.h openssl/md5.h], ,
 	AC_MSG_ERROR([
-		Basic OpenSSL headers not found!
-		Without this headers the program can't be compiled.]))
+	Basic OpenSSL headers not found!
+	Without this headers the program can't be compiled.]))
 
 AC_CHECK_LIB([util], [forkpty], ,
 	AC_MSG_ERROR([
-		Without this function the program can't works.]))
+	Without this function the program can't works.]))
 
 AC_CHECK_FUNCS([memset select getaddrinfo getnameinfo freeaddrinfo gai_strerror], ,
 	AC_MSG_ERROR([
-		Without this functions the program can't be compiled.]))
+	Without this functions the program can't be compiled.]))
 
 dnl Checks for Additional stuffs.
 

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.17 $
-// $Date: 2004/06/19 23:58:08 $
+// $Revision: 1.18 $
+// $Date: 2004/06/28 21:30:06 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -356,6 +356,51 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 				// liberamos el espacio asignado
 				delete[] bufinfo;
 				bufinfo = NULL;
+			}
+			break;
+		}
+		return -1;
+
+	case Session::ProcessKill:
+
+		if (Cl->IsAuthorized (Pkt->GetIndex ()))
+		{
+			if (!ProcMaster.KillProcess (Pkt->GetIndex ()))
+			{
+				snprintf (serv_idx, 3, "%02X", Pkt->GetIndex ());
+				Cl->Add (new Packet (Error::Index, Error::ProcessNotKilled,
+						     1, strlen (serv_idx), serv_idx));
+				Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+			}
+			break;
+		}
+		return -1;
+
+	case Session::ProcessLaunch:
+
+		if (Cl->IsAuthorized (Pkt->GetIndex ()))
+		{
+			if (!ProcMaster.LaunchProcess (Pkt->GetIndex ()))
+			{
+				snprintf (serv_idx, 3, "%02X", Pkt->GetIndex ());
+				Cl->Add (new Packet (Error::Index, Error::ProcessNotLaunched,
+						     1, strlen (serv_idx), serv_idx));
+				Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+			}
+			break;
+		}
+		return -1;
+
+	case Session::ProcessRestart:
+
+		if (Cl->IsAuthorized (Pkt->GetIndex ()))
+		{
+			if (!ProcMaster.RestartProcess (Pkt->GetIndex ()))
+			{
+				snprintf (serv_idx, 3, "%02X", Pkt->GetIndex ());
+				Cl->Add (new Packet (Error::Index, Error::ProcessNotRestarted,
+						     1, strlen (serv_idx), serv_idx));
+				Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 			}
 			break;
 		}

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.8 $
-// $Date: 2004/06/22 02:42:30 $
+// $Revision: 1.9 $
+// $Date: 2004/06/28 21:30:06 $
 //
 
 #include <iostream>
@@ -632,4 +632,9 @@ char* Process::GetInfo (void)
 
 	// no olvidar liberar la memoria usada
 	return process_info;
+}
+
+bool Process::IsRunning (void)
+{
+	return !dead;
 }

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/20 19:17:00 $
+// $Revision: 1.5 $
+// $Date: 2004/06/28 21:30:06 $
 //
 
 #ifndef __PACKET_HPP__
@@ -50,7 +50,10 @@ namespace Session
 		ProcessGetInfo  = 0x08,
 		ProcessInfo     = 0x09,
 		ProcessExits    = 0x0A,
-		ProcessStart    = 0x0B
+		ProcessStart    = 0x0B,
+		ProcessKill	= 0x0C,
+		ProcessLaunch   = 0x0D,
+		ProcessRestart  = 0x0E
 	} Type;
 }
 
@@ -85,16 +88,19 @@ namespace Error
 	typedef enum
 	{
 		// desconectan:
-		ServerFull         = 0x00,
-		NotValidVersion    = 0x01,
-		LoginFailed        = 0x02,
-		AuthTimeout        = 0x03,
-		ServerQuit         = 0x04,
+		ServerFull          = 0x00,
+		NotValidVersion     = 0x01,
+		LoginFailed         = 0x02,
+		AuthTimeout         = 0x03,
+		ServerQuit          = 0x04,
 
 		// no desconectan:
-		BadProcess         = 0x80,
-		CantWriteToProcess = 0x81,
-		Generic            = 0xFF
+		BadProcess          = 0x80,
+		CantWriteToProcess  = 0x81,
+		ProcessNotKilled    = 0x82,
+		ProcessNotLaunched  = 0x83,
+		ProcessNotRestarted = 0x84,
+		Generic             = 0xFF
 	} Type;
 }
 

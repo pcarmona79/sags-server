@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/ProcTree.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/18 00:53:23 $
+// $Revision: 1.5 $
+// $Date: 2004/06/28 21:30:06 $
 //
 
 #include "ProcTree.hpp"
@@ -208,12 +208,47 @@ char *ProcTree::GetProcessInfo (unsigned int idx)
 		return NULL;
 
 	return ProcList[idx - 1]->GetInfo ();
-
 }
 
 bool ProcTree::IsProcess (unsigned int idx)
 {
 	return (idx >= 1 && idx <= ProcList.GetCount ());
+}
+
+int ProcTree::KillProcess (unsigned int idx)
+{
+	if (idx < 1 && idx > ProcList.GetCount ())
+		return -1;
+
+	if (!ProcList[idx - 1]->IsRunning ())
+		return -2;
+
+	return ProcList[idx - 1]->Kill ();
+}
+
+int ProcTree::LaunchProcess (unsigned int idx)
+{
+	if (idx < 1 && idx > ProcList.GetCount ())
+		return -1;
+
+	if (ProcList[idx - 1]->IsRunning ())
+		return -2;
+
+	return ProcList[idx - 1]->Launch ();
+}
+
+int ProcTree::RestartProcess (unsigned int idx)
+{
+	if (idx < 1 && idx > ProcList.GetCount ())
+		return -1;
+
+	if (ProcList[idx - 1]->IsRunning ())
+	{
+		ProcList[idx - 1]->Kill ();
+		ProcList[idx - 1]->WaitExit ();
+	}
+
+	return ProcList[idx - 1]->Launch ();
 }
 
 // definimos el objeto

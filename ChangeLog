@@ -1,3 +1,20 @@
+2004-06-28  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Packet.hpp:
+		- Added new packet types.
+
+	* src/Process.hpp:
+	* src/Process.cpp:
+		- Added method to check if the process is running.
+
+	* src/ProcTree.hpp:
+	* src/ProcTree.cpp:
+		- Three new method to kill, start and restart a process.
+
+	* src/Main.cpp:
+		- Manage new packet types to control a process.
+
+
 2004-06-23  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Released SAGS Server 0.3.0.

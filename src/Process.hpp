@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.hpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.4 $
+// $Date: 2004/06/28 21:30:06 $
 //
 
 #ifndef __PROCESS_HPP__
@@ -83,6 +83,7 @@ public:
 	int SendSignal (int sig);
 	void Restart (void);
 	char *GetInfo (void);
+	bool IsRunning (void);
 };
 
 #endif // __PROCESS_HPP__

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/ProcTree.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/06/17 08:13:23 $
+// $Revision: 1.3 $
+// $Date: 2004/06/28 21:30:06 $
 //
 
 #ifndef __PROCTREE_HPP__
@@ -49,6 +49,9 @@ public:
 	int WriteToProcess (unsigned int idx, char *buffer);
 	char *GetProcessInfo (unsigned int idx);
 	bool IsProcess (unsigned int idx);
+	int KillProcess (unsigned int idx);
+	int LaunchProcess (unsigned int idx);
+	int RestartProcess (unsigned int idx);
 };
 
 extern ProcTree ProcMaster;
