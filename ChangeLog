@@ -1,3 +1,21 @@
+2004-08-07  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Channel.hpp:
+	* src/Channel.cpp:
+		- New files.
+		- Contains new object to manage chat messages.
+
+	* src/Main.cpp:
+		- Manage new chat packets.
+
+	* src/Network.cpp:
+		- Desconnecting functions now removes the client from general
+		channel.
+
+	* src/Packet.hpp:
+		- New packets type for chat channel.
+
+
 2004-07-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Process.hpp:
