@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.11 $
-// $Date: 2005/02/03 22:10:32 $
+// $Revision: 1.12 $
+// $Date: 2005/02/10 21:55:05 $
 //
 
 #ifndef __PACKET_HPP__
@@ -118,6 +118,7 @@ namespace Error
 		ProcessNotLaunched   = 0x83,
 		ProcessNotRestarted  = 0x84,
 		MaintenanceDenied    = 0x85,
+		ChatUserDontExists   = 0x86,
 		Generic              = 0xFF
 	} Type;
 }

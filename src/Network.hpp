@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.hpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/08/17 02:30:43 $
+// $Revision: 1.8 $
+// $Date: 2005/02/10 21:55:05 $
 //
 
 #ifndef __NETWORK_HPP__
@@ -75,6 +75,7 @@ private:
 	List<struct checkcl> checklist;
 	SSL_METHOD *ssl_method;
 	SSL_CTX *ssl_context;
+	int current_maxclients;
 
 	Client *AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *address,
 			   socklen_t sslen);
@@ -88,6 +89,7 @@ public:
 	~Network ();
 
 	void AddOptions (void);
+	void CheckOptions (void);
 	void Start (void);
 	void Shutdown (void);
 
@@ -107,6 +109,7 @@ public:
 	void RemoveWatch (Client *Cl);
 	void DropNotValidClients (void);
 	void DropDuplicatedClients (Client *Search);
+	void DropExtraClients (void);
 };
 
 extern Network Server;

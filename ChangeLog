@@ -1,3 +1,23 @@
+2005-02-10  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Channel.cpp (MessagePrivate): Now we send a
+	Error::ChatUserDontExists packet to inform the user when trying to
+	send a private message to a non-existent user in the channel.
+
+	* src/Main.cpp (SignalEvent): Check network options when program
+	receives a SIGHUP signal.
+
+	* src/Network.cpp, src/Network.hpp: [current_maxclients]: New var
+	to save current value of MaxClients option.
+	[maxclients->value]: Now it is used as unsigned int type.
+	(CheckOptions): Check MaxClients option change.
+	(Start): Saves current value of MaxClients option to recheck it
+	later.
+	(DropExtraClients): Disconnect extra clients which exceeds
+	MaxClients option.
+
+	* src/Packet.hpp [Error::ChatUserDontExists]: New error packet.
+
 2005-02-05  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* tools/sags-passwd.cpp:

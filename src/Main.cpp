@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.25 $
-// $Date: 2005/02/03 22:10:32 $
+// $Revision: 1.26 $
+// $Date: 2005/02/10 21:55:03 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -72,6 +72,9 @@ int Main::SignalEvent (int sig)
 
 			Logs.Add (Log::Notice, "Reading users file");
 			Application.LoadUsers ();
+
+			Logs.Add (Log::Notice, "Checking network");
+			Server.CheckOptions ();
 
 			Logs.Add (Log::Notice, "Checking processes");
 			ProcMaster.Check ();

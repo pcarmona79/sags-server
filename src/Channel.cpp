@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.10 $
-// $Date: 2005/01/17 23:13:00 $
+// $Revision: 1.11 $
+// $Date: 2005/02/10 21:55:00 $
 //
 
 #include "Channel.hpp"
@@ -419,10 +419,13 @@ int Channel::MessagePrivate (Client *Cl, Packet *Pkt)
 	struct channel_user searched (to_user);
 	finded = Users.Find (searched);
 
-	// TODO: se deberia responder con un error de que el usuario
-	//       no existe en el canal
 	if (finded == NULL)
-		return -1;
+	{
+		// el usuario no existe en el canal
+		Cl->Add (new Packet (Error::Index, Error::ChatUserDontExists));
+		Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+		return 0;
+	}
 
 	// esta funcion nos sirve ya que agrega una cabecera "From:"
 	newmsg = GenerateChannelMessage (Cl->GetUsername (), Pkt->GetData ());

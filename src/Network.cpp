@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.13 $
-// $Date: 2004/08/19 01:32:39 $
+// $Revision: 1.14 $
+// $Date: 2005/02/10 21:55:04 $
 //
 
 #include <iostream>
@@ -50,6 +50,7 @@ Network::Network ()
 	certificate = NULL;
 	ssl_method = NULL;
 	ssl_context = NULL;
+	current_maxclients = 0;
 }
 
 Network::~Network ()
@@ -105,6 +106,24 @@ void Network::AddOptions (void)
 	certificate = Config.Add (Conf::String, "Network", "CertificateFile", "sags.pem");
 }
 
+void Network::CheckOptions (void)
+{
+	// comprobamos si cambió el número de clientes máximo
+	if (maxclients->value != current_maxclients)
+	{
+		Logs.Add (Log::Network | Log::Info,
+			  "Connections limited to %u", (unsigned int) maxclients->value);
+
+		// guardamos maxclients para su posterior comprobación
+		current_maxclients = maxclients->value;
+
+		// desconectamos clientes extras
+		Logs.Add (Log::Network | Log::Notice,
+			  "Checking extra clients");
+		DropExtraClients ();
+	}
+}
+
 void Network::Start (void)
 {
 	int error, sd, success = 0;
@@ -113,7 +132,10 @@ void Network::Start (void)
 	char address[INET6_ADDRSTRLEN + 1];
 
 	Logs.Add (Log::Network | Log::Info,
-		  "Connections limited to %d", maxclients->value);
+		  "Connections limited to %u", (unsigned int) maxclients->value);
+
+	// guardamos maxclients para su posterior comprobación
+	current_maxclients = maxclients->value;
 
 	memset (&hints, 0, sizeof (hints));
 	hints.ai_family = PF_UNSPEC;
@@ -531,6 +553,24 @@ void Network::DropDuplicatedClients (Client *Search)
 					 Error::LoggedFromOtherPlace);
 			i = -1;
 			maximus = ClientList.GetCount ();
+		}
+	}
+}
+
+void Network::DropExtraClients (void)
+{
+	Client *Cl = NULL;
+
+	while (ClientList.GetCount () > (unsigned int) maxclients->value)
+	{
+		Cl = ClientList[ClientList.GetCount () - 1];
+		if (Cl != NULL)
+		{
+			Logs.Add (Log::Network | Log::Notice,
+				  "Dropping extra client \"%s\" connected from %s",
+				  Cl->GetUsername (), Cl->ShowIP ());
+			CloseConnection (Cl->ShowSocket (), Error::Index,
+					 Error::ServerFull);
 		}
 	}
 }
