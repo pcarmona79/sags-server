@@ -23,9 +23,15 @@ The major features are:
 
  - It uses the OpenSSL libraries for network communication.
 
- - It can restart the process if it dies.
+ - Manages multiples process of game servers.
 
- - Stores a log of the process. It can be sent later to the clients.
+ - It can restart a process if it dies.
+
+ - Stores a log for every managed process. It can be sent later to the
+   clients.
+
+ - New format of users file add the indexes of allowed processes for a
+   user.
 
 Actually the server runs only on Linux because I don't have another SO
 to test it (I'm testing on Debian Sid and Fedora Core 1), but I think it
