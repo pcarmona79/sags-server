@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.hpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/28 21:30:06 $
+// $Revision: 1.5 $
+// $Date: 2004/07/21 00:10:24 $
 //
 
 #ifndef __PROCESS_HPP__
@@ -61,6 +61,7 @@ private:
 
 	int num_start;
 	time_t last_start;
+	int last_value_returned;
 
 public:
 	Process (int idx, int fd = 0);

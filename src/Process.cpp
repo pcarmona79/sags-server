@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.10 $
-// $Date: 2004/06/30 03:44:26 $
+// $Revision: 1.11 $
+// $Date: 2004/07/21 00:10:24 $
 //
 
 #include <iostream>
@@ -73,6 +73,7 @@ Process::Process (int idx, int fd)
 
 	num_start = 0;
 	memset (&last_start, 0, sizeof (last_start));
+	last_value_returned = 0;
 
 	if (index == 0)
 	{
@@ -527,6 +528,9 @@ void Process::WaitExit (void)
 		Logs.Add (Log::Process | Log::Critical, msg);
 	}
 
+	// guardamos el valor devuelto por el programa
+	last_value_returned = status;
+
 	// el descriptor debe ser removido
 	Application.Remove (Owner::Process, pty);
 }
@@ -569,11 +573,13 @@ void Process::Restart (void)
 char* Process::GetInfo (void)
 {
 	char *process_info = NULL, histlenbuf[81], laststartbuf[81], numstartbuf[81];
+	char lastvaluebuf[81];
 	int info_length;
 
 	snprintf (histlenbuf, 81, "%d", historylength->value);
 	snprintf (numstartbuf, 81, "%d", num_start);
 	strncpy (laststartbuf, ctime (&last_start), 80);
+	snprintf (lastvaluebuf, 81, "%d", last_value_returned);
 
 	info_length = strlen ("Name") + strlen (name->string) + 2 +
 		      strlen ("Description") + strlen (description->string) + 2 +
@@ -584,7 +590,8 @@ char* Process::GetInfo (void)
 		      strlen ("Respawn") + 3 + 2 +
 		      strlen ("HistoryLength") + strlen (histlenbuf) + 2 +
 		      strlen ("Starts") + strlen (numstartbuf) + 2 +
-		      strlen ("LastStart") + strlen (laststartbuf) + 2;
+		      strlen ("LastStart") + strlen (laststartbuf) + 2 +
+		      strlen ("LastValueReturned") + strlen (lastvaluebuf) + 2;
 
 	process_info = new char [info_length + 1];
 	memset (process_info, 0, info_length + 1);
@@ -629,8 +636,12 @@ char* Process::GetInfo (void)
 	strncat (process_info, "\n", 1);
 
 	strncat (process_info, "LastStart=", 10);
-	strncat (process_info, laststartbuf, strlen (laststartbuf));
+	strncat (process_info, laststartbuf, strlen (laststartbuf) - 1);
 	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "LastValueReturned=", 18);
+	strncat (process_info, lastvaluebuf, strlen (lastvaluebuf));
+	strncat (process_info, "\n\n", 2);
 
 	// no olvidar liberar la memoria usada
 	return process_info;

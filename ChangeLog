@@ -1,3 +1,11 @@
+2004-07-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Process.hpp:
+	* src/Process.cpp:
+		- Added integer to store the last value returned by the process.
+		- Added info "LastValueReturned".
+
+
 2004-06-30  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Released 0.3.1 version.
