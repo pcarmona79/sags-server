@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.18 $
-// $Date: 2004/06/28 21:30:06 $
+// $Revision: 1.19 $
+// $Date: 2004/06/30 03:44:26 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -365,7 +365,7 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 
 		if (Cl->IsAuthorized (Pkt->GetIndex ()))
 		{
-			if (!ProcMaster.KillProcess (Pkt->GetIndex ()))
+			if (ProcMaster.KillProcess (Pkt->GetIndex ()))
 			{
 				snprintf (serv_idx, 3, "%02X", Pkt->GetIndex ());
 				Cl->Add (new Packet (Error::Index, Error::ProcessNotKilled,
@@ -380,7 +380,7 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 
 		if (Cl->IsAuthorized (Pkt->GetIndex ()))
 		{
-			if (!ProcMaster.LaunchProcess (Pkt->GetIndex ()))
+			if (ProcMaster.LaunchProcess (Pkt->GetIndex ()))
 			{
 				snprintf (serv_idx, 3, "%02X", Pkt->GetIndex ());
 				Cl->Add (new Packet (Error::Index, Error::ProcessNotLaunched,
@@ -395,7 +395,7 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 
 		if (Cl->IsAuthorized (Pkt->GetIndex ()))
 		{
-			if (!ProcMaster.RestartProcess (Pkt->GetIndex ()))
+			if (ProcMaster.RestartProcess (Pkt->GetIndex ()))
 			{
 				snprintf (serv_idx, 3, "%02X", Pkt->GetIndex ());
 				Cl->Add (new Packet (Error::Index, Error::ProcessNotRestarted,

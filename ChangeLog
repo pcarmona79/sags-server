@@ -1,4 +1,16 @@
+2004-06-29  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Main.cpp:
+		- Fixed bad testing on if sentence for kill, launch and restart
+		packets.
+
+	* src/Process.cpp:
+		- Descriptor is now removed from application on WaitExit()
+		method.
+
+
 2004-06-28  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
 
 	* src/Packet.hpp:
 		- Added new packet types.

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.9 $
-// $Date: 2004/06/28 21:30:06 $
+// $Revision: 1.10 $
+// $Date: 2004/06/30 03:44:26 $
 //
 
 #include <iostream>
@@ -415,7 +415,6 @@ int Process::ReadData (char *buffer, int length)
 				  "Failed to read from process %d", pid);
 
 		// descriptor cerrado debe ser removido
-		Application.Remove (Owner::Process, pty);
 		WaitExit ();
 
 		// proceso hijo a muerto por lo que debería ser reiniciado
@@ -527,6 +526,9 @@ void Process::WaitExit (void)
 		Server.SendToAllClients (index, Error::BadProcess);
 		Logs.Add (Log::Process | Log::Critical, msg);
 	}
+
+	// el descriptor debe ser removido
+	Application.Remove (Owner::Process, pty);
 }
 
 int Process::Kill (void)

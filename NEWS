@@ -4,6 +4,7 @@ New version 0.3.1
 This version includes:
 
 1) The client can kill, start and restart an authorized process.
+2) Fixed deletion of dead processes.
 
 
 Version 0.3.0
