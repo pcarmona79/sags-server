@@ -1,3 +1,10 @@
+2005-03-02  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* Released 0.5.0 version.
+
+	* doc/MAINTENANCE.es: New file. Contains maintenance mode
+	information.
+
 2005-02-25  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* configure.in: Added --enable-redhat-docdir option.
