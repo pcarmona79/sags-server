@@ -1,0 +1,9 @@
+#!/bin/sh
+
+touch aclocal.m4
+touch config.h.in
+
+for file in Makefile.in */Makefile.in;
+do
+  touch $file
+done

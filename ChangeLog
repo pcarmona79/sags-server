@@ -1,4 +1,10 @@
-2004-05-22  Pablo Carmona Amigo  <kernel@dday.cl>
+2004-05-30  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* src/Client.cpp: Now Client::Disconnect also removes the send flag in
+	the sockets list.
+
+
+2004-05-29  Pablo Carmona Amigo  <kernel@dday.cl>
 
 	* Version 0.2.3.
 	* src/Loop.hpp: DataEvent now needs a third boolean parameter to

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/05/22 21:03:48 $
+// $Revision: 1.7 $
+// $Date: 2004/05/31 01:39:45 $
 //
 
 #include <cstring>
@@ -151,6 +151,7 @@ int Client::Disconnect (Pckt::Type pkt_type)
 	// cerramos la conexión SSL
 	Protocol::Disconnect ();
 
+	Application.Remove (Owner::Client | Owner::Send, socketd);
 	Application.Remove (Owner::Client, socketd);
 
 	return 0;
