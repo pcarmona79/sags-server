@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# This is a shell script for CRON
+
+SAGS="./sags"
+DIR="/usr/local/games"
+ARG1="config1.conf"
+ARG2="config2.conf"
+
+for ARG in $ARG1 $ARG2
+do
+	echo -n "SAGS Server: $SAGS $ARG: "
+	PID=`pgrep -fx "$SAGS $ARG"`
+
+	if [ "x$PID" == "x" ]
+	then
+		echo "Not found. Restaring."
+		cd $DIR
+		$SAGS $ARG
+	else
+		echo "Running on $PID"
+	fi
+done

@@ -19,16 +19,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/07 02:22:58 $
+// $Revision: 1.4 $
+// $Date: 2004/06/14 03:12:10 $
 //
 
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
-#include <cerrno>
-#include <regex.h>
 
 #include "Config.hpp"
 #include "Log.hpp"
@@ -49,10 +47,10 @@ Configuration::~Configuration ()
 
 void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 {
-	regex_t preg;
-	regmatch_t pmatch[5];
-	char line[CONF_MAX_LINE + 1], errmsg[101], *group, *name, *data;
-	int i, out, value;
+	char line[CONF_MAX_LINE + 1];
+	char *group = NULL, *name = NULL, *data = NULL;
+	int i, value;
+	unsigned int n;
 
 	if (filename != NULL)
 		FileName = filename;
@@ -69,20 +67,10 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 			ConfigFile->open (FileName);
 	}
 
-	// compilamos la expresión regular
-	out = regcomp (&preg, "^([^\\.]+)(\\.)([^ \t]+)(.+)$",
-		       REG_EXTENDED | REG_ICASE);
-	if (out)
-	{
-		regerror (out, &preg, errmsg, 100);
-		Logs.Add (Log::Config | Log::Error,
-			  "Failed to compile regexp: %s", errmsg);
-	}
-
 	for (i = 1; !ConfigFile->eof(); ++i)
 	{
 		ConfigFile->getline (line, CONF_MAX_LINE);
-		//Logs.Add (Log::Config | Log::Info, "%2d %s", i, line);
+		//Logs.Add (Log::Config | Log::Debug, "%2d %s", i, line);
 
 		// comprobamos que la línea
 		// sea de configuración
@@ -90,7 +78,7 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 		if (line[0] == '#')
 		{
 			// un comentario descartado
-			//Logs.Add (Log::Config | Log::Notice,
+			//Logs.Add (Log::Config | Log::Debug,
 			//	  "Comment at line %d discarted", i);
 			continue;
 		}
@@ -98,20 +86,42 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 		if (line[0] == '\0')
 		{
 			// una línea en blanco descartada
-			//Logs.Add (Log::Config | Log::Notice,
+			//Logs.Add (Log::Config | Log::Debug,
 			//	  "Blank line %d discarted", i);
 			continue;
 		}
 
-		out = regexec (&preg, line, 5, pmatch, 0);
-		if (out)
+		// buscamos un grupo
+		if (line[0] == '[' && line[strlen(line) - 1] == ']')
 		{
-			regerror (out, &preg, errmsg, 100);
-			Logs.Add (Log::Config | Log::Error,
-				  "Failed to execute regexp: %s", errmsg);
+			if (group != NULL)
+			{
+				delete[] group;
+				group = NULL;
+			}
+
+			group = substring (line, 1, strlen (line) - 2);
+
+			if (group == NULL)
+			{
+				// no es una línea de configuración
+				Logs.Add (Log::Config | Log::Notice,
+					  "No group! Line %d isn't a valid configure line", i);
+			}
+			else
+				Logs.Add (Log::Config | Log::Debug,
+					  "New group [%s]", group);
+
+			continue;
 		}
 
-		if (pmatch[1].rm_so == -1 || pmatch[3].rm_so == -1 || pmatch[4].rm_so == -1)
+		for (n = 0; n <= strlen (line) - 1; ++n)
+		{
+			if (line[n] == '=')
+				break;
+		}
+
+		if (line[n] == '\0')
 		{
 			// no es una línea de configuración
 			Logs.Add (Log::Config | Log::Notice,
@@ -119,48 +129,19 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 			continue;
 		}
 
-		//Logs.Add (Log::Config | Log::Info,
-		//	  "Group: (%d, %d)", pmatch[1].rm_so, --pmatch[1].rm_eo);
-		//Logs.Add (Log::Config | Log::Info,
-		//	  "Name: (%d, %d)", pmatch[3].rm_so, --pmatch[3].rm_eo);
-		//Logs.Add (Log::Config | Log::Info,
-		//	  "Value: (%d, %d)", ++pmatch[4].rm_so, pmatch[4].rm_eo);
+		name = substring (line, 0, n - 1);
+		data = substring (line, n + 1, strlen (line) - 1);
 
-		// Ajustamos las posiciones
-		--pmatch[1].rm_eo; --pmatch[3].rm_eo; ++pmatch[4].rm_so;
-
-		group = substring (line, pmatch[1].rm_so, pmatch[1].rm_eo);
-		if (group == NULL)
+		if (name == NULL || data == NULL)
 		{
 			// no es una línea de configuración
 			Logs.Add (Log::Config | Log::Notice,
-				  "No group! Line %d isn't a valid configure line", i);
+				  "Line %d isn't a valid configure line", i);
 			continue;
 		}
 
-		name = substring (line, pmatch[3].rm_so, pmatch[3].rm_eo);
-		if (group == NULL)
-		{
-			// no es una línea de configuración
-			Logs.Add (Log::Config | Log::Notice,
-				  "No name! Line %d isn't a valid configure line", i);
-			delete[] group;
-			continue;
-		}
-
-		data = substring (line, pmatch[4].rm_so, pmatch[4].rm_eo);
-		if (group == NULL)
-		{
-			// no es una línea de configuración
-			Logs.Add (Log::Config | Log::Notice,
-				  "No value! Line %d isn't a valid configure line", i);
-			delete[] group;
-			delete[] name;
-			continue;
-		}
-
-		//Logs.Add (Log::Config | Log::Debug, "Option %s.%s %s",
-		//	  group, name, data);
+		Logs.Add (Log::Config | Log::Debug, "Option [%s]%s=%s",
+			  group, name, data);
 
 		// agregamos a la lista luego de
 		// comprobar el tipo de dato
@@ -201,19 +182,20 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 		}
 
 		// liberamos el espacio asignado
-		//cout << "delete group" << endl;
-		delete[] group;
-		//cout << "delete name" << endl;
-		delete[] name;
-		//cout << "delete data" << endl;
-		delete[] data;
-		//cout << "all deleted." << endl;
+		if (name != NULL)
+			delete[] name;
+		if (data != NULL)
+			delete[] data;
 	}
 
-	ConfigFile->close ();
-	regfree (&preg);
+	// liberamos el espacio asignado al grupo
+	if (group != NULL)
+		delete[] group;
 
-	// por ultimo reiniciamos Logs para que
+	// cerramos el archivo de configuración
+	ConfigFile->close ();
+
+	// por último reiniciamos Logs para que
 	// tome los nuevos valores
 	Logs.Start ();
 
@@ -299,7 +281,7 @@ struct option *Configuration::Get (const char *group, const char *name)
 
 	// si llegamos aquí es que es una opción desconocida
 	Logs.Add (Log::Config | Log::Warning,
-		  "Unknown option %s.%s",
+		  "Unknown option [%s]%s",
 		  group, name);
 
 	return NULL;
@@ -334,9 +316,8 @@ void Configuration::Set (Conf::OpType type, const char *group, const char *name,
 		}
 	}
 	else
-		Logs.Add (Log::Config | Log::Warning,
-			  "Unknown option %s.%s",
-			  group, name);
+		// si no existe la opción, la agregamos
+		Add (type, group, name, val);
 }
 
 void Configuration::Set (Conf::OpType type, const char *group, const char *name, const char *val)
@@ -361,9 +342,8 @@ void Configuration::Set (Conf::OpType type, const char *group, const char *name,
 		}
 	}
 	else
-		Logs.Add (Log::Config | Log::Warning,
-			  "Unknown option %s.%s",
-			  group, name);
+		// si no existe la opción, la agregamos
+		Add (type, group, name, val);
 }
 
 // definimos el objeto

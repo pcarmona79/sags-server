@@ -1,24 +1,40 @@
-# Configuration file for SAGS Server 0.2.x
+# Configuration file for SAGS Server 0.3.x
 #
 # All files must have full path.
 #
 # Comments start with "#"
 
 # Logging settings
-Logging.File "/var/log/sags.log"
-Logging.Debug yes
-
-# Process to execute
-Process.Command "/usr/bin/quake2 +set dedicated 1 +exec server.cfg"
-Process.Environment "PATH=/usr/bin:/bin"
-Process.WorkingDirectory "/usr/share/games/quake2"
-Process.Respawn yes
-Process.HistoryLength 10240
+[Logging]
+File="/var/log/sags.log"
+Debug=yes
 
 # Network configurations
-Network.Port "47777"
-Network.MaxClients 2
-Network.CertificateFile "/etc/ssl/certs/sags.pem"
+[Network]
+Port="47777"
+MaxClients=2
+CertificateFile="/etc/ssl/certs/sags.pem"
 
 # Main configurations
-Main.UsersFile "/etc/sags/sags.users"
+[Main]
+UsersFile="/etc/sags/sags.users"
+
+# Process to execute
+[Process1]
+Command="/usr/bin/quake2 +set dedicated 1 +exec server1.cfg"
+Environment="PATH=/usr/bin:/bin"
+WorkingDirectory="/usr/share/games/quake2"
+Respawn=yes
+HistoryLength=10240
+ChannelName="server1"
+ChannelTopic="This is the Quake2 server Nº1"
+
+[Process2]
+Command="/usr/bin/quake2 +set dedicated 1 +exec server2.cfg"
+Environment="PATH=/usr/bin:/bin"
+WorkingDirectory="/usr/share/games/quake2"
+Respawn=yes
+HistoryLength=10240
+ChannelName="server2"
+ChannelTopic="This is the Quake2 server Nº2"
+

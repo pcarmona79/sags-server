@@ -1,5 +1,13 @@
-New version 0.2.5
+New version 0.3.0
 -----------------
+
+This version includes the following changes:
+
+1) Changed configuration file format to a INI like format.
+
+
+Version 0.2.5
+-------------
 
 This version includes:
 

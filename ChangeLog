@@ -1,3 +1,23 @@
+2004-06-12  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* Preparing new version 0.3. Version is 0.3.0cvs.
+
+	* doc/sags.conf.example:
+		- Changed format to INI-like.
+
+	* src/Config.cpp:
+		- Changed method to process new configuration file format.
+		- Options not recognized are now added to list.
+
+	* doc/protocol-2_ES.html:
+		- New file. This is the documentation of network protocol
+		version 2.
+
+	* doc/configuration-0.3_ES.html:
+		- New file. It will be contains spanish instructions for
+		configuration of SAGS Server version 0.3.
+
+
 2004-06-11  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Released version 0.2.5.
