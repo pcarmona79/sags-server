@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:20 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #ifndef __MAIN_HPP__
@@ -55,6 +55,7 @@ public:
 	void AddOptions (void);
 	void SignalEvent (void);
 	void DataEvent (int owner, int fd);
+	void TimeoutEvent (void);
 	int GenerateResponse (Client *Cl, Packet *Pkt);
 	bool IsDebugging (void);
 

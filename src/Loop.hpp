@@ -19,14 +19,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:20 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #ifndef __LOOP_HPP__
 #define __LOOP_HPP__
 
 #include <sys/types.h>
+#include <ctime>
 
 namespace Owner
 {
@@ -54,6 +55,8 @@ class SelectLoop
 protected:
 	fd_set reading;
 	fd_set writing;
+	struct timespec *timeout;
+	time_t last_add;
 	int maxd;
 	struct fditem *fdlist;
 	sigset_t sigmask;
@@ -72,8 +75,12 @@ public:
 	void Run (void);
 	virtual void SignalEvent (void) = 0;
 	virtual void DataEvent (int owner, int fd) = 0;
+	virtual void TimeoutEvent (void) = 0;
 	void Add (int owner, int fd);
 	void Remove (int owner, int fd);
+	void AddTimeout (int seconds);
+	void DeleteTimeout (void);
+	struct timespec *GetTimeout (void);
 };
 
 #endif // __LOOP_HPP__

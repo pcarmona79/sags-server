@@ -19,12 +19,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:20 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #ifndef __CLIENT_HPP__
 #define __CLIENT_HPP__
+
+#include <ctime>
 
 #include "Protocol.hpp"
 #include "Packet.hpp"
@@ -48,6 +50,7 @@ private:
 	Packet *Outgoing;
 	Usr::Status ClientStatus;
 	char username[CL_MAXNAME + 1];
+	time_t cltime;
 
 public:
 	Client (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t sslen);
@@ -64,6 +67,8 @@ public:
 	bool IsValid (void);
 	void SetUsername (const char *name);
 	char *GetUsername (void);
+	time_t GetTime (void);
+	void UpdateTime (void);
 
 	// un puntero al siguiente cliente
 	Client *Next;

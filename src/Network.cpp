@@ -19,14 +19,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
 #include <cstring>
+#include <ctime>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -38,6 +39,8 @@
 #include "Log.hpp"
 #include "Main.hpp"
 #include "Process.hpp"
+
+#define MAX_TIMEOUT 30
 
 Network::Network ()
 {
@@ -360,6 +363,9 @@ int Network::AcceptConnection (int sd)
 			return -1;
 		}
 
+	// finalmente le damos 30 segundos para la autentificación
+	Application.AddTimeout (MAX_TIMEOUT);
+
 	return 0;
 }
 
@@ -534,6 +540,29 @@ void Network::SendProcessLogs (Client *Cl)
 			Output = new Packet (Pckt::SessionConsoleLogs, buf);
 		Cl->Add (Output);
 		Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+	}
+}
+
+void Network::DropNotValidClients (void)
+{
+	Client *Cl;
+	time_t actualtime;
+
+	time (&actualtime);
+	
+	for (Cl = ClientList; Cl; Cl = Cl->Next)
+	{
+		if (!Cl->IsValid ())
+		{
+			if (actualtime > MAX_TIMEOUT - 1 + Cl->GetTime ())
+			{
+				Logs.Add (Log::Network | Log::Warning,
+					  "Dropping timeouted client connected from %s",
+					  Cl->ShowIP ());
+				CloseConnection (Cl->ShowSocket ());
+				Application.DeleteTimeout ();
+			}
+		}
 	}
 }
 

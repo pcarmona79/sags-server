@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:20 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #include <cstring>
@@ -40,6 +40,7 @@ Client::Client (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t ssl
 
 	Outgoing = NULL;
 	ClientStatus = Usr::NeedUser;
+	time (&cltime);
 }
 
 Client::~Client ()
@@ -166,4 +167,14 @@ void Client::SetUsername (const char *name)
 char *Client::GetUsername (void)
 {
 	return username;
+}
+
+time_t Client::GetTime (void)
+{
+	return cltime;
+}
+
+void Client::UpdateTime (void)
+{
+	time (&cltime);
 }

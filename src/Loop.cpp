@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #include <csignal>
@@ -61,6 +61,7 @@ SelectLoop::SelectLoop ()
 	FD_ZERO (&reading);
 	FD_ZERO (&writing);
 
+	timeout = NULL;
 	maxd = 0;
 	fdlist = NULL;
 }
@@ -178,6 +179,8 @@ void SelectLoop::Init (void)
 void SelectLoop::Run (void)
 {
 	struct fditem *list;
+	struct timespec *tmout;
+	time_t acttime;
 	int select_output;
 	fd_set rd, wr;
 
@@ -190,10 +193,12 @@ void SelectLoop::Run (void)
 		rd = reading;
 		wr = writing;
 
-		// pselect no funciona en Linux :(
-		select_output = pselect (maxd + 1, &rd, &wr, NULL, NULL,
+		tmout = GetTimeout ();
+
+		// pselect no funciona correctamente en Linux :(
+		// pero a mí no me ha dado problemas
+		select_output = pselect (maxd + 1, &rd, &wr, NULL, tmout,
 					 &original_sigmask);
-		//select_output = select (maxd + 1, &rd, &wr, NULL, NULL);
 
 		if (select_output < 0 && errno == EINTR)
 		{
@@ -201,6 +206,11 @@ void SelectLoop::Run (void)
 			Logs.Add (Log::Debug, "pselect was interrupted");
 			continue;
 		}
+
+		time (&acttime);
+		if (tmout != NULL)
+			if (acttime >= last_add + timeout->tv_sec)
+				TimeoutEvent ();
 
 		for (list = fdlist; list; list = list->next)
 		{
@@ -257,4 +267,41 @@ void SelectLoop::Remove (int owner, int fd)
 		RemoveFromList (owner, fd);
 		CalculateMaxd (true, fd);
 	}
+}
+
+void SelectLoop::AddTimeout (int seconds)
+{
+	if (timeout != NULL)
+		delete timeout;
+
+	timeout = new struct timespec;
+	timeout->tv_sec = seconds;
+	timeout->tv_nsec = 0;
+
+	time (&last_add);
+	Logs.Add (Log::Debug, "Timeout seted to %d seconds", seconds);
+}
+
+void SelectLoop::DeleteTimeout (void)
+{
+	if (timeout != NULL)
+	{
+		delete timeout;
+		timeout = NULL;
+		Logs.Add (Log::Debug, "Timeout removed");
+	}
+}
+
+struct timespec *SelectLoop::GetTimeout (void)
+{
+	struct timespec *newtimeout = NULL;
+
+	if (timeout != NULL)
+	{
+		newtimeout = new struct timespec;
+		newtimeout->tv_sec = timeout->tv_sec;
+		newtimeout->tv_nsec = timeout->tv_sec;
+	}
+
+	return newtimeout;
 }

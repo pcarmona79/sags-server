@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Program.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #include <sys/types.h>
@@ -34,6 +34,8 @@
 #include "Process.hpp"
 #include "Network.hpp"
 #include "Main.hpp"
+
+#define VERSION "0.1"
 
 int main (int argc, char **argv)
 {
@@ -155,6 +157,9 @@ int main (int argc, char **argv)
 
 	Logs.Start ();
 	Config.GetOptionsFromFile (configuration);
+
+	Logs.Add (Log::Info, "SAGS Server version %s", VERSION);
+
 	Application.LoadUsers ();
 	Child.Start ();
 	Server.Start ();

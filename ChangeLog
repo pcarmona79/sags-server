@@ -1,0 +1,5 @@
+2004-04-21  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* Added a timeout checker for clients who don't authenticate. The
+	default time is 30 seconds.
+	* This is the 0.1 version.

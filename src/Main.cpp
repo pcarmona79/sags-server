@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/04/15 21:28:42 $
+// $Revision: 1.4 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #include <iostream>
@@ -125,6 +125,14 @@ void Main::DataEvent (int owner, int fd)
 	}
 }
 
+void Main::TimeoutEvent (void)
+{
+	Logs.Add (Log::Debug, "Checking clients");
+
+	// deconectar usuarios no válidos
+	Server.DropNotValidClients ();
+}
+
 int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 {
 	Packet *Ans = NULL;
@@ -167,6 +175,9 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 							Logs.Add (Log::Notice,
 								  "User %s has logged in",
 								  Cl->GetUsername ());
+
+							// sacamos el timeout
+							DeleteTimeout ();
 						}
 						else
 							Logs.Add (Log::Notice,

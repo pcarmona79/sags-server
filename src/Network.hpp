@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/04/21 04:47:26 $
 //
 
 #ifndef __NETWORK_HPP__
@@ -73,6 +73,7 @@ public:
 	int SendData (int sd);
 	void SendToAllClients (Pckt::Type PktType, char *buf = NULL);
 	void SendProcessLogs (Client *Cl);
+	void DropNotValidClients (void);
 };
 
 extern Network Server;
