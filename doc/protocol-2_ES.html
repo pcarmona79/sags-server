@@ -1,6 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
+  <title>Protocolo de Red SAGS versión 2</title>
+  <meta content="Pablo Carmona Amigo" name="author">
 </head>
 <body>
 <h1>Protocolo de Red SAGS versión 2 (borrador)<br>
@@ -9,11 +11,24 @@
 para
 proveer una mayor seguridad de los datos enviados.</p>
 <p>Los datos se transmiten en forma de paquetes. Este paquete consta de
-una cabecera y un mensaje. La cabecera consta a su vez de un campo de
-16
-bits para el tipo de mensaje, otro campo de 6 bits para la secuencia
-del paquete, y un último campo de 10 bits para indicar el tamaño del
-mensaje. El mensaje puede o no existir dependiendo del número de
+una cabecera y un mensaje. La cabecera consta de los siguientes campos:<br>
+</p>
+<ul>
+  <li><span style="font-weight: bold;">Index</span>
+(8 bits): Índice del tipo de mensaje<br>
+  </li>
+  <li><span style="font-weight: bold;">Command</span> (8
+bits): Comando</li>
+  <li><span style="font-weight: bold;">Sequence</span> (8
+bits):
+Secuencia del paquete<br>
+  </li>
+  <li><span style="font-weight: bold;">Length</span> (8 bits):
+Tamaño
+del mensaje del paquete<br>
+  </li>
+</ul>
+<p>El mensaje puede o no existir dependiendo del número de
 secuencia. Si este es 0, el paquete no posee un mensaje y si es mayor
 indica la sencuencia dentro de una lista de paquetes.</p>
 <p>Cuando se envía una lista de paquetes ésto son marcados con una
@@ -21,115 +36,153 @@ secuencia en orden descendente tomando como primer valor el número de
 paquetes. El último paquete de la lista lleva la secuencia 1 (no debe
 ser 0 ya que así indicaría un paquete vacío).</p>
 <p>Según los campos de bits usados en la cabecera se puede conseguir un
-paquete de un tamaño máximo de 1024 bytes. Usando la secuencia se
-pueden enviar hasta 64 paquetes, por lo que se pueden enviar hasta 64
+paquete de un tamaño máximo de 256 bytes. Usando la secuencia se
+pueden enviar hasta 255 paquetes, por lo que se pueden enviar hasta
+63,75
 KB
 de información usando este protocolo.</p>
 <h2>Tipos de mensajes</h2>
 <ol>
-  <li>Mensajes de sesión<br>
+  <li>Mensajes de sesión (Namespace <span
+ style="font-weight: bold; font-family: monospace;">Session::</span>
+Índice <span style="font-weight: bold; font-family: monospace;">0x00</span>
+- <span style="font-weight: bold; font-family: monospace;">0xFC</span>)<br>
     <br>
-    <table style="text-align: left; height: 38px; width: 100%;"
- border="1" cellspacing="2" cellpadding="2">
-      <tbody>
-        <tr>
-          <td style="vertical-align: top;">SessionConsoleInput</td>
-          <td style="vertical-align: top;">0x0001 </td>
-          <td style="vertical-align: top;">Para ejecutar comandos en la
-consola del proceso<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionConsoleOutput</td>
-          <td style="vertical-align: top;">0x0002</td>
-          <td style="vertical-align: top;">Salida leída desde la
-consola
-del proceso<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionConsoleSuccess</td>
-          <td style="vertical-align: top;">0x0003</td>
-          <td style="vertical-align: top;">Comando ejecutado con éxito
-en
-la consola del proceso<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionConsoleNeedLogs</td>
-          <td style="vertical-align: top;">0x0004</td>
-          <td style="vertical-align: top;">Petición de los registros de
-mensajes de la consola del proceso<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionConsoleLogs</td>
-          <td style="vertical-align: top;">0x0005</td>
-          <td style="vertical-align: top;">Contiene los registros de
-mensajes de la consola del proceso<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionProcessExits</td>
-          <td style="vertical-align: top;">0x0006</td>
-          <td style="vertical-align: top;">Proceso ha terminado<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionProcessStart</td>
-          <td style="vertical-align: top;">0x0007</td>
-          <td style="vertical-align: top;">Se ha iniciado el proceso<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionDisconnect</td>
-          <td style="vertical-align: top;">0x000A</td>
-          <td style="vertical-align: top;">Cliente desconectándose o
-desconectado por el servidor<br>
-          </td>
-        </tr>
-        <tr>
-          <td style="vertical-align: top;">SessionDrop</td>
-          <td style="vertical-align: top;">0x000B</td>
-          <td style="vertical-align: top;">Conexión botada por el
-servidor
-(no usado actualmente) </td>
-        </tr>
-      </tbody>
-    </table>
-    <br>
-  </li>
-  <li>Mensajes de autenticación<br>
+Estos comandos dependen del índice del proceso, a excepción del primero.<br>
     <br>
     <table style="text-align: left; width: 100%;" border="1"
  cellspacing="2" cellpadding="2">
       <tbody>
         <tr>
-          <td style="vertical-align: top;">AuthUsername</td>
-          <td style="vertical-align: top;">0xFD00</td>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">Disconnect</span><br>
+          </td>
+          <td style="vertical-align: top;">0x01 </td>
+          <td style="vertical-align: top;">Cliente desconectándose o
+desconectado por el servidor </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">Authorized</span><br>
+          </td>
+          <td style="vertical-align: top;">0x02</td>
+          <td style="vertical-align: top;">Proceso autorizado para el
+cliente<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ConsoleInput</span><br>
+          </td>
+          <td style="vertical-align: top;">0x03</td>
+          <td style="vertical-align: top;">Para ejecutar comandos en la
+consola del proceso </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ConsoleOutput</span><br>
+          </td>
+          <td style="vertical-align: top;">0x04</td>
+          <td style="vertical-align: top;">Salida leída desde la
+consola
+del proceso </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ConsoleSuccess</span><br>
+          </td>
+          <td style="vertical-align: top;">0x05</td>
+          <td style="vertical-align: top;">Comando ejecutado con éxito
+en
+la consola del proceso </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ConsoleNeedLogs</span><br>
+          </td>
+          <td style="vertical-align: top;">0x06</td>
+          <td style="vertical-align: top;">Petición de los registros de
+mensajes de la consola del proceso </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ConsoleLogs</span><br>
+          </td>
+          <td style="vertical-align: top;">0x07</td>
+          <td style="vertical-align: top;">Contiene los registros de
+mensajes de la consola del proceso </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ProcessGetInfo</span><br>
+          </td>
+          <td style="vertical-align: top;">0x08</td>
+          <td style="vertical-align: top;">Enviado por el cliente para
+obtener información del proceso<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ProcessInfo</span><br>
+          </td>
+          <td style="vertical-align: top;">0x09</td>
+          <td style="vertical-align: top;"> Contiene la información del
+proceso consultado<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ProcessExits</span><br>
+          </td>
+          <td style="vertical-align: top;">0x0A<br>
+          </td>
+          <td style="vertical-align: top;">Proceso ha terminado </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-family: monospace;">ProcessStart</span><br>
+          </td>
+          <td style="vertical-align: top;">0x0B<br>
+          </td>
+          <td style="vertical-align: top;">Se ha iniciado el proceso </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+  </li>
+  <li>Mensajes de autenticación (Namespace <span
+ style="font-weight: bold; font-family: monospace;">Auth::</span>
+Índice <span style="font-weight: bold; font-family: monospace;">0xFD</span>)<br>
+    <br>
+    <table style="text-align: left; width: 100%;" border="1"
+ cellspacing="2" cellpadding="2">
+      <tbody>
+        <tr>
+          <td style="vertical-align: top; font-family: monospace;">Username</td>
+          <td style="vertical-align: top;">0x00</td>
           <td style="vertical-align: top;">Envío del nombre de usuario
 por
 parte del cliente<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">AuthRandomHash</td>
-          <td style="vertical-align: top;">0xFD01</td>
+          <td style="vertical-align: top; font-family: monospace;">RandomHash</td>
+          <td style="vertical-align: top;">0x01</td>
           <td style="vertical-align: top;">Texto aleatorio para usar en
 la
 autenticación (no usado actualmente)<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">AuthPassword</td>
-          <td style="vertical-align: top;">0xFD02</td>
+          <td style="vertical-align: top; font-family: monospace;">Password</td>
+          <td style="vertical-align: top;">0x02</td>
           <td style="vertical-align: top;">Envío de la contraseña del
 usuario (o texto de autenticación) por parte del cliente<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">AuthSuccessful</td>
-          <td style="vertical-align: top;">0xFD03</td>
+          <td style="vertical-align: top; font-family: monospace;">Successful</td>
+          <td style="vertical-align: top;">0x03</td>
           <td style="vertical-align: top;">Autenticación exitosa<br>
           </td>
         </tr>
@@ -137,22 +190,24 @@ usuario (o texto de autenticación) por parte del cliente<br>
     </table>
     <br>
   </li>
-  <li>Mensajes de sincronización<br>
+  <li>Mensajes de sincronización (Namespace <span
+ style="font-weight: bold; font-family: monospace;">Sync::</span>
+Índice <span style="font-weight: bold; font-family: monospace;">0xFE</span>)<br>
     <br>
     <table style="text-align: left; width: 100%;" border="1"
  cellspacing="2" cellpadding="2">
       <tbody>
         <tr>
-          <td style="vertical-align: top;">SyncHello</td>
-          <td style="vertical-align: top;">0xFE00</td>
+          <td style="vertical-align: top; font-family: monospace;">Hello</td>
+          <td style="vertical-align: top;">0x00</td>
           <td style="vertical-align: top;">Saludo enviado por el
 cliente o
 el servidor después de conectarse<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">SyncVersion</td>
-          <td style="vertical-align: top;">0xFE01</td>
+          <td style="vertical-align: top; font-family: monospace;">Version</td>
+          <td style="vertical-align: top;">0x01</td>
           <td style="vertical-align: top;">Contiene la versión del
 protocolo usado por el cliente y el servidor<br>
           </td>
@@ -161,45 +216,48 @@ protocolo usado por el cliente y el servidor<br>
     </table>
     <br>
   </li>
-  <li>Mensajes de error<br>
+  <li>Mensajes de error (Namespace <span
+ style="font-weight: bold; font-family: monospace;">Error::</span>
+Índice <span style="font-weight: bold; font-family: monospace;">0xFF</span>)<br>
     <br>
-Desconetan:<br>
+Desconectan:<br>
     <br>
     <table style="text-align: left; width: 100%;" border="1"
  cellspacing="2" cellpadding="2">
       <tbody>
         <tr>
-          <td style="vertical-align: top;">ErrorServerFull</td>
-          <td style="vertical-align: top;">0xFF00</td>
+          <td style="vertical-align: top; font-family: monospace;">ServerFull</td>
+          <td style="vertical-align: top;">0x00</td>
           <td style="vertical-align: top;">Servidor lleno<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">ErrorNotValidVersion</td>
-          <td style="vertical-align: top;">0xFF01</td>
+          <td style="vertical-align: top; font-family: monospace;">NotValidVersion</td>
+          <td style="vertical-align: top;">0x01</td>
           <td style="vertical-align: top;">Versión no válida del
 protocolo
 de red usado por el cliente<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">ErrorLoginFailed</td>
-          <td style="vertical-align: top;">0xFF02 </td>
+          <td style="vertical-align: top; font-family: monospace;">LoginFailed</td>
+          <td style="vertical-align: top;">0x02 </td>
           <td style="vertical-align: top;">Autenticación fallida por
 nombre
 de usuario o contraseña incorrecta<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">ErrorAuthTimeout</td>
-          <td style="vertical-align: top;">0xFF03</td>
+          <td style="vertical-align: top; font-family: monospace;">AuthTimeout</td>
+          <td style="vertical-align: top;">0x03</td>
           <td style="vertical-align: top;">Expiró el tiempo para la
 autenticación<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;"> ErrorServerQuit</td>
-          <td style="vertical-align: top;">0xFF04</td>
+          <td style="vertical-align: top;"> <span
+ style="font-family: monospace;">ServerQuit</span></td>
+          <td style="vertical-align: top;">0x04</td>
           <td style="vertical-align: top;">Servidor está terminando y
 cerrando todas las conexiones<br>
           </td>
@@ -213,22 +271,22 @@ No desconectan:<br>
  cellspacing="2" cellpadding="2">
       <tbody>
         <tr>
-          <td style="vertical-align: top;">ErrorBadProcess</td>
-          <td style="vertical-align: top;">0xFF80</td>
+          <td style="vertical-align: top; font-family: monospace;">BadProcess</td>
+          <td style="vertical-align: top;">0x80</td>
           <td style="vertical-align: top;">Proceso erróneo o mal
 configurado<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">ErrorCantWriteToProcess</td>
-          <td style="vertical-align: top;">0xFF81</td>
+          <td style="vertical-align: top; font-family: monospace;">CantWriteToProcess</td>
+          <td style="vertical-align: top;">0x81</td>
           <td style="vertical-align: top;">No se puedo escribir en el
 proceso<br>
           </td>
         </tr>
         <tr>
-          <td style="vertical-align: top;">ErrorGeneric</td>
-          <td style="vertical-align: top;">0xFFFF</td>
+          <td style="vertical-align: top; font-family: monospace;">Generic</td>
+          <td style="vertical-align: top;">0xFF</td>
           <td style="vertical-align: top;">Error genérico que contiene
 la
 explicación en el campo Data<br>
@@ -239,5 +297,6 @@ explicación en el campo Data<br>
   </li>
 </ol>
 <br>
+<hr style="width: 100%; height: 2px;"><span style="font-style: italic;">$Id: protocol-2_ES.html,v 1.2 2004/06/17 00:21:00 pcarm Exp $</span><br>
 </body>
 </html>

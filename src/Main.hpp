@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.hpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.7 $
+// $Date: 2004/06/17 00:21:00 $
 //
 
 #ifndef __MAIN_HPP__
@@ -31,22 +31,53 @@
 #include "Client.hpp"
 #include "Config.hpp"
 #include "List.hpp"
+#include "Utils.hpp"
 
-#define HASHLEN 32
+#define PASSLEN  80
+#define PROCSLEN 80
+#define HASHLEN  32
 
 struct user
 {
 	char name[CL_MAXNAME + 1];
+	char pass[PASSLEN + 1];
+	char procs[PROCSLEN +1];
+	char rndstr[HASHLEN + 1];
 	char hash[HASHLEN + 1];
 	
-	user (const char *n = NULL, const char *h = NULL)
+	user (const char *n = NULL, const char *p = NULL, const char *pa = NULL)
 	{
-		memset (name, 0, CL_MAXNAME);
-		memset (hash, 0, HASHLEN);
+		unsigned int i;
+		char *md5hash = NULL, str[HASHLEN + PASSLEN + 1];
+
+		memset (name, 0, CL_MAXNAME + 1);
+		memset (pass, 0, PASSLEN + 1);
+		memset (procs, 0, PROCSLEN + 1);
+		memset (rndstr, 0, HASHLEN + 1);
+		memset (hash, 0, HASHLEN + 1);
+
 		if (n != NULL)
 			strncpy (name, n, CL_MAXNAME);
-		if (h != NULL)
-			strncpy (hash, h, HASHLEN);
+		if (p != NULL)
+		{
+			for (i = 0; (i <= PASSLEN - 1) || (i <= strlen (p) - 1); ++i)
+				pass[i] = p[i] ^ 0xAA;
+			if (i <= PASSLEN - 1)
+				pass[i] = '\0';
+		}
+		if (pa != NULL)
+			strncpy (procs, pa, PROCSLEN);
+
+		if (p != NULL)
+		{
+			random_string (rndstr, HASHLEN);
+
+			snprintf (str, HASHLEN + PASSLEN + 1, "%s%s", rndstr, pass);
+			md5hash = md5_password_hash (str);
+			strncpy (hash, md5hash, HASHLEN);
+
+			delete[] md5hash;
+		}
 	}
 
 	bool operator== (const struct user &usr)
@@ -81,8 +112,9 @@ public:
 
 	bool IsDebugging (void);
 	void LoadUsers (void);
-	void AddUser (const char *name, const char *hash);
+	void AddUser (const char *name, const char *pass, const char *procs);
 	struct user *FindUser (const char *name);
+	void AddAuthorizedProcesses (Client *Cl, struct user *usr);
 
 	void PrintUsage (void);
 

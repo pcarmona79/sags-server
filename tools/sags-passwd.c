@@ -17,43 +17,33 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
  *
  * $Source: /home/pablo/Desarrollo/sags-cvs/server/tools/Attic/sags-passwd.c,v $
- * $Revision: 1.1 $
- * $Date: 2004/04/13 22:00:19 $
+ * $Revision: 1.2 $
+ * $Date: 2004/06/17 00:21:01 $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
-#include <openssl/md5.h>
 
 #define MAX_NAME 80
 
-char* md5_password_hash (const char *password)
+char *encode_password (const char *password)
 {
-	char *md5_password;
-	char *md5_password_hex;
-	char hexadecimal[3];
-	int i, tamano;
+	char *encoded;
+	int i;
 
-	md5_password = calloc (MD5_DIGEST_LENGTH, sizeof (char));
-	md5_password_hex = calloc (2 * MD5_DIGEST_LENGTH, sizeof (char));
+	encoded = calloc (strlen (password) + 1, sizeof (char));
 
-	tamano = strlen (password);
-	MD5 ((unsigned char *) password, tamano, (unsigned char *) md5_password);
+	for (i = 0; i <= strlen (password) - 1; ++i)
+		encoded[i] = password[i] ^ 0xAA;
 
-	for ( i = 0; i < MD5_DIGEST_LENGTH; ++i ) {
-		snprintf (hexadecimal, 3, "%.2x", *(md5_password + i));
-		strncat (md5_password_hex, hexadecimal, sizeof (hexadecimal));
-	}
-
-	free (md5_password);
-	return md5_password_hex;
+	return encoded;
 }
 
-int add_to_file (FILE *f, const char *user, const char *hash)
+int add_to_file (FILE *f, const char *user, const char *hash, const char *procs)
 {
-	return fprintf (f, "%s:%s\n", user, hash);
+	return fprintf (f, "%s:%s:%s\n", user, hash, procs);
 }
 
 void print_usage (FILE *f)
@@ -65,8 +55,10 @@ int main (int argc, char **argv)
 {
 	FILE *users_file = NULL;
 	struct termios old_flags, new_flags;
-	char filename[81], username[81], password1[81], password2[81];
-	char *md5hash;
+	char filename[MAX_NAME + 1], username[MAX_NAME + 1];
+	char password1[MAX_NAME + 1], password2[MAX_NAME + 1];
+	char procs[MAX_NAME + 1];
+	char *md5hash, *encodedhash;
 
 	if (argc < 3 || argc > 3)
 	{
@@ -113,8 +105,12 @@ int main (int argc, char **argv)
 		exit (EXIT_FAILURE);
 	}
 
-	// sacamos el hash MD5 de la password
-	md5hash = md5_password_hash (password1);
+	printf ("Process allowed for this user (insert colon to separate values)\n"
+		">> ");
+	fgets (procs, MAX_NAME, stdin);
+	procs[strlen (procs) - 1] = '\0';
+
+	encodedhash = encode_password (password1);
 	users_file = fopen (filename, "a");
 
 	if (users_file == NULL)
@@ -123,14 +119,16 @@ int main (int argc, char **argv)
 		exit (EXIT_FAILURE);
 	}
 
-	if (add_to_file (users_file, username, md5hash) <= 0)
+	if (add_to_file (users_file, username, encodedhash, procs) <= 0)
 	{
-		perror ("fopen");
+		perror ("fprintf");
+		fclose (users_file);
 		exit (EXIT_FAILURE);
 	}
 
 	printf ("Added user %s to %s\n", username, filename);
 
-	free (md5hash);
+	fclose (users_file);
+	free (encodedhash);
 	exit (EXIT_SUCCESS);
 }

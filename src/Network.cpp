@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.9 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.10 $
+// $Date: 2004/06/17 00:21:01 $
 //
 
 #include <iostream>
@@ -428,7 +428,7 @@ void Network::SendToAllClients (unsigned int idx, unsigned int com, char *buf)
 	for (i = 0; i <= maximus - 1; ++i)
 	{
 		Cl = ClientList[i];
-		if (Cl->IsValid ()) // aquí revisaremos si el cliente está autorizado
+		if (Cl->IsAuthorized (idx)) // aquí revisaremos si el cliente está autorizado
 		{
 			if (buf != NULL)
 				Output = new Packet (idx, com, 1, len, buf);
@@ -445,7 +445,7 @@ void Network::SendProcessLogs (Client *Cl, unsigned int idx)
 	int len = 0;
 	char *buf = ProcMaster.GetProcessData (idx, &len);
 
-	if (Cl->IsValid ())
+	if (Cl->IsAuthorized (idx))
 	{
 		if (buf != NULL)
 		{

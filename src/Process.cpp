@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.6 $
+// $Date: 2004/06/17 00:21:01 $
 //
 
 #include <iostream>
@@ -157,7 +157,7 @@ int Process::CheckOptions (void)
 	{
 		// no existe, entonces salimos
 		Logs.Add (Log::Process | Log::Info,
-			  "Process nº%d not exists on configuration",
+			  "Process%d not exists on configuration",
 			  index);
 		return -1;
 	}
@@ -174,7 +174,7 @@ int Process::CheckOptions (void)
 		current_historylength = historylength->value;
 
 		Logs.Add (Log::Process | Log::Info,
-			  "Process nº%d will be restarted",
+			  "Process%d will be restarted",
 			  index);
 
 		Kill ();
@@ -228,7 +228,7 @@ int Process::CheckOptions (void)
 	}
 	else
 		Logs.Add (Log::Process | Log::Debug,
-			  "Process nº%d is unchanged",
+			  "Process%d is unchanged",
 			  index);
 
 	return 0;
@@ -541,7 +541,7 @@ int Process::SendSignal (int sig)
 		return -1;
 
 	Logs.Add (Log::Process | Log::Notice,
-		  "Sending signal nº %d to process %d",
+		  "Sending signal %d to process %d",
 		  sig, pid);
 
 	return kill (pid, sig);

@@ -1,13 +1,201 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
+  <title>Configuraci&oacute;n del Servidor SAGS 0.3.x</title>
+  <meta content="Pablo Carmona Amigo" name="author">
 </head>
 <body>
-<h1>Configuraci&oacute;n del Servidor SAGS</h1>
-<h2>Archivo de configuraci&oacute;n sags.conf<br>
-</h2>
-<h2>Certificado SSL</h2>
-<br>
-<br>
+<h1>Configuraci&oacute;n del Servidor SAGS 0.3.x<br>
+</h1>
+<p>&copy; 2004 Pablo Carmona Amigo<br>
+</p>
+<ol id="mozToc">
+<!--mozToc h2 1 h3 2 h4 3 h5 4 h6 5--><li><a href="#mozTocId880139">Introducci&oacute;n</a></li>
+  <li><a href="#mozTocId834523">Archivo de configuraci&oacute;n
+sags.conf</a>
+    <ol>
+      <li><a href="#mozTocId382976">Grupo Logging</a></li>
+      <li><a href="#mozTocId887358">Grupo Network</a>
+        <ol>
+          <li><a href="#mozTocId720189">Certificado SSL sags.pem</a></li>
+        </ol>
+      </li>
+      <li><a href="#mozTocId203590">Grupo Main</a>
+        <ol>
+          <li><a href="#mozTocId292710">Archivo de usuarios sags.users</a></li>
+        </ol>
+      </li>
+      <li><a href="#mozTocId824077">Grupo Process</a></li>
+    </ol>
+  </li>
+  <li><a href="#mozTocId232419">Ejecutando el servidor</a></li>
+</ol>
+<h2><a class="mozTocH2" name="mozTocId880139"></a>Introducci&oacute;n</h2>
+<p>En este documento se describe la configuraci&oacute;n de un servidor
+SAGS 0.3.x para administrar remotamente los procesos ejectados en
+&eacute;l.<br>
+</p>
+<p>El proyecto se encuentra alojado en Sourceforge.net y la
+direcci&oacute;n es <a href="http://sags.sourceforge.net/">http://sags.sourceforge.net/</a>,
+donde podr&aacute; encontrar nuevas versiones tanto del servidor como
+del cliente.</p>
+<h2><a class="mozTocH2" name="mozTocId834523"></a>Archivo de
+configuraci&oacute;n sags.conf</h2>
+<p>Tiene un formato parecido a los INI de MS Windows. En &eacute;l se
+distinguen 4 grupos:<br>
+</p>
+<ul>
+  <li><span style="font-family: monospace;">Logging</span><br>
+  </li>
+  <li><span style="font-family: monospace;">Network</span><br
+ style="font-family: monospace;">
+  </li>
+  <li><span style="font-family: monospace;">Main</span><br>
+  </li>
+  <li><span style="font-family: monospace;">ProcessX</span> (donde <span
+ style="font-family: monospace;">X</span> debe comenzar en <span
+ style="font-family: monospace;">1</span> y llegar a un m&aacute;ximo
+de <span style="font-family: monospace;">252</span>)<br>
+  </li>
+</ul>
+<h3><a class="mozTocH3" name="mozTocId382976"></a>Grupo Logging</h3>
+<p>Contiene las opciones de registros como el archivo donde escribir (<span
+ style="font-family: monospace;">File</span>) y si el programa
+generar&aacute; informaci&oacute;n de debugging (<span
+ style="font-family: monospace;">Debug</span>).<br>
+</p>
+<pre><span style="color: rgb(0, 0, 255);">[Logging]</span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">File=<span
+ style="color: rgb(255, 0, 0);">"/var/log/sags.log"</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Debug=no</span><br></pre>
+<h3><a class="mozTocH3" name="mozTocId887358"></a>Grupo Network<br>
+</h3>
+<p>Aqu&iacute; se configuran el puerto a usar por la aplicaci&oacute;n (<span
+ style="font-family: monospace;">Port</span>) y n&uacute;mero
+m&aacute;ximo de conexiones a aceptar (<span
+ style="font-family: monospace;">MaxClients</span>).<br>
+</p>
+<pre style="color: rgb(0, 0, 255);">[Network]<br>Port=<span
+ style="color: rgb(255, 0, 0);">"47777"</span><br>MaxClients=10<br><span
+ style="color: rgb(0, 0, 0);">...</span><br></pre>
+<h4><a class="mozTocH4" name="mozTocId720189"></a>Certificado SSL
+sags.pem<br>
+</h4>
+<p>El servidor necesita un certificado SSL para usarlo en la conexiones
+SSL. Puede crear uno usando el Makefile que se encuentra en <span
+ style="font-family: monospace;">/usr/share/ssl/certs/</span> en Fedora
+Core.<br>
+</p>
+<p>Cuando lo tenga listo agregue la ruta completa a la opci&oacute;n <span
+ style="font-family: monospace;">CertificateFile</span> en el grupo <span
+ style="font-family: monospace;">[Network]</span>.<br>
+</p>
+<pre><span style="color: rgb(0, 0, 255);">[Network]</span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Port=<span
+ style="color: rgb(255, 0, 0);">"47777"</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">MaxClients=10</span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">CertificateFile=<span
+ style="color: rgb(255, 0, 0);">"/usr/share/ssl/certs/sags.pem"</span></span><br></pre>
+<p>El servidor no se iniciar&aacute; si falta este archivo!<br>
+</p>
+<h3><a class="mozTocH3" name="mozTocId203590"></a>Grupo Main</h3>
+<p>En este grupo se indica el archivo que contiene la lista de usuarios.<br>
+</p>
+<pre><span style="color: rgb(0, 0, 255);">[Main]</span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">UsersFile=<span
+ style="color: rgb(255, 0, 0);">"/etc/sags/sags.users"</span></span><br></pre>
+<p>Para crear un archivo de este tipo, use la herramienta <span
+ style="font-family: monospace;">sags-passwd</span> distribuida con
+este software.<br>
+</p>
+<h4><a class="mozTocH4" name="mozTocId292710"></a>Archivo de usuarios
+sags.users</h4>
+<p><br>
+</p>
+<h3><a class="mozTocH3" name="mozTocId824077"></a>Grupo Process<br>
+</h3>
+<p>Aqu&iacute; se configura cada proceso a ser manejado por la
+aplicaci&oacute;n. Se debe usar un &iacute;ndice para distinguir cada
+proceso a lanzar, por lo que se pueden tener grupos desde <span
+ style="font-family: monospace;">Process1</span> hasta <span
+ style="font-family: monospace;">Process252</span> (limitado por el
+protocolo de red). La numeraci&oacute;n debe partir en 1 y avanzar de a
+una unidad por cada proceso agregado. Si no se respeta este
+m&eacute;todo, la aplicaci&oacute;n no cargar&aacute; todos los
+procesos.<br>
+</p>
+<p>Los campos disponibles para configurar un proceso son:<br>
+</p>
+<ul>
+  <li><span style="font-weight: bold; font-family: monospace;">Type</span>:
+tipo de servidor.</li>
+  <li><span style="font-weight: bold; font-family: monospace;">Command</span>:
+comando de ejecuci&oacute;n del proceso.</li>
+  <li><span style="font-weight: bold; font-family: monospace;">Environment</span>:
+contiene la l&iacute;nea de variables de entorno para el proceso.</li>
+  <li><span style="font-weight: bold; font-family: monospace;">WorkingDirectory</span>:
+directorio donde se ejcutar&aacute; el proceso.</li>
+  <li><span style="font-weight: bold; font-family: monospace;">Respawn</span>:
+si es <span style="font-family: monospace;">yes</span> o <span
+ style="font-family: monospace;">true</span> se reiniciar&aacute; el
+proceso si termina, si es <span style="font-family: monospace;">no</span>
+o <span style="font-family: monospace;">false</span> no ser&aacute;
+reiniciado.</li>
+  <li><span style="font-weight: bold; font-family: monospace;">HistoryLength</span>:
+tama&ntilde;o en bytes para los registros del proceso.</li>
+  <li><span style="font-weight: bold; font-family: monospace;">Name</span>:
+el nombre asignado al proceso. Ser&aacute; usado como nombre de canal
+en una futura implementaci&oacute;n de un chat.<br>
+  </li>
+  <li><span style="font-weight: bold; font-family: monospace;">Description</span>:
+la descripci&oacute;n del proceso que ser&aacute; usada por la futura
+implementaci&oacute;n de chat como t&oacute;pico para el canal.<br>
+  </li>
+</ul>
+<p>Un proceso de ejemplo es el que se presenta a continuaci&oacute;n.<br>
+</p>
+<pre><span style="color: rgb(0, 0, 255);">[Process1]</span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Type=<span
+ style="color: rgb(255, 0, 0);">"quake2"</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Command=<span
+ style="color: rgb(255, 0, 0);">"/usr/bin/quake2 +set dedicated 1 +exec server1.cfg"</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Environment=<span
+ style="color: rgb(255, 0, 0);">"PATH=/usr/bin:/bin"</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">WorkingDirectory=<span
+ style="color: rgb(255, 0, 0);">"/usr/share/games/quake2"</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Respawn=yes</span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">HistoryLength=10240</span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Name=<span
+ style="color: rgb(255, 0, 0);">"server1"</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Description=<span
+ style="color: rgb(255, 0, 0);">"This is the Quake2 server N&ordm;1"</span></span><br></pre>
+<h2><a class="mozTocH2" name="mozTocId232419"></a>Ejecutando el servidor</h2>
+<p>Luego de configurar el programa puede probar su funcionamiento con
+el nuevo archivo de configuraci&oacute;n usando<br>
+</p>
+<pre>$ ./sags -D sags.conf<br></pre>
+<p>Usando <span style="font-family: monospace;">-D</span> el servidor
+no pasar&aacute; a segundo plano y todos los mensajes del programa
+saldr&aacute;n por la salida est&aacute;ndar, por lo que podr&aacute;
+evaluar el comportamiento del programa.</p>
+<p>Luego, cuando tenga una buena configuraci&oacute;n, puede iniciar el
+servidor ominitiendo <span style="font-family: monospace;">-D</span>
+por lo que la aplicaci&oacute;n pasar&aacute; a ejecutarse como demonio
+del sistema.<br>
+</p>
+<pre>$ ./sags sags.conf</pre>
+<p>Todav&iacute;a no se incluye con la aplicaci&oacute;n un script para
+<span style="font-weight: bold;">init</span>, pero puede usar un script
+parecido a <span style="font-family: monospace;">checksags</span> (en<span
+ style="font-family: monospace;"></span> <span
+ style="font-family: monospace;">tools</span>) para agregarlo al
+demonio <span style="font-weight: bold;">cron</span>.</p>
+<p>Por &uacute;ltimo, basta conectarse con un cliente SAGS de
+versi&oacute;n 0.3.x para poder administrar todos los procesos
+(seg&uacute;n los procesos autorizados para cada usuario).<br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<p><span style="font-style: italic;">$Id: configuration-0.3_ES.html,v 1.2 2004/06/17 00:21:00 pcarm Exp $</span><br>
+</p>
 </body>
 </html>

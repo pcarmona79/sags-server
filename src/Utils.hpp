@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Utils.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/06/17 00:21:01 $
 //
 
 #ifndef __UTILS_HPP__
@@ -29,5 +29,7 @@
 char **strsplit (const char *str, char delim, int elem, int *count);
 char *substring (const char *src, int from, int to);
 char *md5_password_hash (const char *password);
+char *encode_password (const char *password);
+void random_string (char *str, int size);
 
 #endif // __UTILS_HPP__

@@ -7,6 +7,11 @@ This version includes the following changes:
 2) Added support for multiples game servers.
 3) Better handling of SIGHUP signal used to reload the configurations
    files.
+4) Server can send information about processes to the clients.
+5) New format of users file add the indexes of processes allowed for a
+   user.
+6) The users are checked before deal with a process.
+7) Added spanish documentation about configuration and network protocol.
 
 
 Version 0.2.5

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.hpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.5 $
+// $Date: 2004/06/17 00:21:00 $
 //
 
 #ifndef __CLIENT_HPP__
@@ -52,6 +52,7 @@ private:
 	Usr::Status ClientStatus;
 	char username[CL_MAXNAME + 1];
 	time_t cltime;
+	List<unsigned int> AuthorizedProcess;
 
 public:
 	Client (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t sslen);
@@ -73,6 +74,9 @@ public:
 	char *GetUsername (void);
 	time_t GetTime (void);
 	void UpdateTime (void);
+
+	void SetAuthorizedProcess (unsigned int idx);
+	bool IsAuthorized (unsigned int idx);
 
 	bool operator== (Client &Cl);
 };

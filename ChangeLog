@@ -1,3 +1,41 @@
+2004-06-16  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* doc/configuration_ES.html:
+		- Removed. Deprecated by doc/configuration-0.3_ES.html.
+
+	* doc/configuration-0.3_ES.html:
+		- Added information about configuration file.
+
+	* tools/sags-passwd.c:
+		- Added third member to save processes allowed for a user.
+		- Changed coding format of users file.
+
+	* src/Main.hpp:
+		- Changed members to adapt to new users file format.
+		- Hash is now calculated on user constructor.
+
+	* src/Main.cpp:
+		- LoadUsers() now reads the new format of the users file.
+		- Now we send the random string to the client after to get a
+		Auth::Username.
+		- We use IsAuthorized() method of Client class to check if the
+		client is authorizated to deal with a process.
+
+	* src/Utils.cpp:
+	* src/Utils.hpp:
+		- New function encode_password() used to decode and encode the
+		users passwords.
+		- New function random_string() to generate strings for
+		authentication.
+
+	* src/Client.hpp:
+	* src/Client.cpp:
+		- Added list of authorized processes.
+		- New method to add processes to the list of authorized
+		processes.
+		- New method IsAuthorized().
+
+
 2004-06-15  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Main.cpp:

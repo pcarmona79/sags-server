@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/ProcTree.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.2 $
+// $Date: 2004/06/17 00:21:01 $
 //
 
 #include "ProcTree.hpp"
@@ -54,15 +54,15 @@ void ProcTree::Start (void)
 		memset (group, 0, 11);
 		snprintf (group, 11, "Process%d", i);
 
-		Logs.Add (Log::ProcTree | Log::Debug,
-			  "Searching for group %s",
-			  group);
+		//Logs.Add (Log::ProcTree | Log::Debug,
+		//	  "Searching for group %s",
+		//	  group);
 
 		if (Config.Check (group, "Command"))
 		{
 			// existe el grupo
 			Logs.Add (Log::ProcTree | Log::Info,
-				  "Creating process nº%d", i);
+				  "Creating process %d", i);
 
 			// El constructor de Process obtiene su
 			// configuración según su índice y luego
@@ -72,9 +72,9 @@ void ProcTree::Start (void)
 		else
 		{
 			// no existe, entonces salimos
-			Logs.Add (Log::ProcTree | Log::Debug,
-				  "Group %s not found",
-				  group);
+			//Logs.Add (Log::ProcTree | Log::Debug,
+			//	  "Group %s not found",
+			//	  group);
 			break;
 		}
 	}
@@ -98,7 +98,7 @@ void ProcTree::Check (void)
 		{
 			// remover
 			Logs.Add (Log::ProcTree | Log::Notice,
-				  "Removing process nº%d",
+				  "Removing process %d",
 				  i - 1);
 			ProcList.Remove (ProcList[i - 1]);
 			break;
@@ -117,15 +117,15 @@ void ProcTree::Check (void)
 			memset (group, 0, 11);
 			snprintf (group, 11, "Process%d", i);
 
-			Logs.Add (Log::ProcTree | Log::Debug,
-				  "Searching for group %s",
-				  group);
+			//Logs.Add (Log::ProcTree | Log::Debug,
+			//	  "Searching for group %s",
+			//	  group);
 
 			if (Config.Check (group, "Command"))
 			{
 				// existe el grupo
 				Logs.Add (Log::ProcTree | Log::Info,
-					  "Creating process nº%d", i);
+					  "Creating process %d", i);
 
 				// El constructor de Process obtiene su
 				// configuración según su índice y luego
@@ -135,9 +135,9 @@ void ProcTree::Check (void)
 			else
 			{
 				// no existe, entonces salimos
-				Logs.Add (Log::ProcTree | Log::Debug,
-					  "Group %s not found",
-					  group);
+				//Logs.Add (Log::ProcTree | Log::Debug,
+				//	  "Group %s not found",
+				//	  group);
 				break;
 			}
 		}

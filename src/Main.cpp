@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.13 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.14 $
+// $Date: 2004/06/17 00:21:00 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -35,7 +35,6 @@
 #include "ProcTree.hpp"
 #include "Network.hpp"
 #include "Log.hpp"
-#include "Utils.hpp"
 
 Main::Main () : SelectLoop ()
 {
@@ -109,12 +108,12 @@ void Main::DataEvent (int owner, int fd, bool writing)
 	switch (owner & Owner::Mask)
 	{
 		case Owner::Process:
-			Logs.Add (Log::Debug, "Reading from child process");
+			//Logs.Add (Log::Debug, "Reading from child process");
 			ProcMaster.ReadFrom (fd);
 			break;
 
 		case Owner::Network:
-			Logs.Add (Log::Debug, "Accepting connection");
+			//Logs.Add (Log::Debug, "Accepting connection");
 			Server.AcceptConnection (fd);
 			break;
 
@@ -122,12 +121,12 @@ void Main::DataEvent (int owner, int fd, bool writing)
 			if ((owner & Owner::Send) && writing)
 			{
 				// socket listo para enviar
-				Logs.Add (Log::Debug, "Sending data to client");
+				//Logs.Add (Log::Debug, "Sending data to client");
 				Server.SendData (fd);
 			}
 			else
 			{
-				Logs.Add (Log::Debug, "Receiving data from client");
+				//Logs.Add (Log::Debug, "Receiving data from client");
 				Server.ReceiveData (fd);
 			}
 			break;
@@ -214,8 +213,6 @@ int Main::ProtoSync (Client *Cl, Packet *Pkt)
 int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 {
 	struct user *usr = NULL;
-	char *md5hash = NULL;
-	char pass_str[81];
 
 	switch (Pkt->GetCommand ())
 	{
@@ -226,10 +223,26 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 			Cl->SetUsername (Pkt->GetData ());
 			Cl->SetStatus (Usr::NeedPass);
 
-			snprintf (pass_str, 81, "User %s needs password",
-				  Cl->GetUsername ());
+			// ahora le enviamos la cadena aleatoria
+			usr = FindUser (Cl->GetUsername ());
+			if (usr == NULL)
+			{
+				Logs.Add (Log::Warning,
+					  "User \"%s\" don't exists",
+					  Cl->GetUsername ());
 
-			Cl->AddBuffer (Auth::Index, Auth::Password, pass_str);
+				// enviamos una cadena aleatoria
+				// ficticia para despistar :)
+				char dumbstr[HASHLEN + 1];
+				random_string (dumbstr, HASHLEN);
+				Cl->AddBuffer (Auth::Index, Auth::RandomHash, dumbstr);
+			}
+			else
+				Cl->AddBuffer (Auth::Index, Auth::RandomHash, usr->rndstr);
+
+			Logs.Add (Log::Info,
+				  "Sending random string to user \"%s\"",
+				  Cl->GetUsername ());
 			Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
 		break;
@@ -241,11 +254,10 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 			usr = FindUser (Cl->GetUsername ());
 			if (usr != NULL)
 			{
-				md5hash = md5_password_hash (Pkt->GetData ());
-				int retval = strncmp (usr->hash, md5hash,
-						      strlen (md5hash));
-				//Logs.Add (Log::Debug, "Checking \"%s\" <%d> \"%s\"",
-				//	  usr->hash, retval, md5hash);
+				int retval = strncmp (usr->hash, Pkt->GetData (),
+						      strlen (usr->hash));
+				Logs.Add (Log::Debug, "Checking \"%s\" <%d> \"%s\"",
+					  usr->hash, retval, Pkt->GetData ());
 
 				if (!retval)
 				{
@@ -263,15 +275,13 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 
 					// TODO: aquí hay que enviarle al cliente
 					//       la lista de procesos autorizados.
-					//       Por ahora enviamos uno general.
-					Cl->Add (new Packet (Session::MainIndex,
-							     Session::Authorized));
+					// agregamos al cliente los servidores autorizados
+					AddAuthorizedProcesses (Cl, usr);
 				}
 				else
 					Logs.Add (Log::Warning,
 						  "User \"%s\" failed to get logged in",
 						  Cl->GetUsername ());
-				delete[] md5hash;
 			}
 			else
 				Logs.Add (Log::Warning,
@@ -301,7 +311,7 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 	{
 	case Session::ConsoleNeedLogs:
 
-		if (Cl->IsValid ())
+		if (Cl->IsAuthorized (Pkt->GetIndex ()))
 		{
 			Server.SendProcessLogs (Cl, Pkt->GetIndex ());
 			break;
@@ -310,7 +320,7 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 
 	case Session::ConsoleInput:
 
-		if (Cl->IsValid ())
+		if (Cl->IsAuthorized (Pkt->GetIndex ()))
 		{
 			if (ProcMaster.WriteToProcess (Pkt->GetIndex (), Pkt->GetData ()) > 0)
 				Cl->Add (new Packet (Pkt->GetIndex (),
@@ -331,7 +341,7 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 
 		// el cliente solicita la información del
 		// proceso dado por el índice
-		if (Cl->IsValid ())
+		if (Cl->IsAuthorized (Pkt->GetIndex ()))
 		{
 			bufinfo = ProcMaster.GetProcessInfo (Pkt->GetIndex ());
 
@@ -376,7 +386,7 @@ void Main::LoadUsers (void)
 	ifstream file (usersfile->string);
 	char line[CL_MAXNAME + HASHLEN + 2];
 	char **ln;
-	int i, j, two;
+	int i, j, three;
 
 	if (!file.is_open ())
 	{
@@ -395,20 +405,25 @@ void Main::LoadUsers (void)
 		file.getline (line, CL_MAXNAME + HASHLEN);
 		//Logs.Add (Log::Debug, "%2d %s", i, line);
 
-		ln = strsplit (line, ':', -1, &two);
-		if (two != 2)
+		if (line[0] == '\0')
+			continue;
+
+		ln = strsplit (line, ':', -1, &three);
+		if (three != 3)
 		{
-			//Logs.Add (Log::Debug, "Line %d skipped", i);
+			Logs.Add (Log::Warning, "Skipping malformed line %d", i);
 			continue;
 		}
 
-		//Logs.Add (Log::Debug, "Loaded user \"%s\" with hash \"%s\"", ln[0], ln[1]);
-		AddUser (ln[0], ln[1]);
+		//Logs.Add (Log::Debug, "Loaded user \"%s\" (\"%s\",\"%s\")",
+		//	  ln[0], ln[1], ln[2]);
+
+		AddUser (ln[0], ln[1], ln[2]);
 
 		// ln debe ser liberado
-		if (two > 0)
+		if (three > 0)
 		{
-			for (j = two - 1; j >= 0; --j)
+			for (j = three - 1; j >= 0; --j)
 				delete[] ln[j];
 		}
 	}
@@ -420,9 +435,9 @@ void Main::LoadUsers (void)
 		  userslist.GetCount (), usersfile->string);
 }
 
-void Main::AddUser (const char *name, const char *hash)
+void Main::AddUser (const char *name, const char *pass, const char *procs)
 {
-	struct user *newitem = new struct user (name, hash);
+	struct user *newitem = new struct user (name, pass, procs);
 	userslist << newitem;
 }
 
@@ -430,6 +445,23 @@ struct user *Main::FindUser (const char *name)
 {
 	struct user searched (name);
 	return userslist.Find (searched);
+}
+
+void Main::AddAuthorizedProcesses (Client *Cl, struct user *usr)
+{
+	char **pcs;
+	int np = 0, i, idx;
+
+	pcs = strsplit (usr->procs, ',', -1, &np);
+
+	for (i = 0; i <= np - 1; ++i)
+	{
+		idx = (int) strtol (pcs[i], (char **)NULL, 10);
+		Cl->SetAuthorizedProcess (idx);
+	}
+
+	for (i = np - 1; i >= 0; --i)
+		delete[] pcs[i];
 }
 
 void Main::PrintUsage (void)

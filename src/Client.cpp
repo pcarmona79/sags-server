@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.8 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.9 $
+// $Date: 2004/06/17 00:21:00 $
 //
 
 #include <cstring>
@@ -190,6 +190,28 @@ time_t Client::GetTime (void)
 void Client::UpdateTime (void)
 {
 	time (&cltime);
+}
+
+void Client::SetAuthorizedProcess (unsigned int idx)
+{
+	AuthorizedProcess << idx;
+}
+
+bool Client::IsAuthorized (unsigned int idx)
+{
+	if (IsValid ())
+	{
+		// buscamos primero a un administrador
+		if (AuthorizedProcess.GetCount () == 1)
+			if (AuthorizedProcess[0] == 0)
+				return true;
+
+		// buscamos idx dentro de la lista
+		// de procesos autorizados
+		if (AuthorizedProcess.Find (idx) != NULL)
+			return true;
+	}
+	return false;
 }
 
 bool Client::operator== (Client &Cl)

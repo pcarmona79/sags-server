@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Utils.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/06/17 00:21:01 $
 //
 
 #include <iostream>
@@ -150,6 +150,39 @@ char *md5_password_hash (const char *password)
 		strncat (md5_password_hex, hexadecimal, sizeof (hexadecimal));
 	}
 
-	delete md5_password;
+	delete[] md5_password;
 	return md5_password_hex;
+}
+
+char *encode_password (const char *password)
+{
+	char *encoded;
+	unsigned int i;
+
+	encoded = new char [strlen (password) + 1];
+	memset (encoded, 0, strlen (password) + 1);
+
+	for (i = 0; i <= strlen (password) - 1; ++i)
+		encoded[i] = password[i] ^ 0xAA;
+
+	return encoded;
+}
+
+void random_string (char *str, int size)
+{
+	int i, rndval;
+
+	for (i = 0; i <= size - 1; ++i)
+	{
+		rndval = (int) (61 * rand () / (RAND_MAX + 1.0));
+		
+		if (rndval >= 0 && rndval <= 9)
+			str[i] = (char) (rndval + 48);
+		else if (rndval >= 10 && rndval <= 35)
+			str[i] = (char) (rndval + 55);
+		else if (rndval >= 36 && rndval <= 61)
+			str[i] = (char) (rndval + 61);	
+		else
+			str[i] = '\0'; // ups!
+	}
 }

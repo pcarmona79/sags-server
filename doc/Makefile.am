@@ -3,7 +3,6 @@
 sags_docsdir = @PACKAGE_DOC_DIR@
 
 sags_docs_DATA = \
-		 configuration_ES.html     \
 		 configuration-0.3_ES.html \
 		 protocol_ES.html          \
 		 protocol-2_ES.html        \
