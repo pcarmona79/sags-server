@@ -17,8 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/tools/sags-passwd.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2005/01/17 23:13:02 $
+// $Revision: 1.2 $
+// $Date: 2005/02/08 01:17:34 $
 //
 
 #include <iostream>
@@ -32,6 +32,9 @@
 #define MAX_NAME 80
 
 using namespace std;
+
+enum { MODE_CREATE = 1, MODE_EDIT, MODE_DELETE, MODE_LIST };
+enum { ASK_NAME = 1, ASK_PWD = 2, ASK_PROCS = 4, ASK_NEWNAME = 8 };
 
 //-------------------------------------------------------------------//
 //  Utilidades
@@ -150,7 +153,7 @@ public:
 	~UsersFile ();
 
 	void SetFile (const char *newname);
-	int Read (void);
+	int Read (int mode);
 	int Write (void);
 	int GetUserProcesses (const char *username, char *procs);
 	int CheckUser (const char *username);
@@ -176,17 +179,40 @@ void UsersFile::SetFile (const char *newname)
 		strncpy (filename, newname, MAX_NAME);
 }
 
-int UsersFile::Read (void)
+int UsersFile::Read (int mode)
 {
-	ifstream file (filename); // filename no deberia estar vacio
+	fstream file; (filename);
 	char line[3*MAX_NAME + 1], **ln, *pwd_decoded;
 	int i, j, three;
 
+	// filename no debería estar vacío
+	file.open (filename, ios::in);
+
 	if (!file.is_open ())
 	{
-		cerr << "Error: Failed to open the users file \"" <<
-			filename << "\"" << endl;
-		return -1;
+		if (mode == MODE_CREATE)
+		{
+			// creamos el archivo
+			cout << "Creating new file \"" << filename << "\"" << endl;
+			file.open (filename, ios::out);
+
+			if (!file.is_open ())
+			{
+				cerr << "Error: Failed to create the users file \"" <<
+					filename << "\"" << endl;
+				return -1;
+			}
+			else
+				file.close ();
+
+			return 0;
+		}
+		else
+		{
+			cerr << "Error: Failed to open the users file \"" <<
+				filename << "\"" << endl;
+			return -1;
+		}
 	}
 
 	for (i = 1; !file.eof(); ++i)
@@ -225,7 +251,7 @@ int UsersFile::Read (void)
 
 int UsersFile::Write (void)
 {
-	ofstream file (filename); // filename no deberia estar vacio
+	ofstream file (filename); // filename no debería estar vacío
 	int i;
 	char *pwd_encoded;
 
@@ -344,9 +370,6 @@ void UsersFile::ListUsers (const char *which)
 //  UsersAdmin: Administrador de las tareas a hacer con el archivo
 //              de usuarios de SAGS
 //-------------------------------------------------------------------//
-
-enum { MODE_CREATE = 1, MODE_EDIT, MODE_DELETE, MODE_LIST };
-enum { ASK_NAME = 1, ASK_PWD = 2, ASK_PROCS = 4, ASK_NEWNAME = 8 };
 
 class UsersAdmin
 {
@@ -477,7 +500,7 @@ void UsersAdmin::Init (int argc, char **argv)
 	SAGS_UsersFile.SetFile (argv[2]);
 
 	// cargamos el archivo
-	if (SAGS_UsersFile.Read () < 0)
+	if (SAGS_UsersFile.Read (mode) < 0)
 		exit (EXIT_FAILURE);
 
 	// el tercer parametro es opcional y corresponde

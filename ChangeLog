@@ -1,3 +1,10 @@
+2005-02-05  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* tools/sags-passwd.cpp:
+		- Now we create the users file if it isn't exists when we're
+	       adding a user (MODE_CREATE).
+
+
 2005-01-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Preparing 0.5 version.
