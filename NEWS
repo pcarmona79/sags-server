@@ -1,21 +1,32 @@
-New version 0.2.2
+New version 0.2.3
 -----------------
+
+This release includes:
+
+1) Added a new parameter to Main::DataEvent to check when the server is
+   sending a packet to the client.
+2) The signal SIGPIPE is now catched to avoid that the program crashes.
+3) Now a watch is removed when the client is dropped by the server.
+
+
+Version 0.2.2
+-------------
 
 This release fixes a bug who can cause the program to receive a SIGPIPE
 when a connected user dies unexpectedly without send a disconnect
 packet.
 
 
-New version 0.2.1
------------------
+Version 0.2.1
+-------------
 
 This version enables to the client to get disconnected sending only a
 SessionDisconnect packet. It was released to be compatible with the
 0.2.0 version of SAGS Client.
 
 
-New version 0.2.0
------------------
+Version 0.2.0
+-------------
 
 This version includes the following changes:
 

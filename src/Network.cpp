@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/05/22 21:03:48 $
+// $Revision: 1.7 $
+// $Date: 2004/05/29 19:54:54 $
 //
 
 #include <iostream>
@@ -297,6 +297,7 @@ int Network::DropClient (Client *Cl)
 	{
 		sd = Cl->ShowSocket ();
 		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
+		RemoveWatch (Cl);
 	}
 	else
 		return -1;

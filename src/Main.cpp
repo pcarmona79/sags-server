@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.9 $
-// $Date: 2004/05/21 22:13:15 $
+// $Revision: 1.10 $
+// $Date: 2004/05/29 19:54:54 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -79,11 +79,13 @@ void Main::SignalEvent (int sig)
 	exit (sig);
 }
 
-void Main::DataEvent (int owner, int fd)
+void Main::DataEvent (int owner, int fd, bool writing)
 {
 	char buffer[PCKT_MAXDATA + 1];
 
-	Logs.Add (Log::Debug, "DataEvent: owner=0x%02X fd=%d", owner, fd);
+	Logs.Add (Log::Debug,
+		  "DataEvent: owner=0x%02X fd=%d writing=%s",
+		  owner, fd, (writing) ? "true": "false");
 
 	switch (owner & Owner::Mask)
 	{
@@ -101,7 +103,7 @@ void Main::DataEvent (int owner, int fd)
 			break;
 
 		case Owner::Client:
-			if (owner & Owner::Send)
+			if ((owner & Owner::Send) && writing)
 			{
 				// socket listo para enviar
 				Logs.Add (Log::Debug, "Sending data to client");

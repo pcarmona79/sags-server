@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.5 $
+// $Date: 2004/05/29 19:54:54 $
 //
 
 #include <csignal>
@@ -49,6 +49,9 @@ void CatchSignal (int sig)
 		case SIGINT:
 			Logs.Add (Log::Notice, "CatchSignal: Received SIGINT");
 			break;
+		case SIGPIPE:
+			Logs.Add (Log::Notice, "CatchSignal: Received SIGPIPE");
+			return;
 		default:
 			;
 	}
@@ -117,12 +120,14 @@ void SelectLoop::Init (void)
 	sigemptyset (&sigmask);
 	sigaddset (&sigmask, SIGTERM);
 	sigaddset (&sigmask, SIGINT);
+	sigaddset (&sigmask, SIGPIPE);
 	sigprocmask (SIG_BLOCK, &sigmask, &original_sigmask);
 
 	act.sa_handler = CatchSignal;
 	act.sa_flags = 0;
 	sigaction (SIGTERM, &act, NULL);
 	sigaction (SIGINT, &act, NULL);
+	sigaction (SIGPIPE, &act, NULL);
 }
 
 void SelectLoop::Run (void)
@@ -167,14 +172,14 @@ void SelectLoop::Run (void)
 			// buscamos descriptores listos para escribir
 			if (FD_ISSET (list->fd, &wr))
 			{
-				DataEvent (list->owner, list->fd);
+				DataEvent (list->owner, list->fd, true);
 				break;
 			}
 
 			// buscamos descriptores listos para leer
 			if (FD_ISSET (list->fd, &rd))
 			{
-				DataEvent (list->owner, list->fd);
+				DataEvent (list->owner, list->fd, false);
 				break;
 			}
 		}

@@ -1,5 +1,16 @@
 2004-05-22  Pablo Carmona Amigo  <kernel@dday.cl>
 
+	* Version 0.2.3.
+	* src/Loop.hpp: DataEvent now needs a third boolean parameter to
+	indicates if we are writing or not.
+	* src/Loop.cpp: Added SIGPIPE to the signals managed by CatchSignal.
+	* src/Main.cpp: The third boolean parameter of DataEvent is used to
+	check when we are sending a packet.
+	* src/Network.cpp: Added a RemoveWatch on DropClient.
+
+
+2004-05-22  Pablo Carmona Amigo  <kernel@dday.cl>
+
 	* Version 0.2.2.
 	* Fixed a non-initializated variable in Client::Receive.
 	* Removed unnecessary code in Client::Send who check a
