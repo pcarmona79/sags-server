@@ -1,21 +1,21 @@
-# Configuration file for SAGS Server
+# Configuration file for SAGS Server 0.2.x
 # Comments start with "#"
-
-# Main configurations
-Main.UsersFile "sags.users"
 
 # Logging settings
 Logging.File "sags.log"
 Logging.Debug yes
 
 # Process to execute
-Process.Command "./quake2 +set dedicated 1 +set game dday +exec server.cfg"
+Process.Command "/usr/bin/quake2 +set dedicated 1 +exec server.cfg"
 Process.Environment "PATH=/usr/bin:/bin"
-Process.WorkingDirectory "/home/pablo/q2"
+Process.WorkingDirectory "/usr/share/games/quake2"
 Process.Respawn yes
-Process.HistoryLines 50
+Process.HistoryLength 10240
 
 # Network configurations
 Network.Port "47777"
 Network.MaxClients 2
 Network.CertificateFile "sags.pem"
+
+# Main configurations
+Main.UsersFile "sags.users"

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __MAIN_HPP__
@@ -30,6 +30,7 @@
 #include "Packet.hpp"
 #include "Client.hpp"
 #include "Config.hpp"
+#include "List.hpp"
 
 #define HASHLEN 32
 
@@ -37,14 +38,30 @@ struct user
 {
 	char name[CL_MAXNAME + 1];
 	char hash[HASHLEN + 1];
-	struct user *next;
+	
+	user (const char *n = NULL, const char *h = NULL)
+	{
+		memset (name, 0, CL_MAXNAME);
+		memset (hash, 0, HASHLEN);
+		if (n != NULL)
+			strncpy (name, n, CL_MAXNAME);
+		if (h != NULL)
+			strncpy (hash, h, HASHLEN);
+	}
+
+	bool operator== (const struct user &usr)
+	{
+		if (!strncmp (name, usr.name, CL_MAXNAME))
+			return true;
+		return false;
+	}
 };
 
 class Main : public SelectLoop
 {
 private:
 	bool debug;
-	struct user *userslist;
+	List<struct user> userslist;
 	struct option *usersfile;
 
 public:
@@ -53,7 +70,7 @@ public:
 
 	void Init (bool debugmode = false);
 	void AddOptions (void);
-	void SignalEvent (void);
+	void SignalEvent (int sig = 0);
 	void DataEvent (int owner, int fd);
 	void TimeoutEvent (void);
 	int GenerateResponse (Client *Cl, Packet *Pkt);

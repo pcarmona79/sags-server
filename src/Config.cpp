@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:20 $
+// $Revision: 1.2 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <iostream>
@@ -38,65 +38,12 @@ using namespace std;
 
 Configuration::Configuration ()
 {
-	list = NULL;
+
 }
 
 Configuration::~Configuration ()
 {
-	struct option_list *unlink;
-
-	while (list)
-	{
-		unlink = list;
-		list = unlink->next;
-		delete unlink->option;
-		delete unlink;
-	}
-}
-
-void Configuration::AddToList (struct option *opt)
-{
-	struct option_list *newitem, *searched = list;
-
-	newitem = new struct option_list;
-	newitem->option = opt;
-	newitem->next = NULL;
-
-	if (searched)
-	{
-		// buscamos el último elemento
-		while (searched->next)
-			searched = searched->next;
-		searched->next = newitem;
-	}
-	else
-		list = newitem;  // lista estaba vacía
-}
-
-struct option *Configuration::Find (const char *group, const char *name)
-{
-	struct option_list *searched = list;
-
-	while (searched)
-	{
-		//Logs.Add (Log::Config | Log::Debug, "Checking %s == %s && %s == %s",
-		//	  group, searched->option->group, name, searched->option->name);
-
-		if (!strncasecmp (group, searched->option->group, CONF_MAX_NAME) &&
-		    !strncasecmp (name, searched->option->name, CONF_MAX_NAME))
-		{
-			//Logs.Add (Log::Config | Log::Debug, "Successful search!");
-			return searched->option;
-		}
-
-		searched = searched->next;
-	}
-
-	Logs.Add (Log::Config | Log::Debug,
-		  "Option %s.%s not found",
-		  group, name);
-
-	return NULL;
+	
 }
 
 void Configuration::GetOptionsFromFile (ifstream& file)
@@ -259,12 +206,7 @@ void Configuration::GetOptionsFromFile (ifstream& file)
 
 struct option *Configuration::Add (Conf::OpType type, const char *group, const char *name, int val)
 {
-	struct option *opt;
-
-	opt = new struct option;
-	opt->type = type;
-	strncpy (opt->group, group, CONF_MAX_NAME);
-	strncpy (opt->name, name, CONF_MAX_NAME);
+	struct option *opt = new struct option (group, name, type);
 
 	//cout << "Adding ('" << opt->group << "', '" << opt->name << "') = " << val << endl;
 
@@ -274,13 +216,13 @@ struct option *Configuration::Add (Conf::OpType type, const char *group, const c
 		case Conf::Boolean:
 			opt->value = (val) ? 1 : 0;
 			opt->string[0] = '\0';
-			AddToList (opt);
+			list << opt;
 			break;
 
 		case Conf::Numeric:
 			opt->value = val;
 			opt->string[0] = '\0';
-			AddToList (opt);
+			list << opt;
 			break;
 
 		default:
@@ -293,12 +235,7 @@ struct option *Configuration::Add (Conf::OpType type, const char *group, const c
 
 struct option *Configuration::Add (Conf::OpType type, const char *group, const char *name, const char *val)
 {
-	struct option *opt;
-
-	opt = new struct option;
-	opt->type = type;
-	strncpy (opt->group, group, CONF_MAX_NAME);
-	strncpy (opt->name, name, CONF_MAX_NAME);
+	struct option *opt = new struct option (group, name, type);
 
 	//cout << "Adding ('" << opt->group << "', '" << opt->name << "') = " << val << endl;
 
@@ -308,7 +245,7 @@ struct option *Configuration::Add (Conf::OpType type, const char *group, const c
 		case Conf::String:
 			strncpy (opt->string, val, CONF_MAX_STRING);
 			opt->value = 0;
-			AddToList (opt);
+			list << opt;
 			break;
 		default:
 			delete opt;
@@ -320,18 +257,13 @@ struct option *Configuration::Add (Conf::OpType type, const char *group, const c
 
 struct option *Configuration::Get (const char *group, const char *name)
 {
-	struct option *opt, *found;
+	struct option *opt, *found, searched (group, name);
 
-	opt = Find (group, name);
+	opt = list.Find (searched);
 
 	if (opt != NULL)
 	{
-		found = new struct option;
-		
-		// asignamos los valores encontrados
-		found->type = opt->type;
-		strncpy (found->group, opt->group, CONF_MAX_NAME);
-		strncpy (found->name, opt->name, CONF_MAX_NAME);
+		found = new struct option (opt->group, opt->name, opt->type);
 
 		// el string se asigna si no es nulo, si no se asigna value
 		if (opt->string[0] != '\0')
@@ -359,9 +291,9 @@ struct option *Configuration::Get (const char *group, const char *name)
 
 void Configuration::Set (Conf::OpType type, const char *group, const char *name, int val)
 {
-	struct option *opt;
+	struct option *opt, searched (group, name);
 
-	opt = Find (group, name);
+	opt = list.Find (searched);
 
 	if (opt != NULL)
 	{
@@ -371,14 +303,14 @@ void Configuration::Set (Conf::OpType type, const char *group, const char *name,
 			case Conf::Boolean:
 				opt->value = (val) ? 1 : 0;
 				opt->string[0] = '\0';
-				//Logs.Add (Log::Config | Log::Info,
+				//Logs.Add (Log::Config | Log::Debug,
 				//	  "Changing Boolean %s.%s to %d", group, name, val);
 				break;
 
 			case Conf::Numeric:
 				opt->value = val;
 				opt->string[0] = '\0';
-				//Logs.Add (Log::Config | Log::Info,
+				//Logs.Add (Log::Config | Log::Debug,
 				//	  "Changing Numeric %s.%s to %d", group, name, val);
 				break;
 			default:
@@ -393,9 +325,9 @@ void Configuration::Set (Conf::OpType type, const char *group, const char *name,
 
 void Configuration::Set (Conf::OpType type, const char *group, const char *name, const char *val)
 {
-	struct option *opt;
+	struct option *opt, searched (group, name);
 
-	opt = Find (group, name);
+	opt = list.Find (searched);
 
 	if (opt != NULL)
 	{

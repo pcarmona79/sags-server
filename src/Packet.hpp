@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __PACKET_HPP__
@@ -59,10 +59,18 @@ namespace Pckt
 		// mensajes de sincronización
 		SyncHello   = 0xFE00,
 		SyncVersion = 0xFE01,
-		SyncSSL     = 0xFE02,
 
 		// mensajes de error
-		ErrorGeneric = 0xFFFF
+		// desconetan:
+		ErrorServerFull         = 0xFF00,
+		ErrorNotValidVersion    = 0xFF01,
+		ErrorLoginFailed        = 0xFF02,
+		ErrorAuthTimeout        = 0xFF03,
+		ErrorServerQuit         = 0xFF04,
+		// no desconectan:
+		ErrorBadProcess         = 0xFF80,
+		ErrorCantWriteToProcess = 0xFF81,
+		ErrorGeneric            = 0xFFFF
 	} Type;
 };
 
@@ -87,8 +95,8 @@ private:
 
 public:
 	Packet (unsigned int type = 0, unsigned int seq = 0, unsigned int len = 0, const char *data = NULL);
-	Packet (unsigned int type, const char *data);
 	Packet (struct pkt packet);
+	Packet (const Packet &Pkt);
 	~Packet ();
 
 	void SetHeader (unsigned int hdr);
@@ -106,7 +114,7 @@ public:
 	void SetData (const char *data);
 	char *GetData (void);
 
-	Packet *Next;
+	bool operator== (const Packet &Pkt);
 };
 
 #endif // __PACKET_HPP__

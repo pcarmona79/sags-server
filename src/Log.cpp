@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Log.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <iostream>
@@ -152,7 +152,7 @@ void Logging::Add (int type, const char* fmt, ...)
 		file << tm << " " << hdr << msg << endl;
 
 	if (shutdown)
-		Application.SignalEvent ();
+		Application.SignalEvent (EXIT_FAILURE);
 }
 
 // definimos el objeto

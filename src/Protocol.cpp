@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Protocol.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/05/06 00:19:04 $
+// $Revision: 1.3 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <cstring>
@@ -36,6 +36,7 @@ Protocol::Protocol (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t
 	int error;
 	char cl_addr[INET6_ADDRSTRLEN + 1], cl_port[6];
 
+	connected = true;
 	drop = false;
 	socketd = sd;
 
@@ -61,9 +62,21 @@ Protocol::Protocol (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t
 		snprintf (address, INET6_ADDRSTRLEN + 8, "[%s]:%s", cl_addr, cl_port);
 }
 
+Protocol::Protocol (int sd)
+{
+	connected = false;
+	drop = true;
+	socketd = sd;
+	ssl = NULL;
+	memset (address, 0, sizeof (address));
+}
+
 Protocol::~Protocol ()
 {
-	SSL_free (ssl);
+	if (connected)
+		Disconnect ();
+	if (ssl != NULL)
+		SSL_free (ssl);
 }
 
 int Protocol::ShowSocket (void)
@@ -130,10 +143,29 @@ Packet *Protocol::RecvPacket (int *len)
 
 int Protocol::Disconnect (void)
 {
-	return SSL_shutdown (ssl);
+	int retval = SSL_shutdown (ssl);
+
+	if (shutdown (socketd, SHUT_RDWR))
+		Logs.Add (Log::Client | Log::Warning,
+			  "Failed to shutdown socket: %s",
+			  strerror (errno));
+
+	if (close (socketd))
+		Logs.Add (Log::Client | Log::Warning,
+			  "Failed to close socket: %s",
+			  strerror (errno));
+
+	connected = false;
+
+	return retval;
 }
 
 bool Protocol::IsGood (void)
 {
 	return !drop;
+}
+
+void Protocol::SetDrop (bool val)
+{
+	drop = val;
 }

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/05/06 00:19:04 $
+// $Revision: 1.5 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <cstring>
@@ -36,31 +36,35 @@ Client::Client (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t ssl
 	// este constructor se invoca después
 	// del constructor de Protocol, por lo
 	// que podemos generar logs con la ip
+
+	ClientStatus = Usr::NeedUser;
+	time (&cltime);
+
+	Application.Add (Owner::Client, socketd);
+
 	Logs.Add (Log::Client | Log::Info,
 		  "New client connected from %s", ShowIP ());
+}
 
-	Outgoing = NULL;
+Client::Client (int sd)
+	: Protocol (sd)
+{
+	// un constructor simple para utilizarlo
+	// en búsqueda de otros elementos
 	ClientStatus = Usr::NeedUser;
 	time (&cltime);
 }
 
 Client::~Client ()
 {
-	Packet *UnLink;
-
-	// liberamos la lista de paquetes
-	while (Outgoing)
-	{
-		UnLink = Outgoing;
-		Outgoing = UnLink->Next;
-		delete UnLink;
-	}
+	if (connected)
+		Disconnect ();
 }
 
 int Client::Send (void)
 {
-	Packet *Sending = Outgoing;
-	int bytes = 0, total = 0;
+	Packet *Sending = Outgoing.ExtractFirst ();
+	int bytes = 0;
 
 	bytes = SendPacket (Sending);
 
@@ -79,17 +83,14 @@ int Client::Send (void)
 	if (Sending->GetType () == Pckt::SessionDisconnect)
 		return -2;
 
-	// avanzamos la lista en un paquete
-	// y borramos el paquete usado
-	total += bytes;
-	Outgoing = Outgoing->Next;
+	// borramos el paquete ya usado
 	delete Sending;
 
 	Logs.Add (Log::Client | Log::Debug,
 		  "%d bytes sent to %s",
-		  total, ShowIP ());
+		  bytes, ShowIP ());
 
-	if (Outgoing == NULL)
+	if (Outgoing.GetCount () == 0)
 		Application.Remove (Owner::Client | Owner::Send, ShowSocket ());
 
 	return bytes;
@@ -109,37 +110,51 @@ Packet *Client::Receive (void)
 
 void Client::Add (Packet *NewItem)
 {
-	Packet *Searched = Outgoing;
-
-	if (Searched)
-	{
-		// buscamos el último elemento
-		while (Searched->Next)
-			Searched = Searched->Next;
-		Searched->Next = NewItem;
-	}
-	else
-		Outgoing = NewItem;  // lista estaba vacía
+	Outgoing << NewItem;
 }
 
 void Client::AddFirst (Packet *NewItem)
 {
-	NewItem->Next = Outgoing;
-	Outgoing = NewItem;
+	Outgoing.Add (NewItem, true);
 }
 
-int Client::Disconnect (void)
+void Client::AddBuffer (unsigned int type, const char *data)
 {
-	Packet *Disc;
+	const char *p = data;
+	int s;
 
-	// enviar un paquete de desconexión
-	Disc = new Packet (Pckt::SessionDisconnect);
+	// data NO DEBE ser nulo!!!
 
-	if (SendPacket (Disc) < 0)
-		return -1;
+	// calculamos cuantos paquetes necesitaremos
+	// que corresponde a la parte entera más uno de
+	// TamañoTotal / 1024
+	s = (int) trunc (strlen (data) / 1024) + 1;
+
+	while (strlen (p) >= 1024)
+	{
+		Outgoing << new Packet (type, s--, strlen (p), p); // asigna hasta 1024 bytes
+		p += 1024;
+	}
+
+	if (strlen (p) > 0 && strlen (p) < 1024)
+		Outgoing << new Packet (type, s--, strlen (p), p);
+}
+
+int Client::Disconnect (Pckt::Type pkt_type)
+{
+	if (!drop)
+	{
+		// enviar un paquete de desconexión o error
+		Logs.Add (Log::Client | Log::Info,
+			  "Desconnecting client %s", ShowIP ());
+
+		SendPacket (new Packet (pkt_type));
+	}
 
 	// cerramos la conexión SSL
 	Protocol::Disconnect ();
+
+	Application.Remove (Owner::Client, socketd);
 
 	return 0;
 }
@@ -177,4 +192,9 @@ time_t Client::GetTime (void)
 void Client::UpdateTime (void)
 {
 	time (&cltime);
+}
+
+bool Client::operator== (Client &Cl)
+{
+	return (this->socketd == Cl.socketd);
 }

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.hpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/04/24 20:13:43 $
+// $Revision: 1.4 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __NETWORK_HPP__
@@ -33,18 +33,35 @@
 #include "Client.hpp"
 #include "Config.hpp"
 #include "Packet.hpp"
+#include "List.hpp"
 
 struct sditem
 {
 	int sd;
-	struct sditem *next;
+
+	sditem (int s = 0) : sd (s)
+	{ }
+
+	bool operator== (struct sditem &s)
+	{
+		return (sd == s.sd);
+	}
 };
 
 struct checkcl
 {
 	time_t timeout;
 	int sd;
-	struct checkcl *next;
+
+	checkcl (time_t t = 0, int s = 0) : timeout (t), sd (s)
+	{ }
+
+	bool operator== (struct checkcl &chk)
+	{
+		if (sd == chk.sd)
+			return true;
+		return false;
+	}
 };
 
 class Network
@@ -53,14 +70,14 @@ private:
 	struct option *port;
 	struct option *maxclients;
 	struct option *certificate;
-	Client *ClientList;
+	List<Client> ClientList;
 	int connections;
-	struct sditem *sdlist;
-	struct checkcl *checklist;
+	List<struct sditem> sdlist;
+	List<struct checkcl> checklist;
 	SSL_METHOD *ssl_method;
 	SSL_CTX *ssl_context;
 
-	void AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *address, socklen_t sslen);
+	Client *AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *address, socklen_t sslen);
 	void RemoveClient (int sd);
 	Client *FindClient (int sd);
 	void Add (int sd);
@@ -77,7 +94,7 @@ public:
 	int AcceptConnection (int sd);
 	int DropClient (Client *Cl);
 	int DropConnection (int sd);
-	void CloseConnection (int sd, bool send_disc = true);
+	void CloseConnection (int sd, Pckt::Type pkt_type = Pckt::SessionDisconnect);
 
 	int ReceiveData (int sd);
 	int SendData (int sd);

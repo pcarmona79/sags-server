@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __PROCESS_HPP__
@@ -45,7 +45,7 @@ private:
 	struct option *environment;
 	struct option *workdir;
 	struct option *respawn;
-	struct option *lines;
+	struct option *historylength;
 
 public:
 	Process ();

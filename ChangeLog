@@ -1,9 +1,26 @@
+2004-05-18  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* Version 0.2.0.
+	* The linked lists are now derived from a class List. This enables a
+	better control on memory assignations.
+	* The length of the process's logs is now in bytes. The configuration
+	variable HistoryLines has been renamed to HistoryLength.
+	* Added error messages to the network protocol.
+	* The version of client's protocol is now checked and compared with
+	the version of the server's protocol.
+
+
+2004-05-09  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* Fixed the protocol's messages of SyncHello and AuthPassword.
+
+
 2004-05-05  Pablo Carmona Amigo  <kernel@dday.cl>
 
 	* Version 0.1.2.
 	* Removed --posix from tarballs.
 	* Now the packets are sent one by one to the client, not all the list.
-	* The IP's are show with the port
+	* The IP's are show with the port.
 
 
 2004-04-23  Pablo Carmona Amigo  <kernel@dday.cl>

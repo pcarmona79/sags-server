@@ -19,14 +19,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:20 $
+// $Revision: 1.2 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __CONFIG_HPP__
 #define __CONFIG_HPP__
 
 #include <fstream>
+#include "List.hpp"
 
 using namespace std;
 
@@ -38,6 +39,7 @@ namespace Conf
 {
 	typedef enum
 	{
+		Null = 0,
 		Boolean,
 		Numeric,
 		String
@@ -51,21 +53,33 @@ struct option
 	char name[CONF_MAX_NAME + 1];
 	int value;
 	char string[CONF_MAX_STRING + 1];
-};
 
-struct option_list
-{
-	struct option *option;
-	struct option_list *next;
+	option (const char *g = NULL, const char *n = NULL, Conf::OpType t = Conf::Null)
+	{
+		type = t;
+		memset (group, 0, CONF_MAX_NAME);
+		memset (name, 0, CONF_MAX_NAME);
+		if (g != NULL)
+			strncpy (group, g, CONF_MAX_NAME);
+		if (n != NULL)
+			strncpy (name, n, CONF_MAX_NAME);
+		value = 0;
+		memset (string, 0, CONF_MAX_STRING);
+	}
+
+	bool operator== (const struct option &opt)
+	{
+		if (!strncasecmp (group, opt.group, CONF_MAX_NAME) &&
+		    !strncasecmp (name, opt.name, CONF_MAX_NAME))
+			return true;
+		return false;
+	}
 };
 
 class Configuration
 {
 private:
-	struct option_list *list;
-
-	void AddToList (struct option *opt);
-	struct option *Find (const char *group, const char *name);
+	List<struct option> list;
 
 public:
 	Configuration ();

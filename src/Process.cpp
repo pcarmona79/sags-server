@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <iostream>
@@ -56,7 +56,7 @@ Process::Process ()
 	environment = NULL;
 	workdir = NULL;
 	respawn = NULL;
-	lines = NULL;
+	historylength = NULL;
 	process_logs = NULL;
 }
 
@@ -84,7 +84,7 @@ Process::~Process ()
 	delete environment;
 	delete workdir;
 	delete respawn;
-	delete lines;
+	delete historylength;
 
 	// Liberar process_logs
 	delete[] process_logs;
@@ -96,27 +96,24 @@ void Process::AddOptions (void)
 	environment = Config.Add (Conf::String, "Process", "Environment", "PATH=/usr/bin:/bin");
 	workdir = Config.Add (Conf::String, "Process", "WorkingDirectory", ".");
 	respawn = Config.Add (Conf::Boolean, "Process", "Respawn", 0);
-	lines = Config.Add (Conf::Numeric, "Process", "HistoryLines", 25);
+	historylength = Config.Add (Conf::Numeric, "Process", "HistoryLength", 10240);
 }
 
 void Process::Start (void)
 {
-	// Asignamos 256 * "HistoryLines".
-	// Por defecto se asignan 25 KB (100 líneas). Con 1000 líneas se asignarán 250 KB.
-	if (lines->value > 0)
+	if (historylength->value > 0)
 	{
 		Logs.Add (Log::Process | Log::Info,
-			  "Asignating %.1f KB for process logs (%d lines)",
-			  (float)(lines->value * (LOG_MAX_STRING + 1) / 1024),
-			  lines->value);
+			  "Asignating %.1f KB for process logs",
+			  (float) (historylength->value) / 1024.0);
 
-		process_logs = new char [lines->value * (LOG_MAX_STRING + 1) + AUXLEN + 1];
-		memset (process_logs, 0, lines->value * (LOG_MAX_STRING + 1) + AUXLEN + 1);
+		process_logs = new char [historylength->value + AUXLEN + 1];
+		memset (process_logs, 0, historylength->value + AUXLEN + 1);
 	}
 	else
 		Logs.Add (Log::Process | Log::Critical,
-			  "Can't assign %d lines for process logs",
-			  lines->value);
+			  "Can't assign %d bytes for process logs",
+			  historylength->value);
 
 	// lanzamos el proceso
 	Launch ();
@@ -167,9 +164,9 @@ int Process::Launch (void)
 			  pid, command->string, workdir->string);
 
 		if (respawn->value)
-			strcpy (msg, "Process will be restarted if dies");
+			strncpy (msg, "Process will be restarted if dies", 50);
 		else
-			strcpy (msg, "Process will not be restarted if dies");
+			strncpy (msg, "Process will not be restarted if dies", 50);
 
 		Logs.Add (Log::Process | Log::Info, msg);
 		dead = false;
@@ -194,7 +191,7 @@ void Process::AddProcessData (const char *data)
 	// FIXME: estamos suponiendo que no agregamos
 	// más de AUXLEN bytes de datos.
 
-	if (proclen + datalen > lines->value * (LOG_MAX_STRING + 1) + AUXLEN)
+	if (proclen + datalen > historylength->value + AUXLEN)
 	{
 		// rotar los logs en al menos AUXLEN caracteres
 		// buscar a partir de AUXLEN un \n y luego borrar desde ahí
@@ -206,7 +203,7 @@ void Process::AddProcessData (const char *data)
 		reduced = substring (process_logs, delpos + 1, proclen - 1);
 
 		// borramos todos los logs
-		memset (process_logs, 0, lines->value * (LOG_MAX_STRING + 1) + AUXLEN + 1);
+		memset (process_logs, 0, historylength->value + AUXLEN + 1);
 
 		// copiamos el trozo en process_logs
 		strncpy (process_logs, reduced, strlen (reduced));
@@ -220,10 +217,10 @@ void Process::AddProcessData (const char *data)
 
 char *Process::GetProcessData (int *len)
 {
-	char *buf = new char [lines->value * (LOG_MAX_STRING + 1) + AUXLEN + 1];
+	char *buf = new char [historylength->value + AUXLEN + 1];
 
-	memset (buf, 0, lines->value * (LOG_MAX_STRING + 1) + AUXLEN + 1);
-	strncpy (buf, process_logs, lines->value * (LOG_MAX_STRING + 1) + AUXLEN);
+	memset (buf, 0, historylength->value + AUXLEN + 1);
+	strncpy (buf, process_logs, historylength->value + AUXLEN);
 
 	if (len != NULL)
 		*len = strlen (buf);
@@ -242,10 +239,10 @@ int Process::ReadData (char *buffer, int length)
 	{
 		if (retval == 0)
 			Logs.Add (Log::Process | Log::Warning,
-				  "Process died");
+				  "Process %d died", pid);
 		else
 			Logs.Add (Log::Process | Log::Warning,
-				  "Failed to read from process");
+				  "Failed to read from process %d", pid);
 
 		// descriptor cerrado debe ser removido
 		Application.Remove (Owner::Process, pty);
@@ -283,7 +280,7 @@ void Process::Read (char *buf, int buflen)
 	if (len > 0)
 	{
 		Logs.Add (Log::Process | Log::Debug,
-			  "Read %d bytes from %d",
+			  "Read %d bytes from process %d",
 			  len, pid);
 
 		// los datos leídos deben ponerse en el log del proceso
@@ -327,7 +324,7 @@ void Process::WaitExit (void)
 	{
 		respawn->value = 0;
 		strncpy (msg, "Bad process will not be restarted", 50);
-		Server.SendToAllClients (Pckt::SessionProcessExits, msg);
+		Server.SendToAllClients (Pckt::ErrorBadProcess);
 		Logs.Add (Log::Process | Log::Critical, msg);
 	}
 }

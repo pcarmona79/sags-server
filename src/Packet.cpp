@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <cstring>
@@ -36,56 +36,18 @@ Packet::Packet (unsigned int type, unsigned int seq, unsigned int len, const cha
 	SetSequence (seq);
 	SetLength (len);
 	SetData (data);
-	Next = NULL;
-}
-
-Packet::Packet (unsigned int type, const char *data)
-{
-	const char *p = data;
-	int s;
-	Packet *Pkt = this;
-
-	// data NO DEBE ser nulo!!!
-
-	// calculamos cuantos paquetes necesitaremos
-	// que corresponde a la parte entera más uno de
-	// TamañoTotal / 1024
-	s = (int) trunc (strlen (data) / 1024) + 1;
-
-	pkt_header = 0;
-	SetType (type);
-	SetSequence (s--);
-	SetLength (strlen (p)); // asigna hasta 1024 bytes
-	SetData (p);
-
-	if (GetLength () == 1024 && strlen (p) > 1024)
-	{
-		p += 1024;
-		while (strlen (p) >= 1024)
-		{
-			Pkt->Next = new Packet (type, s--, strlen (p), p); // asigna hasta 1024 bytes
-			p += 1024;
-			Pkt = Pkt->Next;
-		}
-		if (strlen (p) > 0 && strlen (p) < 1024)
-			Pkt->Next = new Packet (type, s--, strlen (p), p);
-	}
-	else
-		Next = NULL;
-
-	//printf ("New packet: TYPE: %04X SEQ: %d LEN: %d DATA: \"%s\"\n",
-	//	this->GetType (), this->GetSequence (), this->GetLength (), this->GetData ());
-	//if (this->Next != NULL)
-	//	printf ("2º New packet: TYPE: %04X SEQ: %d LEN: %d DATA: \"%s\"\n",
-	//		this->Next->GetType (), this->Next->GetSequence (),
-	//		this->Next->GetLength (), this->Next->GetData ());
 }
 
 Packet::Packet (struct pkt packet)
 {
 	pkt_header = packet.pkt_header;
 	SetData (packet.pkt_data);
-	Next = NULL;
+}
+
+Packet::Packet (const Packet &Pkt)
+{	
+	pkt_header = Pkt.pkt_header;
+	SetData (Pkt.pkt_data);
 }
 
 Packet::~Packet ()
@@ -161,4 +123,15 @@ void Packet::SetData (const char *data)
 char *Packet::GetData (void)
 {
 	return pkt_data;
+}
+
+bool Packet::operator== (const Packet &Pkt)
+{
+	if (pkt_header == Pkt.pkt_header)
+	{
+		if (!strncmp (pkt_data, Pkt.pkt_data, PCKT_MAXDATA))
+			return true;
+	}
+
+	return false;
 }

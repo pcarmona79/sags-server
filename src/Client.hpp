@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/04/21 04:47:26 $
+// $Revision: 1.3 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __CLIENT_HPP__
@@ -30,6 +30,7 @@
 
 #include "Protocol.hpp"
 #include "Packet.hpp"
+#include "List.hpp"
 
 #define CL_MAXNAME 80
 
@@ -47,20 +48,22 @@ namespace Usr
 class Client : public Protocol
 {
 private:
-	Packet *Outgoing;
+	List<Packet> Outgoing;
 	Usr::Status ClientStatus;
 	char username[CL_MAXNAME + 1];
 	time_t cltime;
 
 public:
 	Client (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t sslen);
+	Client (int sd);
 	~Client ();
 
 	int Send (void);
 	Packet *Receive (void);
 	void Add (Packet *NewItem);
 	void AddFirst (Packet *NewItem);
-	int Disconnect (void);
+	void AddBuffer (unsigned int type, const char *data);
+	int Disconnect (Pckt::Type pkt_type = Pckt::SessionDisconnect);
 
 	Usr::Status GetStatus (void);
 	void SetStatus (Usr::Status NewStatus);
@@ -70,8 +73,7 @@ public:
 	time_t GetTime (void);
 	void UpdateTime (void);
 
-	// un puntero al siguiente cliente
-	Client *Next;
+	bool operator== (Client &Cl);
 };
 
 #endif // __CLIENT_HPP__

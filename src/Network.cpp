@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/05/06 00:19:04 $
+// $Revision: 1.5 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <iostream>
@@ -47,148 +47,58 @@ Network::Network ()
 	port = NULL;
 	maxclients = NULL;
 	certificate = NULL;
-	ClientList = NULL;
 	connections = 0;
-	sdlist = NULL;
-	checklist = NULL;
 	ssl_method = NULL;
 	ssl_context = NULL;
 }
 
 Network::~Network ()
 {
-	Client *UnLink;
-	struct sditem *unlink;
-	struct checkcl *cl_unlink;
-
-	// la lista de clientes debe ser liberada
-	while (ClientList)
-	{
-		UnLink = ClientList;
-		ClientList = UnLink->Next;
-		delete UnLink;
-	}
-
-	// la lista de descriptores también debe ser liberada
-	while (sdlist)
-	{
-		unlink = sdlist;
-		sdlist = unlink->next;
-		delete unlink;
-	}
-
-	// la lista de clientes a chequear también debe ser liberada
-	while (checklist)
-	{
-		cl_unlink = checklist;
-		checklist = cl_unlink->next;
-		delete cl_unlink;
-	}
-	
-	// FIXME: esto da SIGSEGV
-	//if (ssl_context != NULL)
-	//	SSL_CTX_free (ssl_context);
+	if (ssl_context != NULL)
+		SSL_CTX_free (ssl_context);
 }
 
-void Network::AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *address, socklen_t sslen)
+Client *Network::AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *address, socklen_t sslen)
 {
-	Client *NewClient, *Searched = ClientList;
+	Client *NewClient;
 
 	// crear un nuevo cliente con address
 	// y agregarlo a la aplicación
 
 	NewClient = new Client (ctx, sd, address, sslen);
-	NewClient->Next = NULL;
+	ClientList << NewClient;
 
-	if (Searched)
-	{
-		// buscamos el último elemento
-		while (Searched->Next)
-			Searched = Searched->Next;
-		Searched->Next = NewClient;
-	}
-	else
-		ClientList = NewClient;  // lista estaba vacía
-
-	Application.Add (Owner::Client, sd);
+	// el número de conexiones es igual al de
+	// elementos en ClientList
 	++connections;
+
+	return NewClient;
 }
 
 void Network::RemoveClient (int sd)
 {
-	Client *Last = NULL, *Searched = ClientList;
-
-	while (Searched)
-	{
-		if (Searched->ShowSocket () == sd)
-		{
-			if (Last)
-				Last->Next = Searched->Next;
-			else
-				ClientList = Searched->Next;
-			delete Searched;
-			return;
-		}
-		Last = Searched;
-		Searched = Searched->Next;
-	}
+	Client Searched (sd);
+	ClientList.Remove (Searched);
 }
 
 Client *Network::FindClient (int sd)
 {
-	Client *Searched = ClientList;
-
-	while (Searched)
-	{
-		if (Searched->ShowSocket () == sd)
-			return Searched;
-
-		Searched = Searched->Next;
-	}
-
-	return NULL;
+	Client Searched (sd);
+	return ClientList.Find (Searched);
 }
 
 void Network::Add (int sd)
 {
-	struct sditem *newitem, *searched = sdlist;
+	struct sditem *newitem = new struct sditem (sd);
 
-	newitem = new struct sditem;
-	newitem->sd = sd;
-	newitem->next = NULL;
-
-	if (searched)
-	{
-		// buscamos el último elemento
-		while (searched->next)
-			searched = searched->next;
-		searched->next = newitem;
-	}
-	else
-		sdlist = newitem;  // lista estaba vacía
-
+	sdlist << newitem;
 	Application.Add (Owner::Network, sd);
 }
 
 void Network::Remove (int sd)
 {
-	struct sditem *last = NULL, *searched = sdlist;
-
-	while (searched)
-	{
-		if (searched->sd == sd)
-		{
-			Application.Remove (Owner::Network, sd);
-			if (last)
-				last->next = searched->next;
-			else
-				sdlist = searched->next;
-			delete searched;
-			return;
-		}
-		last = searched;
-		searched = searched->next;
-	}
+	struct sditem searched (sd);
+	sdlist.Remove (searched);
 }
 
 void Network::AddOptions (void)
@@ -305,29 +215,29 @@ void Network::Start (void)
 				  "Key and certificate don't match");
 		else
 			Logs.Add (Log::Network | Log::Notice,
-				  "Using certificate file %s",
+				  "Using certificate file \"%s\"",
 				  certificate->string);
 	}
 }
 
 void Network::Shutdown (void)
 {
+	int i, maximus = ClientList.GetCount ();
+
 	// cerrar todas las conexiones con los clientes
 	Logs.Add (Log::Network | Log::Notice,
 		  "Disconnecting all clients");
 
-	while (ClientList)
-		CloseConnection (ClientList->ShowSocket ());
+	for (i = 0; i <= maximus - 1; ++i)
+		ClientList[i]->Disconnect (Pckt::ErrorServerQuit);
 
 	// cerrar todos los sockets del servidor
 	Logs.Add (Log::Network | Log::Notice,
 		  "Closing all server sockets");
 
-	while (sdlist)
-	{
-		DropConnection (sdlist->sd);
-		Remove (sdlist->sd);
-	}
+	maximus = sdlist.GetCount ();
+	for (i = 0; i <= maximus - 1; ++i)
+		DropConnection (sdlist[i]->sd);
 }
 
 int Network::AcceptConnection (int sd)
@@ -350,7 +260,7 @@ int Network::AcceptConnection (int sd)
 	}
 
 	// agregamos el cliente
-	AddClient (ssl_context, clsd, &address, sslen);
+	Cl = AddClient (ssl_context, clsd, &address, sslen);
 
 	// hay que cerrar la conexión si se alcanza el límite
 	if (connections > maxclients->value)
@@ -362,7 +272,6 @@ int Network::AcceptConnection (int sd)
 	}
 
 	// comprobamos que el cliente agregado sea bueno
-	Cl = FindClient (clsd);
 	if (Cl != NULL)
 		if (!Cl->IsGood ())
 		{
@@ -392,9 +301,7 @@ int Network::DropClient (Client *Cl)
 	else
 		return -1;
 
-	DropConnection (sd);
 	RemoveClient (sd);
-	Application.Remove (Owner::Client, sd);
 	--connections;
 
 	if (Cl != NULL)
@@ -423,7 +330,7 @@ int Network::DropConnection (int sd)
 	return 0;
 }
 
-void Network::CloseConnection (int sd, bool send_disc)
+void Network::CloseConnection (int sd, Pckt::Type pkt_type)
 {
 	Client *Cl;
 	char addr[INET6_ADDRSTRLEN + 9];
@@ -434,13 +341,11 @@ void Network::CloseConnection (int sd, bool send_disc)
 	{
 		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
 		RemoveWatch (Cl);
-		if (send_disc)
-			Cl->Disconnect (); // no importa si falla
+		if (pkt_type != Pckt::Null)
+			Cl->Disconnect (pkt_type); // no importa si falla
 	}
 
-	DropConnection (sd);
 	RemoveClient (sd);
-	Application.Remove (Owner::Client, sd);
 	--connections;
 
 	if (Cl != NULL)
@@ -459,7 +364,7 @@ int Network::ReceiveData (int sd)
 	Cl = FindClient (sd);
 	if (Cl == NULL)
 	{
-		CloseConnection (sd);
+		DropConnection (sd);
 		return -1;
 	}
 
@@ -472,6 +377,7 @@ int Network::ReceiveData (int sd)
 			  "Failed to read from client %s",
 			  Cl->ShowIP ());
 		// cliente fallido, cerrar la conexión TCP
+		Cl->SetDrop (true);
 		DropClient (Cl);
 		return -1;
 	}
@@ -504,7 +410,7 @@ int Network::SendData (int sd)
 
 	bytes = Cl->Send ();
 	if (bytes == -2)
-		CloseConnection (sd, false);
+		CloseConnection (sd, Pckt::Null);
 	else if (bytes < 0)
 		CloseConnection (sd);
 
@@ -513,15 +419,16 @@ int Network::SendData (int sd)
 
 void Network::SendToAllClients (Pckt::Type PktType, char *buf)
 {
-	Client *Cl = ClientList;
-	Packet *Output;
-	int len = 0;
+	Client *Cl = NULL;
+	Packet *Output = NULL;
+	int len = 0, i , maximus = ClientList.GetCount ();
 	
 	if (buf != NULL)
 		len = strlen (buf);
 
-	while (Cl)
+	for (i = 0; i <= maximus - 1; ++i)
 	{
+		Cl = ClientList[i];
 		if (Cl->IsValid ())
 		{
 			if (buf != NULL)
@@ -531,7 +438,6 @@ void Network::SendToAllClients (Pckt::Type PktType, char *buf)
 			Cl->Add (Output);
 			Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
-		Cl = Cl->Next;
 	}
 }
 
@@ -539,37 +445,28 @@ void Network::SendProcessLogs (Client *Cl)
 {
 	int len;
 	char *buf= NULL;
-	Packet *Output = NULL;
 
 	buf = Child.GetProcessData (&len);
 
 	if (Cl->IsValid ())
 	{
 		if (buf != NULL)
-			Output = new Packet (Pckt::SessionConsoleLogs, buf);
-		Cl->Add (Output);
-		Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+		{
+			Cl->AddBuffer (Pckt::SessionConsoleLogs, buf);
+			Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+		}
 	}
+
+	if (buf != NULL)
+		delete[] buf;
 }
 
 void Network::AddWatch (Client *Cl)
 {
-	struct checkcl *newitem, *searched = checklist;
+	struct checkcl *newitem;
 
-	newitem = new struct checkcl;
-	newitem->timeout = Cl->GetTime ();
-	newitem->sd = Cl->ShowSocket ();
-	newitem->next = NULL;
-
-	if (searched)
-	{
-		// buscamos el último elemento
-		while (searched->next)
-			searched = searched->next;
-		searched->next = newitem;
-	}
-	else
-		checklist = newitem;  // lista estaba vacía
+	newitem = new struct checkcl (Cl->GetTime (), Cl->ShowSocket ());
+	checklist << newitem;
 
 	// un timeout de CHECK_TIMEOUT/3 asegura que un cliente no autenticado
 	// podrá estar a lo más 1.33*CHECK_TIMEOUT segundos conectado
@@ -578,36 +475,25 @@ void Network::AddWatch (Client *Cl)
 
 void Network::RemoveWatch (Client *Cl)
 {
-	struct checkcl *last = NULL, *searched = checklist;
+	struct checkcl searched (0, Cl->ShowSocket ());
 
-	while (searched)
-	{
-		if (searched->sd == Cl->ShowSocket ())
-		{
-			if (last)
-				last->next = searched->next;
-			else
-				checklist = searched->next;
-			delete searched;
-			break;
-		}
-		last = searched;
-		searched = searched->next;
-	}
+	checklist.Remove (searched);
 
-	if (checklist == NULL)
+	if (checklist.GetCount () == 0)
 		Application.DeleteTimeout ();
 }
 
 void Network::DropNotValidClients (void)
 {
-	Client *Cl;
+	Client *Cl = NULL;
 	time_t actualtime;
+	int i = 0, maximus = ClientList.GetCount ();
 
 	time (&actualtime);
-	
-	for (Cl = ClientList; Cl; Cl = Cl->Next)
+
+	while (i <= maximus - 1)
 	{
+		Cl = ClientList[i];
 		if (!Cl->IsValid ())
 		{
 			if (actualtime >= CHECK_TIMEOUT + Cl->GetTime ())
@@ -615,9 +501,13 @@ void Network::DropNotValidClients (void)
 				Logs.Add (Log::Network | Log::Warning,
 					  "Dropping timeouted client connected from %s",
 					  Cl->ShowIP ());
-				CloseConnection (Cl->ShowSocket ());
+				CloseConnection (Cl->ShowSocket (), Pckt::ErrorAuthTimeout);
+				
+				i = -1;
+				maximus = ClientList.GetCount ();
 			}
 		}
+		++i;
 	}
 }
 

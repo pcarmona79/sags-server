@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/04/24 20:13:43 $
+// $Revision: 1.4 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #include <csignal>
@@ -34,7 +34,7 @@
 
 using namespace std;
 
-static int killer_events = 0;
+static int killer_signal = 0;
 
 //
 // El manejador de señales
@@ -45,15 +45,14 @@ void CatchSignal (int sig)
 	{
 		case SIGTERM:
 			Logs.Add (Log::Notice, "CatchSignal: Received SIGTERM");
-			++killer_events;
 			break;
 		case SIGINT:
 			Logs.Add (Log::Notice, "CatchSignal: Received SIGINT");
-			++killer_events;
 			break;
 		default:
 			;
 	}
+	killer_signal = sig;
 }
 
 SelectLoop::SelectLoop ()
@@ -63,76 +62,29 @@ SelectLoop::SelectLoop ()
 
 	timeout = NULL;
 	maxd = 0;
-	fdlist = NULL;
 }
 
 SelectLoop::~SelectLoop ()
 {
-	struct fditem *unlink;
-
-	// borramos la lista enlazada de los
-	// descriptores de archivo
-	while (fdlist)
-	{
-		unlink = fdlist;
-		fdlist = unlink->next;
-		delete unlink;
-	}
+	
 }
 
 void SelectLoop::AddToList (int owner, int fd)
 {
-	struct fditem *newitem, *searched = fdlist;
-
-	newitem = new struct fditem;
-	newitem->fd = fd;
-	newitem->owner = owner;
-	newitem->next = NULL;
-
-	if (searched)
-	{
-		// buscamos el último elemento
-		while (searched->next)
-			searched = searched->next;
-		searched->next = newitem;
-	}
-	else
-		fdlist = newitem;  // lista estaba vacía
+	struct fditem *newitem = new struct fditem (owner, fd);
+	fdlist << newitem;
 }
 
 void SelectLoop::RemoveFromList (int owner, int fd)
 {
-	struct fditem *last = NULL, *searched = fdlist;
-
-	while (searched)
-	{
-		if (searched->owner == owner && searched->fd == fd)
-		{
-			if (last)
-				last->next = searched->next;
-			else
-				fdlist = searched->next;
-			delete searched;
-			return;
-		}
-		last = searched;
-		searched = searched->next;
-	}
+	struct fditem searched (owner, fd);
+	fdlist.Remove (searched);
 }
 
 struct fditem *SelectLoop::FindInList (int owner, int fd)
 {
-	struct fditem *searched = fdlist;
-
-	while (searched)
-	{
-		if (searched->owner == owner && searched->fd == fd)
-			return searched;
-		
-		searched = searched->next;
-	}
-
-	return NULL;
+	struct fditem searched (owner, fd);
+	return fdlist.Find (searched);
 }
 
 void SelectLoop::CalculateMaxd (bool removing, int fd)
@@ -147,15 +99,12 @@ void SelectLoop::CalculateMaxd (bool removing, int fd)
 		if (fd == maxd)
 		{
 			// encontrar el mayor fd
-			struct fditem *searched = fdlist;
+			int i, maximus = fdlist.GetCount ();
 
-			maxd = 0;
-
-			while (searched)
+			for (i = 0, maxd = 0; i <= maximus - 1; ++i)
 			{
-				if (searched->fd > maxd)
-					maxd = searched->fd;
-				searched = searched->next;
+				if (fdlist[i]->fd > maxd)
+					maxd = fdlist[i]->fd;
 			}
 		}
 	}
@@ -180,14 +129,14 @@ void SelectLoop::Run (void)
 {
 	struct fditem *list;
 	struct timespec *tmout;
-	int select_output;
+	int i, maximus, select_output;
 	fd_set rd, wr;
 
 	while (1)
 	{
-		// atendemos las señales SIGCHLD
-		for (; killer_events > 0; --killer_events)
-			SignalEvent ();
+		// atendemos las señales asesinas ;)
+		if (killer_signal)
+			SignalEvent (killer_signal);
 
 		rd = reading;
 		wr = writing;
@@ -195,7 +144,7 @@ void SelectLoop::Run (void)
 		tmout = GetTimeout ();
 
 		// pselect no funciona correctamente en Linux :(
-		// pero a mí no me ha dado problemas
+		// pero a mí no me ha dado problemas :o
 		select_output = pselect (maxd + 1, &rd, &wr, NULL, tmout,
 					 &original_sigmask);
 
@@ -209,8 +158,12 @@ void SelectLoop::Run (void)
 		if (tmout != NULL)
 			TimeoutEvent ();
 
-		for (list = fdlist; list; list = list->next)
+		maximus = fdlist.GetCount ();
+
+		for (i = 0; i <= maximus - 1; ++i)
 		{
+			list = fdlist[i];
+
 			// buscamos descriptores listos para escribir
 			if (FD_ISSET (list->fd, &wr))
 			{

@@ -21,6 +21,7 @@ sags_SOURCES = \
 	       Utils.cpp    \
 	       Client.hpp   \
 	       Config.hpp   \
+	       List.hpp     \
 	       Log.hpp      \
 	       Loop.hpp     \
 	       Main.hpp     \

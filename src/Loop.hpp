@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.hpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/04/24 20:13:43 $
+// $Revision: 1.4 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __LOOP_HPP__
@@ -28,6 +28,7 @@
 
 #include <sys/types.h>
 #include <ctime>
+#include "List.hpp"
 
 namespace Owner
 {
@@ -47,7 +48,17 @@ struct fditem
 {
 	int fd;
 	int owner;
-	struct fditem *next;
+
+	fditem (int o = 0, int f = 0)
+	{
+		owner = o;
+		fd = f;
+	}
+
+	bool operator== (const struct fditem &fi)
+	{
+		return (owner == fi.owner && fd == fi.fd);
+	}
 };
 
 class SelectLoop
@@ -57,7 +68,7 @@ protected:
 	fd_set writing;
 	struct timespec *timeout;
 	int maxd;
-	struct fditem *fdlist;
+	List<struct fditem> fdlist;
 	sigset_t sigmask;
 	sigset_t original_sigmask;
 
@@ -72,7 +83,7 @@ public:
 
 	void Init (void);
 	void Run (void);
-	virtual void SignalEvent (void) = 0;
+	virtual void SignalEvent (int sig = 0) = 0;
 	virtual void DataEvent (int owner, int fd) = 0;
 	virtual void TimeoutEvent (void) = 0;
 	void Add (int owner, int fd);

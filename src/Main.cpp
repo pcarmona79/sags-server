@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/05/06 00:19:04 $
+// $Revision: 1.7 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -39,22 +39,12 @@
 Main::Main () : SelectLoop ()
 {
 	debug = false;
-	userslist = NULL;
 	usersfile = NULL;
 }
 
 Main::~Main ()
 {
-	struct user *unlink;
-
-	while (userslist)
-	{
-		unlink = userslist;
-		userslist = unlink->next;
-		delete unlink;
-	}
-
-	delete usersfile;
+	
 }
 
 void Main::Init (bool debugmode)
@@ -68,7 +58,7 @@ void Main::AddOptions (void)
 	usersfile = Config.Add (Conf::String, "Main", "UsersFile", "sags.users");
 }
 
-void Main::SignalEvent (void)
+void Main::SignalEvent (int sig)
 {
 	// Esta función se llama cuando hay eventos que
 	// quieren que el programa termine. Se debe salir
@@ -86,7 +76,7 @@ void Main::SignalEvent (void)
 
 	// TODO: Esto debería ser reemplazado por un método Main::Exit ()
 	// que debiera ser virtual en SelectLoop
-	exit (0);
+	exit (sig);
 }
 
 void Main::DataEvent (int owner, int fd)
@@ -139,20 +129,34 @@ void Main::TimeoutEvent (void)
 
 int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 {
-	Packet *Ans = NULL;
+	bool app_add = false;
 	struct user *usr = NULL;
 	char *md5hash = NULL;
+	char hello_str[21], pass_str[81];
 
 	if (Cl != NULL && Pkt != NULL)
 	{
 		switch (Pkt->GetType ())
 		{
 			case Pckt::SyncHello:
-				Ans = new Packet (Pckt::SyncHello, 1, 9, "Hola Loco");
+				snprintf (hello_str, 20, "SAGS Server %s", VERSION);
+				Cl->AddBuffer (Pckt::SyncHello, hello_str);
+				app_add = true;
 				break;
 
 			case Pckt::SyncVersion:
-				Ans = new Packet (Pckt::SyncVersion, 1, 1, "1");
+				// chequeamos las versiones
+				if (!strncmp (Pkt->GetData (), "1", 1))
+				{
+					Cl->Add (new Packet (Pckt::SyncVersion, 1, 1, "1"));
+					app_add = true;
+				}
+				else
+				{
+					Server.CloseConnection (Cl->ShowSocket (),
+								Pckt::ErrorNotValidVersion);
+					return 0;
+				}
 				break;
 
 			case Pckt::AuthUsername:
@@ -160,7 +164,10 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 				{
 					Cl->SetUsername (Pkt->GetData ());
 					Cl->SetStatus (Usr::NeedPass);
-					Ans = new Packet (Pckt::AuthPassword, "User needs password");
+					snprintf (pass_str, 80, "User %s needs password",
+						  Cl->GetUsername ());
+					Cl->AddBuffer (Pckt::AuthPassword, pass_str);
+					app_add = true;
 				}
 				break;
 
@@ -179,23 +186,32 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 						{
 							// usuario exitosamente autenticado
 							Cl->SetStatus (Usr::Real);
-							Ans = new Packet (Pckt::AuthSuccessful);
+							Cl->Add (new Packet (Pckt::AuthSuccessful));
+							app_add = true;
+
 							Logs.Add (Log::Notice,
-								  "User %s has logged in from %s",
+								  "User \"%s\" has logged in from %s",
 								  Cl->GetUsername (), Cl->ShowIP ());
 
 							// sacamos el timeout
 							Server.RemoveWatch (Cl);
 						}
 						else
-							Logs.Add (Log::Notice,
-								  "User %s failed to get logged in",
+							Logs.Add (Log::Warning,
+								  "User \"%s\" failed to get logged in",
 								  Cl->GetUsername ());
+						delete[] md5hash;
 					}
 					else
-						Logs.Add (Log::Notice,
-							  "User %s don't exists",
+						Logs.Add (Log::Warning,
+							  "User \"%s\" don't exists",
 							  Cl->GetUsername ());
+				}
+				if (Cl->GetStatus () != Usr::Real)
+				{
+					Server.CloseConnection (Cl->ShowSocket (),
+								Pckt::ErrorLoginFailed);
+					return 0;
 				}
 				break;
 
@@ -211,10 +227,10 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 				if (Cl->IsValid ())
 				{
 					if (Child.Write (Pkt->GetData ()) > 0)
-						Ans = new Packet (Pckt::SessionConsoleSuccess);
+						Cl->Add (new Packet (Pckt::SessionConsoleSuccess));
 					else
-						Ans = new Packet (Pckt::ErrorGeneric,
-								  "Failed to write to process");
+						Cl->Add (new Packet (Pckt::ErrorCantWriteToProcess));
+					app_add = true;
 				}
 				break;
 
@@ -230,9 +246,8 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 	else
 		return -1;
 	
-	if (Ans != NULL)
+	if (app_add)
 	{
-		Cl->Add (Ans);
 		Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		return 0;
 	}
@@ -248,14 +263,14 @@ bool Main::IsDebugging (void)
 void Main::LoadUsers (void)
 {
 	ifstream file (usersfile->string);
-	char line[CL_MAXNAME + HASHLEN + 1];
+	char line[CL_MAXNAME + HASHLEN + 2];
 	char **ln;
-	int i, j, two, nusers = 0;
+	int i, j, two;
 
 	if (!file.is_open ())
 	{
 		Logs.Add (Log::Warning,
-			  "Failed to open the users file %s",
+			  "Failed to open the users file \"%s\"",
 			  usersfile->string);
 		return;
 	}
@@ -272,10 +287,8 @@ void Main::LoadUsers (void)
 			continue;
 		}
 
-		Logs.Add (Log::Debug, "Loaded user \"%s\" with hash \"%s\"", ln[0], ln[1]);
-
+		//Logs.Add (Log::Debug, "Loaded user \"%s\" with hash \"%s\"", ln[0], ln[1]);
 		AddUser (ln[0], ln[1]);
-		++nusers;
 
 		// ln debe ser liberado
 		if (two > 0)
@@ -288,50 +301,25 @@ void Main::LoadUsers (void)
 	file.close ();
 
 	Logs.Add (Log::Info,
-		  "Loaded %d users from file %s",
-		  nusers, usersfile->string);
+		  "Loaded %d users from file \"%s\"",
+		  userslist.GetCount (), usersfile->string);
 }
 
 void Main::AddUser (const char *name, const char *hash)
 {
-	struct user *newitem, *searched = userslist;
-
-	newitem = new struct user;
-	strncpy (newitem->name, name, CL_MAXNAME);
-	strncpy (newitem->hash, hash, HASHLEN);
-	newitem->next = NULL;
-
-	if (searched)
-	{
-		// buscamos el último elemento
-		while (searched->next)
-			searched = searched->next;
-		searched->next = newitem;
-	}
-	else
-		userslist = newitem;  // lista estaba vacía
+	struct user *newitem = new struct user (name, hash);
+	userslist << newitem;
 }
 
 struct user *Main::FindUser (const char *name)
 {
-	struct user *searched = userslist;
-
-	while (searched)
-	{
-		if (!strncmp (name, searched->name, CL_MAXNAME))
-			return searched;
-
-		searched = searched->next;
-	}
-
-	Logs.Add (Log::Warning, "User %s not found", name);
-
-	return NULL;
+	struct user searched (name);
+	return userslist.Find (searched);
 }
 
 void Main::PrintUsage (void)
 {
-	std::cerr << "Usage: " PACKAGE " [-D] <config-file>" << std::endl;
+	std::cerr << "Usage: " PACKAGE " [-D] [<config-file>]" << std::endl;
 	std::cerr << "       -D: debug mode" << std::endl;
 	exit (EXIT_FAILURE);
 }

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Protocol.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/05/06 00:19:04 $
+// $Revision: 1.3 $
+// $Date: 2004/05/19 02:53:43 $
 //
 
 #ifndef __PROTOCOL_HPP__
@@ -36,6 +36,7 @@
 class Protocol
 {
 protected:
+	bool connected;
 	bool drop;
 	SSL *ssl;
 	int socketd;
@@ -43,6 +44,7 @@ protected:
 
 public:
 	Protocol (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t sslen);
+	Protocol (int sd);
 	~Protocol ();
 
 	int ShowSocket (void);
@@ -51,6 +53,7 @@ public:
 	Packet *RecvPacket (int *len = NULL);
 	int Disconnect (void);
 	bool IsGood (void);
+	void SetDrop (bool val);
 };
 
 #endif // __PROTOCOL_HPP__

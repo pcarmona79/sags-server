@@ -1,1 +1,21 @@
-No news yes
+New version 0.2.0
+-----------------
+
+This version includes the following changes:
+
+1) The linked lists are now derived from a class List. This enables a
+   better control on memory assignations. This includes the client list,
+   socket list, etc. and in the future a process list to manage various
+   process of game servers.
+
+2) The length of the process's logs is now in bytes. The configuration
+   variable HistoryLines has been renamed to HistoryLength. The default
+   value is 10240 bytes or 10 KB. Don't forget to change this variable
+   in your configuration.
+
+3) Added error messages to the network protocol. Now the server can
+   indicate a reason for desconnection of the client.
+
+4) The version of client's protocol is now checked and compared with
+   the version of the server's protocol. 
+
