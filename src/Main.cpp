@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.8 $
+// $Date: 2004/05/21 05:14:35 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -236,7 +236,13 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 
 			case Pckt::SessionDisconnect:
 			case Pckt::SessionDrop:
-				Server.CloseConnection (Cl->ShowSocket ());
+				// ahora basta que el cliente envíe uno
+				// de estos paquetes para ser desconectado
+				Logs.Add (Log::Notice,
+					  "User \"%s\" has logged off",
+					  Cl->GetUsername ());
+				Cl->SetDrop (true);
+				Server.CloseConnection (Cl->ShowSocket (), Pckt::Null);
 				return 0;
 
 			default:

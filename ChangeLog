@@ -1,3 +1,9 @@
+2004-05-20  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* Now the clients only needs to send a SessionDisconnect to get
+	disconnected.
+
+
 2004-05-18  Pablo Carmona Amigo  <kernel@dday.cl>
 
 	* Version 0.2.0.
