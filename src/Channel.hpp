@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.hpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/08/07 22:34:58 $
+// $Revision: 1.4 $
+// $Date: 2004/08/13 00:55:57 $
 //
 
 #ifndef __CHANNEL_HPP__
@@ -68,8 +68,14 @@ public:
 	Channel ();
 	~Channel ();
 
+	void Start (void);
+
 	char *GetUserList (void);
-	char *GenerateMessage (const char *from, const char *to, const char *msg);
+	char *GenerateChannelMessage (const char *from, const char *msg);
+	char *ExtractHeader (const char *msg);
+	char *ExtractBody (const char *msg);
+	char *SetHeaderElement (const char *hdr, const char *name, const char *value);
+	int SearchHeaderElement (const char *hdr, const char *name);
 
 	void UserJoin (Client *Cl);
 	void UserLeave (Client *Cl);

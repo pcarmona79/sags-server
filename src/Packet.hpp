@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.8 $
-// $Date: 2004/08/12 05:55:46 $
+// $Revision: 1.9 $
+// $Date: 2004/08/13 00:55:57 $
 //
 
 #ifndef __PACKET_HPP__
@@ -28,6 +28,7 @@
 
 #include <cstdlib>
 
+#define PCKT_VERSION "3"
 #define PCKT_MAXDATA 256
 
 namespace Session
@@ -100,19 +101,20 @@ namespace Error
 	typedef enum
 	{
 		// desconectan:
-		ServerFull          = 0x00,
-		NotValidVersion     = 0x01,
-		LoginFailed         = 0x02,
-		AuthTimeout         = 0x03,
-		ServerQuit          = 0x04,
+		ServerFull           = 0x00,
+		NotValidVersion      = 0x01,
+		LoginFailed          = 0x02,
+		AuthTimeout          = 0x03,
+		ServerQuit           = 0x04,
+		LoggedFromOtherPlace = 0x05,
 
 		// no desconectan:
-		BadProcess          = 0x80,
-		CantWriteToProcess  = 0x81,
-		ProcessNotKilled    = 0x82,
-		ProcessNotLaunched  = 0x83,
-		ProcessNotRestarted = 0x84,
-		Generic             = 0xFF
+		BadProcess           = 0x80,
+		CantWriteToProcess   = 0x81,
+		ProcessNotKilled     = 0x82,
+		ProcessNotLaunched   = 0x83,
+		ProcessNotRestarted  = 0x84,
+		Generic              = 0xFF
 	} Type;
 }
 

@@ -1,3 +1,22 @@
+2004-08-12  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Channel.hpp:
+	* src/Channel.cpp:
+		- Added Start() method.
+		- New GenerateChannelMessage() method.
+		- New ExtractHeader(), ExtractBody(), SetHeaderElement() and
+		SearchHeaderElement() methods for header and body manipulation.
+
+	* src/Packet.hpp:
+		- Added PCKT_VERSION to represent version of network protocol.
+
+	* src/Main.cpp:
+		- Using PCKT_VERSION for version checking.
+
+	* src/Program.cpp:
+		- GeneralChannel is started after network server starts.
+
+
 2004-08-11  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Packet.hpp:

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Program.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.6 $
+// $Date: 2004/08/13 00:55:57 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -39,6 +39,7 @@
 #include "ProcTree.hpp"
 #include "Network.hpp"
 #include "Main.hpp"
+#include "Channel.hpp"
 
 int main (int argc, char **argv)
 {
@@ -178,6 +179,7 @@ int main (int argc, char **argv)
 	Application.LoadUsers ();
 	ProcMaster.Start ();
 	Server.Start ();
+	GeneralChannel.Start ();
 
 	retval = Application.Run ();
 

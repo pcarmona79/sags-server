@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.20 $
-// $Date: 2004/08/07 21:04:34 $
+// $Revision: 1.21 $
+// $Date: 2004/08/13 00:55:57 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -194,9 +194,9 @@ int Main::ProtoSync (Client *Cl, Packet *Pkt)
 	case Sync::Version:
 
 		// chequeamos las versiones
-		if (!strncmp (Pkt->GetData (), "3", 1))
+		if (!strncmp (Pkt->GetData (), PCKT_VERSION, 1))
 		{
-			Cl->Add (new Packet (Sync::Index, Sync::Version, 1, 1, "3"));
+			Cl->Add (new Packet (Sync::Index, Sync::Version, 1, 1, PCKT_VERSION));
 			Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
 		else
