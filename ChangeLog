@@ -1,3 +1,17 @@
+2004-08-16  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Channel.cpp:
+		- Chat messages now are not sent back to client who send it.
+
+	* src/Network.cpp:
+		- Added new method to disconnect duplicated clients (using the
+		same username).
+
+	* src/Main.cpp:
+		- Disconnect duplicated users just before to send
+		Auth::Successful to the client.
+
+
 2004-08-12  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Channel.hpp:

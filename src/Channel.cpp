@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/08/13 00:55:57 $
+// $Revision: 1.6 $
+// $Date: 2004/08/17 02:30:42 $
 //
 
 #include "Channel.hpp"
@@ -237,7 +237,7 @@ void Channel::UserJoin (Client *Cl)
 		newuser->status |= STATUS_ADMIN;
 
 	Logs.Add (Log::Chat | Log::Info,
-		  "%s user \"%s\" has joined to the general channel",
+		  "%s user \"%s\" has joined the general channel",
 		  (newuser->status & STATUS_ADMIN) ? "Admin" : "Normal", newuser->name);
 
 	// enviar aviso al resto de los usuarios conectados
@@ -295,8 +295,12 @@ int Channel::MessageChannel (Client *Cl, Packet *Pkt)
 		return -1;
 
 	// replicamos el mensaje a todos los usuarios
+	// excepto al que lo envía
 	for (i = 0; i <= max_list - 1; ++i)
 	{
+		if (!strncasecmp (Cl->GetUsername (), Users[i]->client->GetUsername (),
+				  CL_MAXNAME))
+			continue;
 		Users[i]->client->AddBuffer (Pkt->GetIndex (), Pkt->GetCommand (), newmsg);
 		Application.Add (Owner::Client | Owner::Send, Users[i]->client->ShowSocket ());
 	}

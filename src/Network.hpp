@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.hpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.7 $
+// $Date: 2004/08/17 02:30:43 $
 //
 
 #ifndef __NETWORK_HPP__
@@ -106,6 +106,7 @@ public:
 	void AddWatch (Client *Cl);
 	void RemoveWatch (Client *Cl);
 	void DropNotValidClients (void);
+	void DropDuplicatedClients (Client *Search);
 };
 
 extern Network Server;

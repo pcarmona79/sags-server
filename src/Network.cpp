@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.11 $
-// $Date: 2004/08/07 21:04:34 $
+// $Revision: 1.12 $
+// $Date: 2004/08/17 02:30:43 $
 //
 
 #include <iostream>
@@ -509,6 +509,29 @@ void Network::DropNotValidClients (void)
 			}
 		}
 		++i;
+	}
+}
+
+void Network::DropDuplicatedClients (Client *Search)
+{
+	int i, maximus = ClientList.GetCount ();
+	Client *Cl = NULL;
+
+	for (i = 0; i <= maximus - 1; ++i)
+	{
+		Cl = ClientList[i];
+
+		if (Search != Cl &&
+		    !strncasecmp (Search->GetUsername (), Cl->GetUsername (), CL_MAXNAME))
+		{
+			Logs.Add (Log::Network | Log::Notice,
+				  "Dropping duplicated client \"%s\" connected from %s",
+				  Cl->GetUsername (), Cl->ShowIP ());
+			CloseConnection (Cl->ShowSocket (), Error::Index,
+					 Error::LoggedFromOtherPlace);
+			i = -1;
+			maximus = ClientList.GetCount ();
+		}
 	}
 }
 

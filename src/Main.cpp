@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.21 $
-// $Date: 2004/08/13 00:55:57 $
+// $Revision: 1.22 $
+// $Date: 2004/08/17 02:30:43 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -266,6 +266,10 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 
 				if (!retval)
 				{
+					// removemos clientes conectados con el mismo
+					// nombre de usuario
+					Server.DropDuplicatedClients (Cl);
+
 					// usuario exitosamente autenticado
 					Cl->SetStatus (Usr::Real);
 					Cl->Add (new Packet (Auth::Index, Auth::Successful));
