@@ -1,3 +1,8 @@
+2005-03-17  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* configure.in (AC_DEFINE_UNQUOTED): fixed mispelled
+	$packagemandir.
+
 2005-03-15  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Preparing 0.5.1 version.

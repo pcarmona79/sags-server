@@ -73,7 +73,7 @@ AC_SUBST(PACKAGE_SYSCONF_DIR)
 
 AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${packageprefix}/${packagedatadir}", [Data dir])
 AC_DEFINE_UNQUOTED(PACKAGE_DOC_DIR, "${packageprefix}/${packagedocdir}", [Documentation dir])
-AC_DEFINE_UNQUOTED(PACKAGE_MAN_DIR, "${packageprefix}/${packagemancdir}", [Mans dir])
+AC_DEFINE_UNQUOTED(PACKAGE_MAN_DIR, "${packageprefix}/${packagemandir}", [Mans dir])
 AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}", [Source dir])
 AC_DEFINE_UNQUOTED(PACKAGE_SYSCONF_DIR, "${packagesysconfdir}", [System config dir])
 

@@ -19563,7 +19563,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define PACKAGE_MAN_DIR "${packageprefix}/${packagemancdir}"
+#define PACKAGE_MAN_DIR "${packageprefix}/${packagemandir}"
 _ACEOF
 
 
