@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/08/18 03:32:30 $
+// $Revision: 1.8 $
+// $Date: 2004/08/29 23:46:58 $
 //
 
 #include "Channel.hpp"
@@ -58,17 +58,18 @@ void Channel::Start (void)
 char *Channel::GetUserList (void)
 {
 	int i, len = 0, max_list = Users.GetCount ();
-	char *usrlst, current_name[CL_MAXNAME + 2];
+	char *usrlst, current_name[CL_MAXNAME + 7 + 2];
 
 	for (i = 0; i <= max_list - 1; ++i)
-		len += strlen (Users[i]->name) + 1;
+		len += strlen (Users[i]->name) + 7 + 1;
 
 	usrlst = new char [len + 2];
 	memset (usrlst, 0, len + 2);
 
 	for (i = 0; i <= max_list - 1; ++i)
 	{
-		snprintf (current_name, CL_MAXNAME + 2, "%s\n", Users[i]->name);
+		snprintf (current_name, CL_MAXNAME + 7 + 2, "%s:%s\n", Users[i]->name,
+			  (Users[i]->status & STATUS_ADMIN) ? "admin" : "normal");
 		strncat (usrlst, current_name, strlen (current_name));
 	}
 	strncat (usrlst, "\n", 1);
