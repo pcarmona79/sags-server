@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.3 $
+// $Date: 2004/06/01 00:04:15 $
 //
 
 #include <iostream>
@@ -315,7 +315,7 @@ void Process::WaitExit (void)
 
 	waitpid (pid, &status, WNOHANG);
 
-	snprintf (msg, 50, "Process %d has died with %d", pid, status);
+	snprintf (msg, 51, "Process %d has died with %d", pid, status);
 	Server.SendToAllClients (Pckt::SessionProcessExits, msg);
 	Logs.Add (Log::Process | Log::Notice, msg);
 

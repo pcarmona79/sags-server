@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/05/29 19:54:54 $
+// $Revision: 1.8 $
+// $Date: 2004/06/01 00:04:15 $
 //
 
 #include <iostream>
@@ -47,7 +47,6 @@ Network::Network ()
 	port = NULL;
 	maxclients = NULL;
 	certificate = NULL;
-	connections = 0;
 	ssl_method = NULL;
 	ssl_context = NULL;
 }
@@ -67,10 +66,6 @@ Client *Network::AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *addre
 
 	NewClient = new Client (ctx, sd, address, sslen);
 	ClientList << NewClient;
-
-	// el número de conexiones es igual al de
-	// elementos en ClientList
-	++connections;
 
 	return NewClient;
 }
@@ -263,11 +258,11 @@ int Network::AcceptConnection (int sd)
 	Cl = AddClient (ssl_context, clsd, &address, sslen);
 
 	// hay que cerrar la conexión si se alcanza el límite
-	if (connections > maxclients->value)
+	if (ClientList.GetCount () > (unsigned int) maxclients->value)
 	{
 		Logs.Add (Log::Network | Log::Warning,
 			  "Server is full. Closing connection");
-		CloseConnection (clsd);
+		CloseConnection (clsd, Pckt::ErrorServerFull);
 		return -1;
 	}
 
@@ -303,7 +298,6 @@ int Network::DropClient (Client *Cl)
 		return -1;
 
 	RemoveClient (sd);
-	--connections;
 
 	if (Cl != NULL)
 		Logs.Add (Log::Network | Log::Notice,
@@ -347,7 +341,6 @@ void Network::CloseConnection (int sd, Pckt::Type pkt_type)
 	}
 
 	RemoveClient (sd);
-	--connections;
 
 	if (Cl != NULL)
 		Logs.Add (Log::Network | Log::Notice,

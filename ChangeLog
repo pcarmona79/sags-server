@@ -1,4 +1,18 @@
-2004-05-30  Pablo Carmona Amigo  <kernel@dday.cl>
+2004-05-31  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Log.cpp, src/Main.cpp, src/Process.cpp, src/Protocol.cpp: Fixed
+	size value passed to snprintf and vsnprintf functions.
+	* src/Main.cpp: Increased the length of string that holds the
+	application's version to include the "cvs" appended previously.
+	* src/Network.hpp, src/Network.cpp: Removed innecesary variable
+	'connections'.
+	* src/Network.cpp: Application was not sending ErrorServerFull packet
+	when disconnect a client because server is full. Fixed.
+	* src/Loop.cpp: Now we free the memory assigned to tmout after to call
+	the SignalEvent method.
+
+
+2004-05-30  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Client.cpp: Now Client::Disconnect also removes the send flag in
 	the sockets list.

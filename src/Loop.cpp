@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/05/29 19:54:54 $
+// $Revision: 1.6 $
+// $Date: 2004/06/01 00:04:15 $
 //
 
 #include <csignal>
@@ -161,7 +161,11 @@ void SelectLoop::Run (void)
 		}
 
 		if (tmout != NULL)
+		{
 			TimeoutEvent ();
+			delete tmout;
+			tmout = NULL;
+		}
 
 		maximus = fdlist.GetCount ();
 

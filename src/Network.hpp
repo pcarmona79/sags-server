@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.hpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.5 $
+// $Date: 2004/06/01 00:04:15 $
 //
 
 #ifndef __NETWORK_HPP__
@@ -71,7 +71,6 @@ private:
 	struct option *maxclients;
 	struct option *certificate;
 	List<Client> ClientList;
-	int connections;
 	List<struct sditem> sdlist;
 	List<struct checkcl> checklist;
 	SSL_METHOD *ssl_method;

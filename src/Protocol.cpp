@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Protocol.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.4 $
+// $Date: 2004/06/01 00:04:15 $
 //
 
 #include <cstring>
@@ -59,7 +59,7 @@ Protocol::Protocol (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t
 	if (error)
 		memset (address, 0, sizeof (address));
 	else
-		snprintf (address, INET6_ADDRSTRLEN + 8, "[%s]:%s", cl_addr, cl_port);
+		snprintf (address, INET6_ADDRSTRLEN + 9, "[%s]:%s", cl_addr, cl_port);
 }
 
 Protocol::Protocol (int sd)

@@ -1,6 +1,8 @@
 Secure Administrator of Game Servers - SAGS Server
 ==================================================
 
+1. INTRODUCTION
+
 SAGS (Secure Administrator of Game Servers) is a client-server
 application to administer game servers on GNU/Linux using a SSL
 connection.
@@ -29,5 +31,16 @@ Actually the server runs only on Linux because I don't have another SO
 to test it (I'm testing on Debian Sid and Fedora Core 1), but I think it
 will work on FreeBSD with minor modifications.
 
+
+2. INSTALLATION
+
+This package uses a configure script, so you only need to do:
+
+   ./configure
+   make
+   make install
+
+To compile it successfully you will need the OpenSSL development files.
+
 --
-Pablo Carmona Amigo <kernel@dday.cl>
+Pablo Carmona Amigo <pcarm@users.sourceforge.net>

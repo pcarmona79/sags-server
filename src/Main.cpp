@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.10 $
-// $Date: 2004/05/29 19:54:54 $
+// $Revision: 1.11 $
+// $Date: 2004/06/01 00:04:15 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -134,14 +134,14 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 	bool app_add = false;
 	struct user *usr = NULL;
 	char *md5hash = NULL;
-	char hello_str[21], pass_str[81];
+	char hello_str[26], pass_str[81];
 
 	if (Cl != NULL && Pkt != NULL)
 	{
 		switch (Pkt->GetType ())
 		{
 			case Pckt::SyncHello:
-				snprintf (hello_str, 20, "SAGS Server %s", VERSION);
+				snprintf (hello_str, 26, "SAGS Server %s", VERSION);
 				Cl->AddBuffer (Pckt::SyncHello, hello_str);
 				app_add = true;
 				break;
@@ -166,7 +166,7 @@ int Main::GenerateResponse (Client *Cl, Packet *Pkt)
 				{
 					Cl->SetUsername (Pkt->GetData ());
 					Cl->SetStatus (Usr::NeedPass);
-					snprintf (pass_str, 80, "User %s needs password",
+					snprintf (pass_str, 81, "User %s needs password",
 						  Cl->GetUsername ());
 					Cl->AddBuffer (Pckt::AuthPassword, pass_str);
 					app_add = true;
