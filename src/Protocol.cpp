@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Protocol.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/01 00:04:15 $
+// $Revision: 1.5 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #include <cstring>
@@ -94,14 +94,15 @@ int Protocol::SendPacket (Packet *Pkt)
 	struct pkt sent;
 	int bytes;
 
-	//Logs.Add (Log::Client | Log::Debug,
-	//	  "Packet to send: TYPE: %04X SEQ: %d LEN: %d DATA: \"%s\"",
-	//	  Pkt->GetType (), Pkt->GetSequence (), Pkt->GetLength (), Pkt->GetData ());
+	Logs.Add (Log::Client | Log::Debug,
+		  "Packet to send: IDX: %02X COM: %02X SEQ: %d LEN: %d DATA: \"%s\"",
+		  Pkt->GetIndex (), Pkt->GetCommand (), Pkt->GetSequence (),
+		  Pkt->GetLength (), Pkt->GetData ());
 
 	sent.pkt_header = Pkt->GetHeader ();
 	strncpy (sent.pkt_data, Pkt->GetData (), Pkt->GetLength ());
 
-	bytes = SSL_write (ssl, &sent, sizeof (unsigned int) + Pkt->GetLength ());
+	bytes = SSL_write (ssl, &sent, sizeof (struct pkt_hdr) + Pkt->GetLength ());
 	if (bytes < 0)
 		return -1;
 
@@ -116,14 +117,15 @@ Packet *Protocol::RecvPacket (int *len)
 
 	memset (&header, 0, sizeof (header));
 
-	bytes = SSL_read (ssl, &header, sizeof (unsigned int));
+	bytes = SSL_read (ssl, &header, sizeof (struct pkt_hdr));
+
 	if (bytes <= 0)
 		return NULL;
 	total += bytes;
 
-	if (((header.pkt_header & Mask::Seq) >> 10) > 0)
+	if (header.pkt_header.pkt_seq >= 1)
 	{
-		bytes = SSL_read (ssl, header.pkt_data, (header.pkt_header & Mask::Len) + 1);
+		bytes = SSL_read (ssl, header.pkt_data, header.pkt_header.pkt_len + 1);
 		if (bytes <= 0)
 			return NULL;
 		total += bytes;
@@ -131,9 +133,10 @@ Packet *Protocol::RecvPacket (int *len)
 
 	Pkt = new Packet (header);
 
-	//Logs.Add (Log::Client | Log::Debug,
-	//	  "Packet received: TYPE: %04X SEQ: %d LEN: %d DATA: \"%s\"",
-	//	  Pkt->GetType (), Pkt->GetSequence (), Pkt->GetLength (), Pkt->GetData ());
+	Logs.Add (Log::Client | Log::Debug,
+		  "Packet received: IDX: %02X COM: %02X SEQ: %d LEN: %d DATA: \"%s\"",
+		  Pkt->GetIndex (), Pkt->GetCommand (), Pkt->GetSequence (),
+		  Pkt->GetLength (), Pkt->GetData ());
 
 	if (len != NULL)
 		*len = total;

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.3 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #ifndef __PACKET_HPP__
@@ -28,82 +28,119 @@
 
 #include <cstdlib>
 
-#define PCKT_MAXDATA 1024
+#define PCKT_MAXDATA 256
 
-namespace Pckt
+namespace Session
 {
+	const unsigned int MainIndex = 0x00;
+	const unsigned int MinIndex  = 0x01;
+	const unsigned int MaxIndex  = 0xFC;
+
 	typedef enum
 	{
-		// mensaje nulo
-		Null = 0x0000,
+		Disconnect      = 0x01,
+		Authorized      = 0x02,
 
-		// mensajes de sesión
-		SessionConsoleInput    = 0x0001,
-		SessionConsoleOutput   = 0x0002,
-		SessionConsoleSuccess  = 0x0003,
-		SessionConsoleNeedLogs = 0x0004,
-		SessionConsoleLogs     = 0x0005,
+		ConsoleInput    = 0x03,
+		ConsoleOutput   = 0x04,
+		ConsoleSuccess  = 0x05,
+		ConsoleNeedLogs = 0x06,
+		ConsoleLogs     = 0x07,
 
-		SessionProcessExits    = 0x0006,
-		SessionProcessStart    = 0x0007,
-
-		SessionDisconnect      = 0x000A,
-		SessionDrop            = 0x000B,
-
-		// mensajes de autenticación
-		AuthUsername   = 0xFD00,
-		AuthRandomHash = 0xFD01,
-		AuthPassword   = 0xFD02,
-		AuthSuccessful = 0xFD03,
-
-		// mensajes de sincronización
-		SyncHello   = 0xFE00,
-		SyncVersion = 0xFE01,
-
-		// mensajes de error
-		// desconetan:
-		ErrorServerFull         = 0xFF00,
-		ErrorNotValidVersion    = 0xFF01,
-		ErrorLoginFailed        = 0xFF02,
-		ErrorAuthTimeout        = 0xFF03,
-		ErrorServerQuit         = 0xFF04,
-		// no desconectan:
-		ErrorBadProcess         = 0xFF80,
-		ErrorCantWriteToProcess = 0xFF81,
-		ErrorGeneric            = 0xFFFF
+		ProcessGetInfo  = 0x08,
+		ProcessInfo     = 0x09,
+		ProcessExits    = 0x0A,
+		ProcessStart    = 0x0B
 	} Type;
-};
+}
+
+namespace Auth
+{
+	const unsigned int Index = 0xFD;
+
+	typedef enum
+	{
+		Username   = 0x00,
+		RandomHash = 0x01,
+		Password   = 0x02,
+		Successful = 0x03
+	} Type;
+}
+
+namespace Sync
+{
+	const unsigned int Index = 0xFE;
+	
+	typedef enum
+	{
+		Hello   = 0x00,
+		Version = 0x01
+	} Type;
+}
+
+namespace Error
+{
+	const unsigned int Index = 0xFF;
+
+	typedef enum
+	{
+		// desconectan:
+		ServerFull         = 0x00,
+		NotValidVersion    = 0x01,
+		LoginFailed        = 0x02,
+		AuthTimeout        = 0x03,
+		ServerQuit         = 0x04,
+
+		// no desconectan:
+		BadProcess         = 0x80,
+		CantWriteToProcess = 0x81,
+		Generic            = 0xFF
+	} Type;
+}
 
 namespace Mask
 {
-	const int Type = 0xFFFF0000;
-	const int Seq  = 0x0000FC00;
-	const int Len  = 0x000003FF;
+	const int Idx = 0xFF000000;
+	const int Com = 0x00FF0000;
+	const int Seq = 0x0000FF00;
+	const int Len = 0x000000FF;
+}
+
+struct pkt_hdr
+{
+	unsigned int pkt_idx : 8;
+	unsigned int pkt_com : 8;
+	unsigned int pkt_seq : 8;
+	unsigned int pkt_len : 8;
 };
 
 struct pkt
 {
-	unsigned int pkt_header;
+	struct pkt_hdr pkt_header;
 	char pkt_data[PCKT_MAXDATA + 1];
 };
 
 class Packet
 {
 private:
-	unsigned int pkt_header;
+	struct pkt_hdr pkt_header;
 	char pkt_data[PCKT_MAXDATA + 1];
 
 public:
-	Packet (unsigned int type = 0, unsigned int seq = 0, unsigned int len = 0, const char *data = NULL);
+	Packet (unsigned int idx = 0, unsigned int com = 0, unsigned int seq = 0,
+		unsigned int len = 0, const char *data = NULL);
 	Packet (struct pkt packet);
 	Packet (const Packet &Pkt);
 	~Packet ();
 
-	void SetHeader (unsigned int hdr);
-	unsigned int GetHeader (void);
+	void SetHeader (struct pkt_hdr hdr);
+	struct pkt_hdr GetHeader (void);
 
-	void SetType (unsigned int type);
-	unsigned int GetType (void);
+	void SetIndex (unsigned int idx);
+	unsigned int GetIndex (void);
+
+	void SetCommand (unsigned int com);
+	unsigned int GetCommand (void);
 
 	void SetSequence (unsigned int seq);
 	unsigned int GetSequence (void);

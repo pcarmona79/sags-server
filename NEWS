@@ -4,6 +4,9 @@ New version 0.3.0
 This version includes the following changes:
 
 1) Changed configuration file format to a INI like format.
+2) Added support for multiples game servers.
+3) Better handling of SIGHUP signal used to reload the configurations
+   files.
 
 
 Version 0.2.5

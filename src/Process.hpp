@@ -19,14 +19,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.3 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #ifndef __PROCESS_HPP__
 #define __PROCESS_HPP__
 
 #include <sys/types.h>
+#include <ctime>
 
 #include "Config.hpp"
 
@@ -34,38 +35,54 @@ class Process
 {
 private:
 	bool dead;
+	int index;
 	int pty;
 	pid_t pid;
+
 	char **args;
 	int nargs;
 	char **env;
 	int nenv;
 	char *process_logs;
+
+	struct option *name;
+	struct option *description;
+	struct option *type;
 	struct option *command;
 	struct option *environment;
 	struct option *workdir;
 	struct option *respawn;
 	struct option *historylength;
 
+	char current_command[CONF_MAX_STRING + 1];
+	char current_environment[CONF_MAX_STRING + 1];
+	char current_workdir[CONF_MAX_STRING + 1];
+	int current_historylength;
+
+	int num_start;
+	time_t last_start;
+
 public:
-	Process ();
+	Process (int idx, int fd = 0);
 	~Process ();
 
-	void AddOptions (void);
+	bool operator== (Process &P);
+
+	void GetOptions (void);
+	int CheckOptions (void);
 	void Start (void);
 	int Launch (void);
 	void AddProcessData (const char *data);
 	char *GetProcessData (int *len);
 	int ReadData (char *buffer, int length);
 	int WriteData (char *buffer);
-	void Read (char *buf, int buflen);
+	void Read (void);
 	int Write (char *buffer);
 	void WaitExit (void);
 	int Kill (void);
 	int SendSignal (int sig);
 	void Restart (void);
+	char *GetInfo (void);
 };
-
-extern Process Child;
 
 #endif // __PROCESS_HPP__

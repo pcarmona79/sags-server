@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Log.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/06/07 02:22:58 $
+// $Revision: 1.6 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #include <iostream>
@@ -113,6 +113,9 @@ void Logging::Add (int type, const char* fmt, ...)
 			break;
 		case Log::Client:
 			strncpy (hdr, "[Client] ", LOG_MAX_HEADER);
+			break;
+		case Log::ProcTree:
+			strncpy (hdr, "[ProcTree] ", LOG_MAX_HEADER);
 			break;
 		default:
 			strncpy (hdr, "[Main] ", LOG_MAX_HEADER);

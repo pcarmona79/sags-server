@@ -9,25 +9,27 @@ bin_PROGRAMS = sags
 
 sags_SOURCES = \
 	       Client.cpp   \
-	       Config.cpp   \
-	       Log.cpp      \
-	       Loop.cpp     \
-	       Main.cpp     \
-	       Network.cpp  \
-	       Packet.cpp   \
-	       Process.cpp  \
-	       Program.cpp  \
-	       Protocol.cpp \
-	       Utils.cpp    \
 	       Client.hpp   \
+	       Config.cpp   \
 	       Config.hpp   \
 	       List.hpp     \
+	       Log.cpp      \
 	       Log.hpp      \
+	       Loop.cpp     \
 	       Loop.hpp     \
+	       Main.cpp     \
 	       Main.hpp     \
+	       Network.cpp  \
 	       Network.hpp  \
+	       Packet.cpp   \
 	       Packet.hpp   \
+	       Process.cpp  \
 	       Process.hpp  \
+	       ProcTree.cpp \
+	       ProcTree.hpp \
+	       Program.cpp  \
+	       Protocol.cpp \
 	       Protocol.hpp \
+	       Utils.cpp    \
 	       Utils.hpp
 

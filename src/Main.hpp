@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.hpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/06/07 02:22:58 $
+// $Revision: 1.6 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #ifndef __MAIN_HPP__
@@ -73,14 +73,19 @@ public:
 	int SignalEvent (int sig = 0);
 	void DataEvent (int owner, int fd, bool writing);
 	void TimeoutEvent (void);
-	int GenerateResponse (Client *Cl, Packet *Pkt);
-	bool IsDebugging (void);
 
+	int GenerateResponse (Client *Cl, Packet *Pkt);
+	int ProtoSync (Client *Cl, Packet *Pkt);
+	int ProtoAuth (Client *Cl, Packet *Pkt);
+	int ProtoSession (Client *Cl, Packet *Pkt);
+
+	bool IsDebugging (void);
 	void LoadUsers (void);
 	void AddUser (const char *name, const char *hash);
 	struct user *FindUser (const char *name);
 
 	void PrintUsage (void);
+
 };
 
 extern Main Application;

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/05/31 01:39:45 $
+// $Revision: 1.8 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #include <cstring>
@@ -115,29 +115,29 @@ void Client::AddFirst (Packet *NewItem)
 	Outgoing.Add (NewItem, true);
 }
 
-void Client::AddBuffer (unsigned int type, const char *data)
+void Client::AddBuffer (unsigned int idx, unsigned int com, const char *data)
 {
 	const char *p = data;
 	int s;
 
 	// data NO DEBE ser nulo!!!
 
-	// calculamos cuantos paquetes necesitaremos
+	// calculamos cuántos paquetes necesitaremos, lo
 	// que corresponde a la parte entera más uno de
-	// TamañoTotal / 1024
-	s = (int) trunc (strlen (data) / 1024) + 1;
+	// TamañoTotal / PCKT_MAXDATA
+	s = (int) trunc (strlen (data) / PCKT_MAXDATA) + 1;
 
-	while (strlen (p) >= 1024)
+	while (strlen (p) >= PCKT_MAXDATA)
 	{
-		Outgoing << new Packet (type, s--, strlen (p), p); // asigna hasta 1024 bytes
-		p += 1024;
+		Outgoing << new Packet (idx, com, s--, strlen (p), p);
+		p += PCKT_MAXDATA;
 	}
 
-	if (strlen (p) > 0 && strlen (p) < 1024)
-		Outgoing << new Packet (type, s--, strlen (p), p);
+	if (strlen (p) > 0 && strlen (p) < PCKT_MAXDATA)
+		Outgoing << new Packet (idx, com, s--, strlen (p), p);
 }
 
-int Client::Disconnect (Pckt::Type pkt_type)
+int Client::Disconnect (unsigned int idx, unsigned int com)
 {
 	if (!drop)
 	{
@@ -145,7 +145,7 @@ int Client::Disconnect (Pckt::Type pkt_type)
 		Logs.Add (Log::Client | Log::Info,
 			  "Desconnecting client %s", ShowIP ());
 
-		SendPacket (new Packet (pkt_type));
+		SendPacket (new Packet (idx, com));
 	}
 
 	// cerramos la conexión SSL

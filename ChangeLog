@@ -1,3 +1,94 @@
+2004-06-15  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Main.cpp:
+		- Now we not send the version of software on Sync::Hello packet.
+		Changed by a welcome message.
+		- Now manage Session::ProcessGetInfo packets. We send the
+		information string of the process indicated by the index using a
+		Session::ProcessInfo packet.
+		- Sending a default packet of authorization to the clients
+		succesfully authenticated.
+
+	* src/Packet.hpp:
+		- Ordering values of session packets.
+		- Added Session::Authorized, Session::ProcessGetInfo and
+		Session::ProcessInfo packets.
+
+	* src/Process.hpp:
+	* src/Process.cpp:
+		- New configuration options name, description and type.
+		- Added GetInfo() to get the information string of the process.
+
+	* src/ProcTree.hpp:
+	* src/ProcTree.cpp:
+		- Added GetProcessInfo() to get information string of a process.
+
+
+2004-06-14  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Network.hpp:
+	* src/Network.cpp:
+		- Changed CHECK_TIMEOUT to 30 to give more time for
+		autentication to the clients.
+		- Changed CloseConnection and SendToAllClients to support new
+		class Packet.
+
+	* src/ProcTree.hpp:
+	* src/ProcTree.cpp:
+		- New files. Contains class to manage a list of processes.
+		- Added Check method to check the processes and its options.
+		- Added method to get process data using the index value.
+		- Added method to write in a process using the index value.
+
+	* src/Process.hpp:
+	* src/Process.cpp:
+		- New variables to check changes on configuration options.
+		- Changed AddOptions method by GetOptions to get pointers to
+		configuration options.
+		- Added CheckOptions to check changes on relevant options like
+		"Command", "Environment", "WorkDir" and "HistoryLength".
+		- Start method now checks for existent process_logs and frees
+		before the assignation with new values. Also deletes command and
+		environment vars passed to execve.
+		- WaitExit method now can kill a process if it not get
+		terminated in a previous Kill method invocation.
+		- Read method now send the data to the clients.
+
+	* src/Program.cpp:
+		- Now we use ProcMaster to access to the processes.
+
+	* src/Config.cpp:
+		- Added method Check() to test for group and name options
+		loaded from the configuration file.
+		- Changed Get method. Now returns pointer to internal data and
+		if it can't find the data, add the option.
+
+	* src/Log.cpp:
+	* src/Log.hpp:
+		- Added "ProcTree" for logging.
+
+	* src/Packet.hpp:
+	* src/Packet.cpp:
+		- Changing to version 2 of protocol.
+		- Added struct pkt_hdr.
+		- Deleted references to Type.
+		- New methods to manage Index and Command.
+
+	* src/Client.hpp:
+	* src/Client.cpp:
+		- Changed AddBuffer and Disconnect to support new class Packet.
+
+	* src/Protocol.cpp:
+		- Changed SendPacket and RecvPacket to send the new Packet
+		format.
+
+	* src/Main.hpp:
+	* src/Main.cpp:
+		- Class Process now send the data to client.
+		- Added ProtoSync, ProtoAuth and ProtoSession to manage the
+		protocol's states.
+
+
 2004-06-12  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Preparing new version 0.3. Version is 0.3.0cvs.

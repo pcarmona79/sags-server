@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.8 $
-// $Date: 2004/06/01 00:04:15 $
+// $Revision: 1.9 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #include <iostream>
@@ -38,9 +38,9 @@
 #include "Network.hpp"
 #include "Log.hpp"
 #include "Main.hpp"
-#include "Process.hpp"
+#include "ProcTree.hpp"
 
-#define CHECK_TIMEOUT 15
+#define CHECK_TIMEOUT 30
 
 Network::Network ()
 {
@@ -57,7 +57,8 @@ Network::~Network ()
 		SSL_CTX_free (ssl_context);
 }
 
-Client *Network::AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *address, socklen_t sslen)
+Client *Network::AddClient (SSL_CTX *ctx, int sd, struct sockaddr_storage *address,
+			    socklen_t sslen)
 {
 	Client *NewClient;
 
@@ -201,8 +202,10 @@ void Network::Start (void)
 		SSL_CTX_set_options (ssl_context, SSL_OP_NO_SSLv2); // no aceptamos SSLv2
 
 		// cargamos las claves
-		SSL_CTX_use_certificate_file (ssl_context, certificate->string, SSL_FILETYPE_PEM);
-		SSL_CTX_use_PrivateKey_file (ssl_context, certificate->string, SSL_FILETYPE_PEM);
+		SSL_CTX_use_certificate_file (ssl_context, certificate->string,
+					      SSL_FILETYPE_PEM);
+		SSL_CTX_use_PrivateKey_file (ssl_context, certificate->string,
+					     SSL_FILETYPE_PEM);
 
 		// verificamos las claves
 		if (!SSL_CTX_check_private_key (ssl_context))
@@ -224,7 +227,7 @@ void Network::Shutdown (void)
 		  "Disconnecting all clients");
 
 	for (i = 0; i <= maximus - 1; ++i)
-		ClientList[i]->Disconnect (Pckt::ErrorServerQuit);
+		ClientList[i]->Disconnect (Error::Index, Error::ServerQuit);
 
 	// cerrar todos los sockets del servidor
 	Logs.Add (Log::Network | Log::Notice,
@@ -262,7 +265,7 @@ int Network::AcceptConnection (int sd)
 	{
 		Logs.Add (Log::Network | Log::Warning,
 			  "Server is full. Closing connection");
-		CloseConnection (clsd, Pckt::ErrorServerFull);
+		CloseConnection (clsd, Error::Index, Error::ServerFull);
 		return -1;
 	}
 
@@ -325,7 +328,7 @@ int Network::DropConnection (int sd)
 	return 0;
 }
 
-void Network::CloseConnection (int sd, Pckt::Type pkt_type)
+void Network::CloseConnection (int sd, unsigned int idx, unsigned int com)
 {
 	Client *Cl;
 	char addr[INET6_ADDRSTRLEN + 9];
@@ -336,8 +339,8 @@ void Network::CloseConnection (int sd, Pckt::Type pkt_type)
 	{
 		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
 		RemoveWatch (Cl);
-		if (pkt_type != Pckt::Null)
-			Cl->Disconnect (pkt_type); // no importa si falla
+		if (idx != 0 && com != 0)
+			Cl->Disconnect (idx, com); // no importa si falla
 	}
 
 	RemoveClient (sd);
@@ -413,42 +416,40 @@ int Network::SendData (int sd)
 	return bytes;
 }
 
-void Network::SendToAllClients (Pckt::Type PktType, char *buf)
+void Network::SendToAllClients (unsigned int idx, unsigned int com, char *buf)
 {
 	Client *Cl = NULL;
 	Packet *Output = NULL;
 	int len = 0, i , maximus = ClientList.GetCount ();
-	
+
 	if (buf != NULL)
 		len = strlen (buf);
 
 	for (i = 0; i <= maximus - 1; ++i)
 	{
 		Cl = ClientList[i];
-		if (Cl->IsValid ())
+		if (Cl->IsValid ()) // aquí revisaremos si el cliente está autorizado
 		{
 			if (buf != NULL)
-				Output = new Packet (PktType, 1, len, buf);
+				Output = new Packet (idx, com, 1, len, buf);
 			else
-				Output = new Packet (PktType);
+				Output = new Packet (idx, com);
 			Cl->Add (Output);
 			Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
 	}
 }
 
-void Network::SendProcessLogs (Client *Cl)
+void Network::SendProcessLogs (Client *Cl, unsigned int idx)
 {
-	int len;
-	char *buf= NULL;
-
-	buf = Child.GetProcessData (&len);
+	int len = 0;
+	char *buf = ProcMaster.GetProcessData (idx, &len);
 
 	if (Cl->IsValid ())
 	{
 		if (buf != NULL)
 		{
-			Cl->AddBuffer (Pckt::SessionConsoleLogs, buf);
+			Cl->AddBuffer (idx, Session::ConsoleLogs, buf);
 			Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
 	}
@@ -465,7 +466,8 @@ void Network::AddWatch (Client *Cl)
 	checklist << newitem;
 
 	// un timeout de CHECK_TIMEOUT/3 asegura que un cliente no autenticado
-	// podrá estar a lo más 1.33*CHECK_TIMEOUT segundos conectado
+	// podrá estar como mínimo CHECK_TIMEOUT segundos conectado y hasta un
+	// máximo de 1.33*CHECK_TIMEOUT segundos
 	Application.AddTimeout ((int)(CHECK_TIMEOUT / 3.0));
 }
 
@@ -497,8 +499,8 @@ void Network::DropNotValidClients (void)
 				Logs.Add (Log::Network | Log::Warning,
 					  "Dropping timeouted client connected from %s",
 					  Cl->ShowIP ());
-				CloseConnection (Cl->ShowSocket (), Pckt::ErrorAuthTimeout);
-				
+				CloseConnection (Cl->ShowSocket (), Error::Index,
+						 Error::AuthTimeout);
 				i = -1;
 				maximus = ClientList.GetCount ();
 			}

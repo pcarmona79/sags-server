@@ -1,8 +1,12 @@
 Wishes to be added to next version
 ----------------------------------
 
-- Enables a chat mode to dialog with the others admins connected on server.
-- Manage multiples processes of game servers.
+- Enables a chat mode to dialog with the others admins connected on
+  server.
+
+[DONE] Manage multiples processes of game servers.
+
 - Detects for bad processes which deads repeatedly.
-- Give more time to authentication.
+
+[DONE] Give more time to authentication.
 

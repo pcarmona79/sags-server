@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/05/22 21:03:48 $
+// $Revision: 1.4 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #include <cstring>
@@ -28,10 +28,12 @@
 
 #include "Packet.hpp"
 
-Packet::Packet (unsigned int type, unsigned int seq, unsigned int len, const char *data)
+Packet::Packet (unsigned int idx, unsigned int com, unsigned int seq,
+		unsigned int len, const char *data)
 {
-	pkt_header = 0;
-	SetType (type);
+	memset (&pkt_header, 0, sizeof (pkt_header));
+	SetIndex (idx);
+	SetCommand (com);
 	SetSequence (seq);
 	SetLength (len);
 	SetData (data);
@@ -54,36 +56,44 @@ Packet::~Packet ()
 	
 }
 
-void Packet::SetHeader (unsigned int hdr)
+void Packet::SetHeader (struct pkt_hdr hdr)
 {
 	pkt_header = hdr;
 }
 
-unsigned int Packet::GetHeader (void)
+struct pkt_hdr Packet::GetHeader (void)
 {
 	return pkt_header;
 }
 
-void Packet::SetType (unsigned int type)
+void Packet::SetIndex (unsigned int idx)
 {
-	pkt_header &= ~(Mask::Type);
-	pkt_header |= (type << 16) & Mask::Type;
+	pkt_header.pkt_idx = idx;
 }
 
-unsigned int Packet::GetType (void)
+unsigned int Packet::GetIndex (void)
 {
-	return (pkt_header & Mask::Type) >> 16;
+	return pkt_header.pkt_idx;
+}
+
+void Packet::SetCommand (unsigned int com)
+{
+	pkt_header.pkt_com = com;
+}
+
+unsigned int Packet::GetCommand (void)
+{
+	return pkt_header.pkt_com;
 }
 
 void Packet::SetSequence (unsigned int seq)
 {
-	pkt_header &= ~(Mask::Seq);
-	pkt_header |= (seq << 10) & Mask::Seq;
+	pkt_header.pkt_seq = seq;
 }
 
 unsigned int Packet::GetSequence (void)
 {
-	return (pkt_header & Mask::Seq) >> 10;
+	return pkt_header.pkt_seq;
 }
 
 void Packet::SetLength (unsigned int len)
@@ -92,16 +102,16 @@ void Packet::SetLength (unsigned int len)
 		len = PCKT_MAXDATA;
 
 	if (len > 1)
-		pkt_header |= (len - 1) & Mask::Len;
+		pkt_header.pkt_len = len - 1;
 	else
-		pkt_header &= ~(Mask::Len);
+		pkt_header.pkt_len = 0;
 }
 
 unsigned int Packet::GetLength (void)
 {
 	if (GetSequence () == 0)
 		return 0;
-	return (pkt_header & Mask::Len) + 1;
+	return pkt_header.pkt_len + 1;
 }
 
 void Packet::SetData (const char *data)
@@ -110,7 +120,7 @@ void Packet::SetData (const char *data)
 
 	if (data != NULL)
 	{
-		if (data[0] != '\0' && (pkt_header & Mask::Len) >= 0)
+		if (data[0] != '\0' && GetLength () >= 1)
 			strncpy (pkt_data, data, GetLength ());
 		else
 			SetLength (0);
@@ -126,7 +136,10 @@ char *Packet::GetData (void)
 
 bool Packet::operator== (const Packet &Pkt)
 {
-	if (pkt_header == Pkt.pkt_header)
+	if (pkt_header.pkt_idx == Pkt.pkt_header.pkt_idx &&
+	    pkt_header.pkt_com == Pkt.pkt_header.pkt_com &&
+	    pkt_header.pkt_seq == Pkt.pkt_header.pkt_seq &&
+	    pkt_header.pkt_len == Pkt.pkt_header.pkt_len)
 	{
 		if (!strncmp (pkt_data, Pkt.pkt_data, PCKT_MAXDATA))
 			return true;

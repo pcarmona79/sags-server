@@ -21,20 +21,22 @@ UsersFile="/etc/sags/sags.users"
 
 # Process to execute
 [Process1]
+Type="quake2"
 Command="/usr/bin/quake2 +set dedicated 1 +exec server1.cfg"
 Environment="PATH=/usr/bin:/bin"
 WorkingDirectory="/usr/share/games/quake2"
 Respawn=yes
 HistoryLength=10240
-ChannelName="server1"
-ChannelTopic="This is the Quake2 server Nº1"
+Name="server1"
+Description="This is the Quake2 server Nº1"
 
 [Process2]
+Type="quake2"
 Command="/usr/bin/quake2 +set dedicated 1 +exec server2.cfg"
 Environment="PATH=/usr/bin:/bin"
 WorkingDirectory="/usr/share/games/quake2"
 Respawn=yes
 HistoryLength=10240
-ChannelName="server2"
-ChannelTopic="This is the Quake2 server Nº2"
+Name="server2"
+Description="This is the Quake2 server Nº2"
 

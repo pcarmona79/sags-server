@@ -145,26 +145,28 @@ bin_PROGRAMS = sags
 
 sags_SOURCES = \
 	       Client.cpp   \
-	       Config.cpp   \
-	       Log.cpp      \
-	       Loop.cpp     \
-	       Main.cpp     \
-	       Network.cpp  \
-	       Packet.cpp   \
-	       Process.cpp  \
-	       Program.cpp  \
-	       Protocol.cpp \
-	       Utils.cpp    \
 	       Client.hpp   \
+	       Config.cpp   \
 	       Config.hpp   \
 	       List.hpp     \
+	       Log.cpp      \
 	       Log.hpp      \
+	       Loop.cpp     \
 	       Loop.hpp     \
+	       Main.cpp     \
 	       Main.hpp     \
+	       Network.cpp  \
 	       Network.hpp  \
+	       Packet.cpp   \
 	       Packet.hpp   \
+	       Process.cpp  \
 	       Process.hpp  \
+	       ProcTree.cpp \
+	       ProcTree.hpp \
+	       Program.cpp  \
+	       Protocol.cpp \
 	       Protocol.hpp \
+	       Utils.cpp    \
 	       Utils.hpp
 
 subdir = src
@@ -178,8 +180,9 @@ PROGRAMS = $(bin_PROGRAMS)
 am_sags_OBJECTS = sags-Client.$(OBJEXT) sags-Config.$(OBJEXT) \
 	sags-Log.$(OBJEXT) sags-Loop.$(OBJEXT) sags-Main.$(OBJEXT) \
 	sags-Network.$(OBJEXT) sags-Packet.$(OBJEXT) \
-	sags-Process.$(OBJEXT) sags-Program.$(OBJEXT) \
-	sags-Protocol.$(OBJEXT) sags-Utils.$(OBJEXT)
+	sags-Process.$(OBJEXT) sags-ProcTree.$(OBJEXT) \
+	sags-Program.$(OBJEXT) sags-Protocol.$(OBJEXT) \
+	sags-Utils.$(OBJEXT)
 sags_OBJECTS = $(am_sags_OBJECTS)
 sags_LDADD = $(LDADD)
 sags_DEPENDENCIES =
@@ -193,6 +196,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Loop.Po ./$(DEPDIR)/sags-Main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Network.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Packet.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/sags-ProcTree.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Process.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Program.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Protocol.Po \
@@ -271,6 +275,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Packet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-ProcTree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Process.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Program.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Protocol.Po@am__quote@
@@ -572,6 +577,39 @@ sags-Process.lo: Process.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/sags-Process.Plo' tmpdepfile='$(DEPDIR)/sags-Process.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -c -o sags-Process.lo `test -f 'Process.cpp' || echo '$(srcdir)/'`Process.cpp
+
+sags-ProcTree.o: ProcTree.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-ProcTree.o -MD -MP -MF "$(DEPDIR)/sags-ProcTree.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o sags-ProcTree.o `test -f 'ProcTree.cpp' || echo '$(srcdir)/'`ProcTree.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/sags-ProcTree.Tpo" "$(DEPDIR)/sags-ProcTree.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/sags-ProcTree.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ProcTree.cpp' object='sags-ProcTree.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/sags-ProcTree.Po' tmpdepfile='$(DEPDIR)/sags-ProcTree.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -c -o sags-ProcTree.o `test -f 'ProcTree.cpp' || echo '$(srcdir)/'`ProcTree.cpp
+
+sags-ProcTree.obj: ProcTree.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-ProcTree.obj -MD -MP -MF "$(DEPDIR)/sags-ProcTree.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o sags-ProcTree.obj `if test -f 'ProcTree.cpp'; then $(CYGPATH_W) 'ProcTree.cpp'; else $(CYGPATH_W) '$(srcdir)/ProcTree.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/sags-ProcTree.Tpo" "$(DEPDIR)/sags-ProcTree.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/sags-ProcTree.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ProcTree.cpp' object='sags-ProcTree.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/sags-ProcTree.Po' tmpdepfile='$(DEPDIR)/sags-ProcTree.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -c -o sags-ProcTree.obj `if test -f 'ProcTree.cpp'; then $(CYGPATH_W) 'ProcTree.cpp'; else $(CYGPATH_W) '$(srcdir)/ProcTree.cpp'; fi`
+
+sags-ProcTree.lo: ProcTree.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-ProcTree.lo -MD -MP -MF "$(DEPDIR)/sags-ProcTree.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o sags-ProcTree.lo `test -f 'ProcTree.cpp' || echo '$(srcdir)/'`ProcTree.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/sags-ProcTree.Tpo" "$(DEPDIR)/sags-ProcTree.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/sags-ProcTree.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ProcTree.cpp' object='sags-ProcTree.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/sags-ProcTree.Plo' tmpdepfile='$(DEPDIR)/sags-ProcTree.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -c -o sags-ProcTree.lo `test -f 'ProcTree.cpp' || echo '$(srcdir)/'`ProcTree.cpp
 
 sags-Program.o: Program.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-Program.o -MD -MP -MF "$(DEPDIR)/sags-Program.Tpo" \

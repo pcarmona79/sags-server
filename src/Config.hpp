@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.hpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/07 02:22:58 $
+// $Revision: 1.4 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #ifndef __CONFIG_HPP__
@@ -90,9 +90,11 @@ public:
 	void GetOptionsFromFile (ifstream *file = NULL, const char *filename = NULL);
 	struct option *Add (Conf::OpType type, const char *group, const char *name, int val);
 	struct option *Add (Conf::OpType type, const char *group, const char *name, const char *val);
-	struct option *Get (const char *group, const char *name);
+	struct option *Get (Conf::OpType type, const char *group, const char *name, int val);
+	struct option *Get (Conf::OpType type, const char *group, const char *name, const char *val);
 	void Set (Conf::OpType type, const char *group, const char *name, int val);
 	void Set (Conf::OpType type, const char *group, const char *name, const char *val);
+	bool Check (const char *group, const char *name);
 };
 
 extern Configuration Config;

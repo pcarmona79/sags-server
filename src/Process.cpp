@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/03 02:46:24 $
+// $Revision: 1.5 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #include <iostream>
@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <csignal>
+#include <cerrno>
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -44,7 +45,7 @@
 
 using namespace std;
 
-Process::Process ()
+Process::Process (int idx, int fd)
 {
 	dead = true;
 	args = NULL;
@@ -52,12 +53,37 @@ Process::Process ()
 	env = NULL;
 	nenv = 0;
 
+	name = NULL;
+	description = NULL;
+	type = NULL;
 	command = NULL;
 	environment = NULL;
 	workdir = NULL;
 	respawn = NULL;
 	historylength = NULL;
+
 	process_logs = NULL;
+	index = idx;
+	pty = 0;
+
+	memset (current_command, 0, CONF_MAX_STRING + 1);
+	memset (current_environment, 0, CONF_MAX_STRING + 1);
+	memset (current_workdir, 0, CONF_MAX_STRING + 1);
+	current_historylength = 0;
+
+	num_start = 0;
+	memset (&last_start, 0, sizeof (last_start));
+
+	if (index == 0)
+	{
+		pty = fd;
+	}
+	else
+	{
+		// obtener las opciones e iniciarse
+		GetOptions ();
+		Start ();
+	}
 }
 
 Process::~Process ()
@@ -86,20 +112,156 @@ Process::~Process ()
 	// Configuration.
 
 	// Liberar process_logs
-	delete[] process_logs;
+	if (process_logs != NULL)
+		delete[] process_logs;
 }
 
-void Process::AddOptions (void)
+bool Process::operator== (Process &P)
 {
-	command = Config.Add (Conf::String, "Process", "Command", "/bin/ls -al");
-	environment = Config.Add (Conf::String, "Process", "Environment", "PATH=/usr/bin:/bin");
-	workdir = Config.Add (Conf::String, "Process", "WorkingDirectory", ".");
-	respawn = Config.Add (Conf::Boolean, "Process", "Respawn", 0);
-	historylength = Config.Add (Conf::Numeric, "Process", "HistoryLength", 10240);
+	return (this->pty == P.pty);
+}
+
+void Process::GetOptions (void)
+{
+	char group[11];
+
+	memset (group, 0, 11);
+	snprintf (group, 11, "Process%d", index);
+
+	// obtenemos las opciones que nos interesan
+	name = Config.Get (Conf::String, group, "Name", group);
+	description = Config.Get (Conf::String, group, "Description", "Default process");
+	type = Config.Get (Conf::String, group, "Type", "unknown");
+	command = Config.Get (Conf::String, group, "Command", "/bin/ls -al");
+	environment = Config.Get (Conf::String, group, "Environment", "PATH=/usr/bin:/bin");
+	workdir = Config.Get (Conf::String, group, "WorkingDirectory", ".");
+	respawn = Config.Get (Conf::Boolean, group, "Respawn", 0);
+	historylength = Config.Get (Conf::Numeric, group, "HistoryLength", 10240);
+
+	// guardamos estos valores para su posterior comprobación
+	strncpy (current_command, command->string, CONF_MAX_STRING);
+	strncpy (current_environment, environment->string, CONF_MAX_STRING);
+	strncpy (current_workdir, workdir->string, CONF_MAX_STRING);
+	current_historylength = historylength->value;
+}
+
+int Process::CheckOptions (void)
+{
+	char group[11];
+
+	memset (group, 0, 11);
+	snprintf (group, 11, "Process%d", index);
+
+	// primero revisamos que exista nuestro grupo
+	if (!Config.Check (group, "Command"))
+	{
+		// no existe, entonces salimos
+		Logs.Add (Log::Process | Log::Info,
+			  "Process nº%d not exists on configuration",
+			  index);
+		return -1;
+	}
+
+	// comprobamos si cambió alguna opción esencial
+	if (strncmp (command->string, current_command, CONF_MAX_STRING) ||
+	    strncmp (environment->string, current_environment, CONF_MAX_STRING) ||
+	    strncmp (workdir->string, current_workdir, CONF_MAX_STRING))
+	{
+		// guardamos estos valores para su posterior comprobación
+		strncpy (current_command, command->string, CONF_MAX_STRING);
+		strncpy (current_environment, environment->string, CONF_MAX_STRING);
+		strncpy (current_workdir, workdir->string, CONF_MAX_STRING);
+		current_historylength = historylength->value;
+
+		Logs.Add (Log::Process | Log::Info,
+			  "Process nº%d will be restarted",
+			  index);
+
+		Kill ();
+		WaitExit ();
+		Start ();
+	}
+	else if (historylength->value != current_historylength)
+	{
+		char *tmplogs = NULL;
+		int delpos = 0;
+
+		// hay que reasignar process_logs
+		if (historylength->value < current_historylength)
+		{
+			if (process_logs != NULL)
+			{
+				delpos = current_historylength - historylength->value;
+				while (process_logs[delpos] != '\n')
+					++delpos;
+				tmplogs = substring (process_logs, delpos,
+						     strlen (process_logs));
+			}
+		}
+		else
+		{
+			if (process_logs != NULL)
+				tmplogs = substring (process_logs, 0,
+						     strlen (process_logs));
+		}
+
+		// liberamos
+		if (process_logs != NULL)
+		{
+			delete[] process_logs;
+			process_logs = NULL;
+		}
+
+		Logs.Add (Log::Process | Log::Info,
+			  "Reasignating %.1f KB for process logs",
+			  (float) (historylength->value) / 1024.0);
+
+		process_logs = new char [historylength->value + AUXLEN + 1];
+		memset (process_logs, 0, historylength->value + AUXLEN + 1);
+
+		// por último copiamos
+		if (tmplogs != NULL)
+		{
+			strncpy (process_logs, tmplogs, strlen (tmplogs));
+			delete[] tmplogs;
+		}
+	}
+	else
+		Logs.Add (Log::Process | Log::Debug,
+			  "Process nº%d is unchanged",
+			  index);
+
+	return 0;
 }
 
 void Process::Start (void)
 {
+	int i;
+
+	if (nargs > 0)
+	{
+		for (i = nargs - 1; i >= 0; --i)
+		{
+			delete[] args[i];
+		}
+		nargs = 0;
+	}
+
+	if (nenv > 0)
+	{
+		for (i = nenv - 1; i >= 0; --i)
+		{
+			delete[] env[i];
+		}
+		nenv = 0;
+	}
+
+	if (process_logs != NULL)
+	{
+		delete[] process_logs;
+		process_logs = NULL;
+	}
+
 	if (historylength->value > 0)
 	{
 		Logs.Add (Log::Process | Log::Info,
@@ -129,6 +291,10 @@ int Process::Launch (void)
 
 	if (environment->string[0])
 		env = strsplit (environment->string, ' ', -1, &nenv);
+
+	// tomamos el tiempo
+	++num_start;
+	time (&last_start);
 
 	// lanzamos el proceso en un seudo-terminal en segundo plano
 	pid = forkpty (&pty, NULL, NULL, NULL);
@@ -171,7 +337,7 @@ int Process::Launch (void)
 		dead = false;
 
 		// informar a los clientes que el proceso se inició
-		Server.SendToAllClients (Pckt::SessionProcessStart, msg);
+		Server.SendToAllClients (index, Session::ProcessStart, msg);
 
 		// registrar con la aplicación
 		Application.Add (Owner::Process, pty);
@@ -269,12 +435,13 @@ int Process::WriteData (char *buffer)
 	return len;
 }
 
-void Process::Read (char *buf, int buflen)
+void Process::Read (void)
 {
 	int len;
+	char buf[PCKT_MAXDATA + 1];
 
-	memset (buf, 0, buflen + 1);
-	len = ReadData (buf, buflen);
+	memset (buf, 0, PCKT_MAXDATA + 1);
+	len = ReadData (buf, PCKT_MAXDATA);
 
 	if (len > 0)
 	{
@@ -284,6 +451,9 @@ void Process::Read (char *buf, int buflen)
 
 		// los datos leídos deben ponerse en el log del proceso
 		AddProcessData (buf);
+
+		// enviamos a todos los clientes
+		Server.SendToAllClients (index, Session::ConsoleOutput, buf);
 	}
 }
 
@@ -304,26 +474,52 @@ int Process::Write (char *buffer)
 
 void Process::WaitExit (void)
 {
-	int status;
+	int status, retval;
 	char msg[51];
+	time_t last_death, time_diff;
 
 	if (dead)
 		return;
 
 	dead = true;
+	retval = waitpid (pid, &status, WNOHANG);
 
-	waitpid (pid, &status, WNOHANG);
+	if (retval == 0)
+	{
+		// el proceso no ha terminado, asesinando
+		Logs.Add (Log::Process | Log::Warning,
+			  "Process %d couldn't be terminated: %s",
+			  pid, strerror (errno));
+		errno = 0;
+		SendSignal (SIGKILL);
+		waitpid (pid, &status, WNOHANG);
+	}
+
+	// tomamos el tiempo para confrontarlo con su tiempo de inicio
+	time (&last_death);
 
 	snprintf (msg, 51, "Process %d has died with %d", pid, status);
-	Server.SendToAllClients (Pckt::SessionProcessExits, msg);
-	Logs.Add (Log::Process | Log::Notice, msg);
+	Server.SendToAllClients (index, Session::ProcessExits, msg);
+	Logs.Add (Log::Process | Log::Info, msg);
 
-	// proceso no se pudo iniciar
-	if (status == 0xFF00)
+	time_diff = last_death - last_start;
+
+	// proceso murió muy rápido (dentro de 2 segundos de haberse iniciado)
+	if (time_diff <= 2)
 	{
 		respawn->value = 0;
 		strncpy (msg, "Bad process will not be restarted", 50);
-		Server.SendToAllClients (Pckt::ErrorBadProcess);
+		Server.SendToAllClients (index, Error::BadProcess);
+		Logs.Add (Log::Process | Log::Critical, msg);
+	}
+
+	// proceso no se pudo iniciar
+	//if (status == 0xFF00)
+	if (WEXITSTATUS(status))
+	{
+		respawn->value = 0;
+		strncpy (msg, "Bad process will not be restarted", 50);
+		Server.SendToAllClients (index, Error::BadProcess);
 		Logs.Add (Log::Process | Log::Critical, msg);
 	}
 }
@@ -363,5 +559,72 @@ void Process::Restart (void)
 	}
 }
 
-// definimos el objeto
-Process Child;
+char* Process::GetInfo (void)
+{
+	char *process_info = NULL, histlenbuf[81], laststartbuf[81], numstartbuf[81];
+	int info_length;
+
+	snprintf (histlenbuf, 81, "%d", historylength->value);
+	snprintf (numstartbuf, 81, "%d", num_start);
+	strncpy (laststartbuf, ctime (&last_start), 80);
+
+	info_length = strlen ("Name") + strlen (name->string) + 2 +
+		      strlen ("Description") + strlen (description->string) + 2 +
+		      strlen ("Type") + strlen (type->string) + 2 +
+		      strlen ("Command") + strlen (command->string) + 2 +
+		      strlen ("Environment") + strlen (environment->string) + 2 +
+		      strlen ("WorkingDirectory") + strlen (workdir->string) + 2 +
+		      strlen ("Respawn") + 3 + 2 +
+		      strlen ("HistoryLength") + strlen (histlenbuf) + 2 +
+		      strlen ("Starts") + strlen (numstartbuf) + 2 +
+		      strlen ("LastStart") + strlen (laststartbuf) + 2;
+
+	process_info = new char [info_length + 1];
+	memset (process_info, 0, info_length + 1);
+
+	strncat (process_info, "Name=", 5);
+	strncat (process_info, name->string, strlen (name->string));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "Description=", 12);
+	strncat (process_info, description->string, strlen (description->string));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "Type=", 5);
+	strncat (process_info, type->string, strlen (type->string));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "Command=", 8);
+	strncat (process_info, command->string, strlen (command->string));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "Environment=", 12);
+	strncat (process_info, environment->string, strlen (environment->string));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "WorkingDirectory=", 17);
+	strncat (process_info, workdir->string, strlen (workdir->string));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "Respawn=", 8);
+	if (respawn->value)
+		strncat (process_info, "yes", 3);
+	else
+		strncat (process_info, "no", 2);
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "HistoryLength=", 14);
+	strncat (process_info, histlenbuf, strlen (histlenbuf));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "Starts=", 7);
+	strncat (process_info, numstartbuf, strlen (numstartbuf));
+	strncat (process_info, "\n", 1);
+
+	strncat (process_info, "LastStart=", 10);
+	strncat (process_info, laststartbuf, strlen (laststartbuf));
+	strncat (process_info, "\n", 1);
+
+	// no olvidar liberar la memoria usada
+	return process_info;
+}

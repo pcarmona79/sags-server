@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.hpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.4 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #ifndef __CLIENT_HPP__
@@ -62,8 +62,9 @@ public:
 	Packet *Receive (void);
 	void Add (Packet *NewItem);
 	void AddFirst (Packet *NewItem);
-	void AddBuffer (unsigned int type, const char *data);
-	int Disconnect (Pckt::Type pkt_type = Pckt::SessionDisconnect);
+	void AddBuffer (unsigned int idx, unsigned int com, const char *data);
+	int Disconnect (unsigned int idx = Session::MainIndex,
+			unsigned int com = Session::Disconnect);
 
 	Usr::Status GetStatus (void);
 	void SetStatus (Usr::Status NewStatus);

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/14 03:12:10 $
+// $Revision: 1.5 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #include <iostream>
@@ -108,9 +108,9 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 				Logs.Add (Log::Config | Log::Notice,
 					  "No group! Line %d isn't a valid configure line", i);
 			}
-			else
-				Logs.Add (Log::Config | Log::Debug,
-					  "New group [%s]", group);
+			//else
+			//	Logs.Add (Log::Config | Log::Debug,
+			//		  "New group [%s]", group);
 
 			continue;
 		}
@@ -140,8 +140,8 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 			continue;
 		}
 
-		Logs.Add (Log::Config | Log::Debug, "Option [%s]%s=%s",
-			  group, name, data);
+		//Logs.Add (Log::Config | Log::Debug, "Option [%s]%s=%s",
+		//	  group, name, data);
 
 		// agregamos a la lista luego de
 		// comprobar el tipo de dato
@@ -202,7 +202,8 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 	Logs.Add (Log::Config | Log::Info, "Processed file \"%s\"", FileName);
 }
 
-struct option *Configuration::Add (Conf::OpType type, const char *group, const char *name, int val)
+struct option *Configuration::Add (Conf::OpType type, const char *group,
+				   const char *name, int val)
 {
 	struct option *opt = new struct option (group, name, type);
 
@@ -231,7 +232,8 @@ struct option *Configuration::Add (Conf::OpType type, const char *group, const c
 	return opt;
 }
 
-struct option *Configuration::Add (Conf::OpType type, const char *group, const char *name, const char *val)
+struct option *Configuration::Add (Conf::OpType type, const char *group,
+				   const char *name, const char *val)
 {
 	struct option *opt = new struct option (group, name, type);
 
@@ -253,41 +255,42 @@ struct option *Configuration::Add (Conf::OpType type, const char *group, const c
 	return opt;
 }
 
-struct option *Configuration::Get (const char *group, const char *name)
+struct option *Configuration::Get (Conf::OpType type, const char *group,
+				   const char *name, const char *val)
 {
-	struct option *opt, *found, searched (group, name);
+	struct option *opt, searched (group, name);
 
 	opt = list.Find (searched);
 
 	if (opt != NULL)
 	{
-		found = new struct option (opt->group, opt->name, opt->type);
-
-		// el string se asigna si no es nulo, si no se asigna value
-		if (opt->string[0] != '\0')
-		{
-			strncpy (found->string, opt->string, CONF_MAX_STRING);
-			found->value = 0;
-		}
-		else
-		{
-			found->value = opt->value;
-			found->string[0] = '\0';
-		}
-
 		// retornamos objeto encontrado
-		return found;
+		return opt;
 	}
 
 	// si llegamos aquí es que es una opción desconocida
-	Logs.Add (Log::Config | Log::Warning,
-		  "Unknown option [%s]%s",
-		  group, name);
-
-	return NULL;
+	return Add (type, group, name, val);
 }
 
-void Configuration::Set (Conf::OpType type, const char *group, const char *name, int val)
+struct option *Configuration::Get (Conf::OpType type, const char *group,
+				   const char *name, int val)
+{
+	struct option *opt, searched (group, name);
+
+	opt = list.Find (searched);
+
+	if (opt != NULL)
+	{
+		// retornamos objeto encontrado
+		return opt;
+	}
+
+	// si llegamos aquí es que es una opción desconocida
+	return Add (type, group, name, val);
+}
+
+void Configuration::Set (Conf::OpType type, const char *group,
+			 const char *name, int val)
 {
 	struct option *opt, searched (group, name);
 
@@ -320,7 +323,8 @@ void Configuration::Set (Conf::OpType type, const char *group, const char *name,
 		Add (type, group, name, val);
 }
 
-void Configuration::Set (Conf::OpType type, const char *group, const char *name, const char *val)
+void Configuration::Set (Conf::OpType type, const char *group,
+			 const char *name, const char *val)
 {
 	struct option *opt, searched (group, name);
 
@@ -344,6 +348,15 @@ void Configuration::Set (Conf::OpType type, const char *group, const char *name,
 	else
 		// si no existe la opción, la agregamos
 		Add (type, group, name, val);
+}
+
+bool Configuration::Check (const char *group, const char *name)
+{
+	struct option *opt, searched (group, name);
+
+	opt = list.Find (searched);
+
+	return (opt != NULL);
 }
 
 // definimos el objeto

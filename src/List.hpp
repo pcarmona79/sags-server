@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/List.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/06/07 02:22:58 $
+// $Revision: 1.3 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #ifndef __LIST_HPP__
@@ -96,6 +96,7 @@ public:
 	L* ExtractLast (void);
 	L* Find (L& d);
 	unsigned int Remove (L& d, bool repeat = false);
+	unsigned int Remove (L *d, bool repeat = false);
 	L Index (unsigned int n);
 	void Clear (void);
 
@@ -251,6 +252,38 @@ unsigned int List<L>::Remove (L& d, bool repeat)
 	for (Temp = First; Temp; Temp = Temp->Next)
 	{
 		if (d == *Temp->Data)
+		{
+			if (Temp->Prev != NULL)
+				Temp->Prev->Next = Temp->Next;
+			else
+				First = Temp->Next;
+
+			if (Temp->Next != NULL)
+				Temp->Next->Prev = Temp->Prev;
+			else
+				Last = Temp->Prev;
+
+			delete Temp;
+			--Count;
+			++del;
+
+			if (!repeat)
+				break;
+		}
+	}
+
+	return del;
+}
+
+template <class L>
+unsigned int List<L>::Remove (L *d, bool repeat)
+{
+	Node<L> *Temp;
+	unsigned int del = 0;
+
+	for (Temp = First; Temp; Temp = Temp->Next)
+	{
+		if (*d == *Temp->Data)
 		{
 			if (Temp->Prev != NULL)
 				Temp->Prev->Next = Temp->Next;

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Log.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/06/03 02:46:24 $
+// $Revision: 1.3 $
+// $Date: 2004/06/16 00:52:49 $
 //
 
 #ifndef __LOG_HPP__
@@ -60,7 +60,10 @@ namespace Log
 		Config   = 0x0040,
 
 		// logs for clients
-		Client   = 0x0050
+		Client   = 0x0050,
+
+		// logs for ProcTree
+		ProcTree = 0x0060
 	} Type;
 };
 
