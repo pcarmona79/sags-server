@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.19 $
-// $Date: 2004/06/30 03:44:26 $
+// $Revision: 1.20 $
+// $Date: 2004/08/07 21:04:34 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -35,6 +35,7 @@
 #include "ProcTree.hpp"
 #include "Network.hpp"
 #include "Log.hpp"
+#include "Channel.hpp"
 
 Main::Main () : SelectLoop ()
 {
@@ -193,9 +194,9 @@ int Main::ProtoSync (Client *Cl, Packet *Pkt)
 	case Sync::Version:
 
 		// chequeamos las versiones
-		if (!strncmp (Pkt->GetData (), "2", 1))
+		if (!strncmp (Pkt->GetData (), "3", 1))
 		{
-			Cl->Add (new Packet (Sync::Index, Sync::Version, 1, 1, "2"));
+			Cl->Add (new Packet (Sync::Index, Sync::Version, 1, 1, "3"));
 			Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
 		else
@@ -279,6 +280,9 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 
 					// agregamos al cliente los servidores autorizados
 					AddAuthorizedProcesses (Cl, usr);
+
+					// ingresamos al usuario al canal general
+					GeneralChannel.UserJoin (Cl);
 				}
 				else
 					Logs.Add (Log::Warning,
@@ -415,6 +419,22 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 			  Cl->GetUsername ());
 		Cl->SetDrop (true);
 		Server.CloseConnection (Cl->ShowSocket (), 0, 0);
+		break;
+
+	case Session::ChatMessage:
+	case Session::ChatAction:
+	case Session::ChatNotice:
+
+		if (GeneralChannel.MessageChannel (Cl, Pkt))
+			return -1;
+		break;
+
+	case Session::ChatPrivMessage:
+	case Session::ChatPrivAction:
+	case Session::ChatPrivNotice:
+
+		if (GeneralChannel.MessagePrivate (Cl, Pkt))
+			return -1;
 		break;
 
 	default:

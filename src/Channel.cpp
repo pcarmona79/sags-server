@@ -19,11 +19,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/08/05 02:25:29 $
+// $Revision: 1.2 $
+// $Date: 2004/08/07 21:04:34 $
 //
 
 #include "Channel.hpp"
+#include "Main.hpp"
 
 Channel::Channel ()
 {
@@ -35,24 +36,84 @@ Channel::~Channel ()
 	
 }
 
+char *Channel::GetUserList (void)
+{
+	int i, len = 0, max_list = Users.GetCount ();
+	char *usrlst, current_name[CL_MAXNAME + 2];
+
+	for (i = 0; i <= max_list - 1; ++i)
+		len += strlen (Users[i]->name) + 1;
+
+	usrlst = new char [len + 2];
+	memset (usrlst, 0, len + 2);
+
+	for (i = 0; i <= max_list - 1; ++i)
+	{
+		snprintf (current_name, CL_MAXNAME + 2, "%s\n", Users[i]->name);
+		strncat (usrlst, current_name, strlen (current_name));
+	}
+	strncat (usrlst, "\n", 1);
+
+	// no olvidar liberar
+	return usrlst;
+}
+
 void Channel::UserJoin (Client *Cl)
 {
-	
+	struct channel_user *newuser;
+	int i, max_list = Users.GetCount ();
+	char *users_list;
+
+	newuser = new struct channel_user (Cl->GetUsername (), Cl);
+
+	// buscamos un admin
+	if (Cl->IsAuthorized (0))
+		newuser->status |= STATUS_ADMIN;
+
+	// enviar aviso al resto de los usuarios conectados
+	// EL MENSAJE TAMBIEN LLEGA AL CLIENTE AGREGADO
+	for (i = 0; i <= max_list - 1; ++i)
+	{
+		Users[i]->client->AddBuffer (Session::MainIndex, Session::ChatJoin,
+					     newuser->name);
+		Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+	}
+
+	Users << newuser;
+
+	// clientes que se conectan deben recibir la lista
+	// de usuarios conectados
+	users_list = GetUserList ();
+	newuser->client->AddBuffer (Session::MainIndex, Session::ChatUserList,
+				    users_list);
+	delete[] users_list;
 }
 
 void Channel::UserLeave (Client *Cl)
 {
-	
+	int i, max_list;
+	struct channel_user deluser (Cl->GetUsername ());
+
+	Users.Remove (deluser);
+
+	// enviar aviso al resto de los usuarios conectados
+	max_list = Users.GetCount ();
+	for (i = 0; i <= max_list - 1; ++i)
+	{
+		Users[i]->client->AddBuffer (Session::MainIndex, Session::ChatLeave,
+					     deluser.name);
+		Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+	}
 }
 
-void Channel::MessageChannel (Client *Cl, Packet *Pkt)
+int Channel::MessageChannel (Client *Cl, Packet *Pkt)
 {
-	
+	return 0;
 }
 
-void Channel::MessagePrivate (Client *Cl, Packet *Pkt)
+int Channel::MessagePrivate (Client *Cl, Packet *Pkt)
 {
-	
+	return 0;
 }
 
 // definimos el objeto

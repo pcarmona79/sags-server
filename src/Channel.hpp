@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/08/05 02:25:29 $
+// $Revision: 1.2 $
+// $Date: 2004/08/07 21:04:34 $
 //
 
 #ifndef __CHANNEL_HPP__
@@ -31,15 +31,24 @@
 #include "List.hpp"
 #include "Packet.hpp"
 
+#define STATUS_NORMAL 0x000
+#define STATUS_AWAY   0x001
+#define STATUS_BUSY   0x002
+#define STATUS_ADMIN  0x100
+
 struct channel_user
 {
 	char name[CL_MAXNAME + 1];
 	int status;
+	Client *client;
 
-	channel_user (const char *n = NULL)
+	channel_user (const char *n = NULL, Client *c = NULL)
 	{
 		memset (name, 0, CL_MAXNAME + 1);
-		status = 0;
+		if (n != NULL)
+			strncpy (name, n, CL_MAXNAME);
+		status = STATUS_NORMAL;
+		client = c;
 	}
 
 	bool operator== (const struct channel_user &usr)
@@ -59,11 +68,13 @@ public:
 	Channel ();
 	~Channel ();
 
+	char *GetUserList (void);
+
 	void UserJoin (Client *Cl);
 	void UserLeave (Client *Cl);
 
-	void MessageChannel (Client *Cl, Packet *Pkt);
-	void MessagePrivate (Client *Cl, Packet *Pkt);
+	int MessageChannel (Client *Cl, Packet *Pkt);
+	int MessagePrivate (Client *Cl, Packet *Pkt);
 };
 
 extern Channel GeneralChannel;

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/08/05 01:38:58 $
+// $Revision: 1.7 $
+// $Date: 2004/08/07 21:04:34 $
 //
 
 #ifndef __PACKET_HPP__
@@ -55,11 +55,15 @@ namespace Session
 		ProcessLaunch   = 0x0D,
 		ProcessRestart  = 0x0E,
 
-		ChatJoin        = 0x0F,
-		ChatLeave       = 0x10,
-		ChatUserList    = 0x11,
-		ChatMsgChannel  = 0x12,
-		ChatMsgPrivate  = 0x13
+		ChatUserList    = 0x0F,
+		ChatJoin        = 0x10,
+		ChatLeave       = 0x11,
+		ChatMessage     = 0x12,
+		ChatAction      = 0x13,
+		ChatNotice      = 0x14,
+		ChatPrivMessage = 0x15,
+		ChatPrivAction  = 0x16,
+		ChatPrivNotice  = 0x17
 	} Type;
 }
 

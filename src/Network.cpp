@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.10 $
-// $Date: 2004/06/17 00:21:01 $
+// $Revision: 1.11 $
+// $Date: 2004/08/07 21:04:34 $
 //
 
 #include <iostream>
@@ -39,6 +39,7 @@
 #include "Log.hpp"
 #include "Main.hpp"
 #include "ProcTree.hpp"
+#include "Channel.hpp"
 
 #define CHECK_TIMEOUT 30
 
@@ -296,6 +297,7 @@ int Network::DropClient (Client *Cl)
 		sd = Cl->ShowSocket ();
 		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
 		RemoveWatch (Cl);
+		GeneralChannel.UserLeave (Cl);
 	}
 	else
 		return -1;
@@ -339,6 +341,7 @@ void Network::CloseConnection (int sd, unsigned int idx, unsigned int com)
 	{
 		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
 		RemoveWatch (Cl);
+		GeneralChannel.UserLeave (Cl);
 		if (idx != 0 && com != 0)
 			Cl->Disconnect (idx, com); // no importa si falla
 	}
