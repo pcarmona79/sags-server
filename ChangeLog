@@ -1,5 +1,12 @@
 2004-06-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
+	* src/Process.cpp:
+		- Now we send a Session::Authorized only if it is the first
+		start of the process.
+
+
+2004-06-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
 	* src/Packet.hpp:
 	* src/Packet.cpp:
 		- Added methods IsSync(), IsAuth() and IsSession() to identify

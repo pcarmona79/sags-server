@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/06/19 23:58:08 $
+// $Revision: 1.8 $
+// $Date: 2004/06/22 02:42:30 $
 //
 
 #include <iostream>
@@ -338,7 +338,11 @@ int Process::Launch (void)
 
 		// informar a los clientes que el proceso se inició
 		Server.SendToAllClients (index, Session::ProcessStart, msg);
-		Server.SendToAllClients (index, Session::Authorized);
+
+		// enviamos un Session::Authorized sólo cuando
+		// nos iniciamos por primera vez
+		if (num_start == 1)
+			Server.SendToAllClients (index, Session::Authorized);
 
 		// registrar con la aplicación
 		Application.Add (Owner::Process, pty);
