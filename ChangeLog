@@ -2,6 +2,8 @@
 
 	* src/Client.cpp: Now Client::Disconnect also removes the send flag in
 	the sockets list.
+	* runmefirst: New executable to touch files before run configure on
+	anonymous CVS files.
 
 
 2004-05-29  Pablo Carmona Amigo  <kernel@dday.cl>

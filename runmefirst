@@ -2,6 +2,8 @@
 
 touch aclocal.m4
 touch config.h.in
+touch configure.in
+touch configure
 
 for file in Makefile.in */Makefile.in;
 do
