@@ -33,6 +33,9 @@ The major features are:
  - New format of users file add the indexes of allowed processes for a
    user.
 
+ - Chat support. Implements a IRC like channel where all clients
+   connected can have a nice conversation.
+
 Actually the server runs only on Linux because I don't have another SO
 to test it (I'm testing on Debian Sid and Fedora Core 1), but I think it
 will work on FreeBSD with minor modifications.
