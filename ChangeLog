@@ -1,3 +1,13 @@
+2004-05-22  Pablo Carmona Amigo  <kernel@dday.cl>
+
+	* Version 0.2.2.
+	* Fixed a non-initializated variable in Client::Receive.
+	* Removed unnecessary code in Client::Send who check a
+	SessionDisconnect.
+	* Fixed a bug in Network::SendData who can cause the program to
+	receive a SIGPIPE.
+
+
 2004-05-21  Pablo Carmona Amigo  <kernel@dday.cl>
 
 	* Version 0.2.1.

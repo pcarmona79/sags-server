@@ -1,3 +1,11 @@
+New version 0.2.2
+-----------------
+
+This release fixes a bug who can cause the program to receive a SIGPIPE
+when a connected user dies unexpectedly without send a disconnect
+packet.
+
+
 New version 0.2.1
 -----------------
 

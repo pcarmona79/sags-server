@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.6 $
+// $Date: 2004/05/22 21:03:48 $
 //
 
 #include <iostream>
@@ -409,10 +409,12 @@ int Network::SendData (int sd)
 	}
 
 	bytes = Cl->Send ();
-	if (bytes == -2)
-		CloseConnection (sd, Pckt::Null);
-	else if (bytes < 0)
-		CloseConnection (sd);
+
+	if (bytes < 0)
+	{
+		Cl->SetDrop (true);
+		DropClient (Cl);
+	}
 
 	return bytes;
 }

@@ -19,13 +19,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.3 $
+// $Date: 2004/05/22 21:03:48 $
 //
 
 #include <cstring>
 #include <cstdio>
-#include <cmath>
 
 #include "Packet.hpp"
 

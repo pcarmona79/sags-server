@@ -19,12 +19,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.6 $
+// $Date: 2004/05/22 21:03:48 $
 //
 
 #include <cstring>
 #include <cerrno>
+#include <cmath>
 
 #include "Client.hpp"
 #include "Log.hpp"
@@ -79,10 +80,6 @@ int Client::Send (void)
 		return -1; 
 	}
 
-	// cliente desconectándose
-	if (Sending->GetType () == Pckt::SessionDisconnect)
-		return -2;
-
 	// borramos el paquete ya usado
 	delete Sending;
 
@@ -98,7 +95,7 @@ int Client::Send (void)
 
 Packet *Client::Receive (void)
 {
-	int bytes;
+	int bytes = 0;
 	Packet *Pkt = RecvPacket (&bytes);
 		
 	Logs.Add (Log::Client | Log::Debug,
