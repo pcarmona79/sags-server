@@ -2,7 +2,7 @@
 %define	version		@VERSION@
 %define	release		1
 
-Summary:	Client for Secure Administrator of Game Servers
+Summary:	Secure Administrator of Game Servers
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}

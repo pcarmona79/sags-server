@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.12 $
-// $Date: 2004/06/20 19:17:00 $
+// $Revision: 1.13 $
+// $Date: 2005/01/21 22:59:06 $
 //
 
 #include <cstring>
@@ -205,10 +205,26 @@ void Client::SetAuthorizedProcess (unsigned int idx)
 		// enviar un paquete por cada servidor
 		Add (new Packet (0, Session::Authorized));
 		for (i = 1; ProcMaster.IsProcess (i); ++i)
+		{
 			Add (new Packet (i, Session::Authorized));
+
+			// también enviamos el modo de mantención
+			if (ProcMaster.GetMaintainceMode (i))
+				Add (new Packet (i, Session::MaintainceOn));
+			else
+				Add (new Packet (i, Session::MaintainceOff));
+		}
 	}
 	else if (ProcMaster.IsProcess (idx))
+	{
 		Add (new Packet (idx, Session::Authorized));
+
+		// también enviamos el modo de mantención
+		if (ProcMaster.GetMaintainceMode (idx))
+			Add (new Packet (idx, Session::MaintainceOn));
+		else
+			Add (new Packet (idx, Session::MaintainceOff));
+	}
 }
 
 bool Client::IsAuthorized (unsigned int idx)

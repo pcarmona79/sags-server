@@ -1,3 +1,33 @@
+2005-01-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* Preparing 0.5 version.
+
+	* src/Log.cpp:
+		- Fixed bug in Add(). Critical logs don't terminates the
+		program.
+
+	* src/Config.cpp:
+		- "on" and "off" are new boolean options.
+
+	* src/Process.hpp:
+	* src/Process.cpp:
+		- Now bad processes don't terminate the program. Error type
+		changed	from Log::Critical to Log::Error.
+		- It's not necessary to check value returned by a died process.
+		It works well just checking time of death.
+		- Added new vars for controling the maintaince mode. This also
+		adds new infovars to send to users.
+		- New method to change the maintaince mode.
+
+	* src/ProcTree.hpp:
+	* src/ProcTree.cpp:
+		- New method to change the maintaince mode to a process.
+
+	* src/Main.cpp:
+		- Now manages new packets Session::MaintainceOn and
+		Session::MaintainceOff.
+
+
 2005-01-17  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* tools/sags-passwd.cpp:

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Log.cpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/08/13 00:55:57 $
+// $Revision: 1.8 $
+// $Date: 2005/01/21 22:59:06 $
 //
 
 #include <iostream>
@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <csignal>
 
 #include "Log.hpp"
 #include "Main.hpp"
@@ -157,7 +158,7 @@ void Logging::Add (int type, const char* fmt, ...)
 
 	if (shutdown)
 	{
-		Application.SignalEvent (EXIT_FAILURE);
+		Application.SignalEvent (SIGTERM);
 		exit (EXIT_FAILURE);
 	}
 }

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.cpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/06/19 23:58:08 $
+// $Revision: 1.7 $
+// $Date: 2005/01/21 22:59:06 $
 //
 
 #include <iostream>
@@ -161,13 +161,15 @@ void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 			--data;
 		}
 		else if (!strcasecmp (data, "yes") ||
-			 !strcasecmp (data, "true"))
+			 !strcasecmp (data, "true") ||
+			 !strcasecmp (data, "on"))
 		{
 			// variable booleana con valor verdadero
 			Set (Conf::Boolean, group, name, 1);
 		}
 		else if (!strcasecmp (data, "no") ||
-			 !strcasecmp (data, "false"))
+			 !strcasecmp (data, "false") ||
+			 !strcasecmp (data, "off"))
 		{
 			// variable booleana con valor falso
 			Set (Conf::Boolean, group, name, 0);

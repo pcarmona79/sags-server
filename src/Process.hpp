@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.hpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/07/21 00:10:24 $
+// $Revision: 1.6 $
+// $Date: 2005/01/21 22:59:06 $
 //
 
 #ifndef __PROCESS_HPP__
@@ -53,6 +53,7 @@ private:
 	struct option *workdir;
 	struct option *respawn;
 	struct option *historylength;
+	struct option *maintaince_mode;
 
 	char current_command[CONF_MAX_STRING + 1];
 	char current_environment[CONF_MAX_STRING + 1];
@@ -62,6 +63,10 @@ private:
 	int num_start;
 	time_t last_start;
 	int last_value_returned;
+
+	time_t maintaince_last_start;
+	time_t maintaince_duration;
+	int maintaince_count;
 
 public:
 	Process (int idx, int fd = 0);
@@ -85,6 +90,8 @@ public:
 	void Restart (void);
 	char *GetInfo (void);
 	bool IsRunning (void);
+	void SetMaintainceMode (bool mode);
+	bool GetMaintainceMode (void);
 };
 
 #endif // __PROCESS_HPP__

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/ProcTree.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/06/28 21:30:06 $
+// $Revision: 1.6 $
+// $Date: 2005/01/21 22:59:06 $
 //
 
 #include "ProcTree.hpp"
@@ -249,6 +249,23 @@ int ProcTree::RestartProcess (unsigned int idx)
 	}
 
 	return ProcList[idx - 1]->Launch ();
+}
+
+int ProcTree::SetMaintainceMode (unsigned int idx, bool mode)
+{
+	if (idx < 1 && idx > ProcList.GetCount ())
+		return -1;
+
+	ProcList[idx - 1]->SetMaintainceMode (mode);
+	return 0;
+}
+
+bool ProcTree::GetMaintainceMode (unsigned int idx)
+{
+	if (idx < 1 && idx > ProcList.GetCount ())
+		return -1;
+
+	return ProcList[idx - 1]->GetMaintainceMode ();
 }
 
 // definimos el objeto
