@@ -1,5 +1,23 @@
-New version 0.2.3
+New version 0.2.4
 -----------------
+
+This release contains the following changes:
+
+1) Now Client::Disconnect also removes the send flag in	the sockets
+   list.
+2) Fixed size value passed to snprintf and vsnprintf functions.
+3) Increased the length of string that holds the application's version
+   to include a larger value.
+4) Removed innecesary variable 'connections' in Network class.
+5) Fixed Network class which was not sending ErrorServerFull packet
+   when disconnect a client because server is full.
+6) Now we free the memory assigned to tmout after to call the
+   SignalEvent method of Network class and 'timeout' is now deleted in
+   the destructor.
+
+
+Version 0.2.3
+-------------
 
 This release includes:
 

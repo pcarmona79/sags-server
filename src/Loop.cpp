@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.cpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/06/01 00:04:15 $
+// $Revision: 1.7 $
+// $Date: 2004/06/01 02:36:56 $
 //
 
 #include <csignal>
@@ -69,7 +69,7 @@ SelectLoop::SelectLoop ()
 
 SelectLoop::~SelectLoop ()
 {
-	
+	delete timeout;
 }
 
 void SelectLoop::AddToList (int owner, int fd)
