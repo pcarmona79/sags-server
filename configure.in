@@ -41,9 +41,13 @@ fi
 
 dnl Set PACKAGE DATA & DOC DIR
 packagedatadir=share/${PACKAGE}
-packagedocdir=share/doc/${PACKAGE}
 packagesysconfdir=/etc/${PACKAGE}
 packagemandir=share/man/man1
+if test "x${enable_redhat_docdir}" = "xyes"; then
+  packagedocdir=share/doc/${PACKAGE}-${VERSION}
+else
+  packagedocdir=share/doc/${PACKAGE}
+fi
 
 dnl Subst PACKAGE_DATA_DIR.
 NO_PREFIX_PACKAGE_DATA_DIR="${packagedatadir}"
@@ -74,10 +78,11 @@ AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}", [Source dir])
 AC_DEFINE_UNQUOTED(PACKAGE_SYSCONF_DIR, "${packagesysconfdir}", [System config dir])
 
 AC_OUTPUT([
-Makefile
-sags.spec
+doc/Makefile
+doc/html/Makefile
 src/Makefile
 tools/Makefile
-doc/Makefile
+Makefile
+sags.spec
 ])
 

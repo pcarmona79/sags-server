@@ -1,3 +1,9 @@
+2005-02-25  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* configure.in: Added --enable-redhat-docdir option.
+
+	* doc/html: New HTML documentation files.
+
 2005-02-10  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Channel.cpp (MessagePrivate): Now we send a

@@ -5,9 +5,9 @@
   <meta content="Pablo Carmona Amigo" name="author">
 </head>
 <body>
-<h1>Configuraci&oacute;n del Servidor SAGS 0.3.x<br>
+<h1>Configuraci&oacute;n del Servidor SAGS<br>
 </h1>
-<p>&copy; 2004 Pablo Carmona Amigo<br>
+<p>&copy; 2004, 2005 Pablo Carmona Amigo<br>
 </p>
 <ol id="mozToc">
 <!--mozToc h2 1 h3 2 h4 3 h5 4 h6 5--><li><a href="#mozTocId880139">Introducci&oacute;n</a></li>
@@ -32,10 +32,11 @@ sags.conf</a>
 </ol>
 <h2><a class="mozTocH2" name="mozTocId880139"></a>Introducci&oacute;n</h2>
 <p>En este documento se describe la configuraci&oacute;n de un servidor
-SAGS 0.3.x para administrar remotamente los procesos ejectados en
+SAGS para administrar remotamente los procesos ejecutados en
 &eacute;l.<br>
 </p>
-<p>El proyecto se encuentra alojado en Sourceforge.net y la
+<p>El proyecto se encuentra alojado en <a
+ href="http://sourceforge.net/">Sourceforge.net</a> y la
 direcci&oacute;n es <a href="http://sags.sourceforge.net/">http://sags.sourceforge.net/</a>,
 donde podr&aacute; encontrar nuevas versiones tanto del servidor como
 del cliente.</p>
@@ -106,7 +107,8 @@ este software.<br>
 <h4><a class="mozTocH4" name="mozTocId292710"></a>Archivo de usuarios
 sags.users</h4>
 <p>El formato de este archivo es parecido al archivo del sistema
-/etc/passwd. Cada l&iacute;nea representa un usuario, su
+<span style="font-family: monospace;">/etc/passwd</span>. Cada
+l&iacute;nea representa un usuario, su
 contrase&ntilde;a y una lista de procesos autorizados separados por
 comas (los administradores se indican poniendo s&oacute;lo un <span
  style="font-family: monospace;">0</span> (cero) en su lista).<br>
@@ -209,7 +211,7 @@ no pasar&aacute; a segundo plano y todos los mensajes del programa
 saldr&aacute;n por la salida est&aacute;ndar, por lo que podr&aacute;
 evaluar el comportamiento del programa.</p>
 <p>Luego, cuando tenga una buena configuraci&oacute;n, puede iniciar el
-servidor ominitiendo <span style="font-family: monospace;">-D</span>
+servidor omitiendo <span style="font-family: monospace;">-D</span>
 por lo que la aplicaci&oacute;n pasar&aacute; a ejecutarse como demonio
 del sistema.<br>
 </p>
@@ -218,15 +220,14 @@ del sistema.<br>
 <span style="font-weight: bold;">init</span>, pero puede usar un script
 parecido a <span style="font-family: monospace;">checksags</span> (en<span
  style="font-family: monospace;"></span> <span
- style="font-family: monospace;">tools</span>) para agregarlo al
+ style="font-family: monospace;">tools/</span>) para agregarlo al
 demonio <span style="font-weight: bold;">cron</span>.</p>
-<p>Por &uacute;ltimo, basta conectarse con un cliente SAGS de
-versi&oacute;n 0.3.x para poder administrar todos los procesos
+<p>Por &uacute;ltimo, basta conectarse con un cliente SAGS para poder
+administrar todos los procesos
 (seg&uacute;n los procesos autorizados para cada usuario).<br>
 </p>
 <hr style="width: 100%; height: 2px;">
-<p><span style="font-style: italic;">$Id: configuration-0.3_ES.html,v
-1.2 2004/06/17 00:21:00 pcarm Exp $</span><br>
+<p><span style="font-style: italic;">$Id: config.es.html,v 1.1 2005/02/25 22:54:41 pcarm Exp $</span><br>
 </p>
 </body>
 </html>

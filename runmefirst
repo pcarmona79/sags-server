@@ -5,7 +5,7 @@ touch config.h.in
 touch configure.in
 touch configure
 
-for file in Makefile.in */Makefile.in;
+for file in Makefile.am Makefile.in */Makefile.am */Makefile.in;
 do
   touch $file
 done
