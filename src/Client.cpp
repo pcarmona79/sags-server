@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.9 $
-// $Date: 2004/06/17 00:21:00 $
+// $Revision: 1.10 $
+// $Date: 2004/06/17 08:13:23 $
 //
 
 #include <cstring>
@@ -30,6 +30,7 @@
 #include "Client.hpp"
 #include "Log.hpp"
 #include "Main.hpp"
+#include "ProcTree.hpp"
 
 Client::Client (SSL_CTX *ctx, int sd, struct sockaddr_storage *ss, socklen_t sslen)
 		: Protocol (ctx, sd, ss, sslen)
@@ -194,7 +195,18 @@ void Client::UpdateTime (void)
 
 void Client::SetAuthorizedProcess (unsigned int idx)
 {
+	int i;
+
 	AuthorizedProcess << idx;
+	Add (new Packet (idx, Session::Authorized));
+
+	if (idx == 0)
+	{
+		// es un administrador, por lo que hay que
+		// enviar un paquete por cada servidor
+		for (i = 1; ProcMaster.IsProcess (i); ++i)
+			Add (new Packet (i, Session::Authorized));
+	}
 }
 
 bool Client::IsAuthorized (unsigned int idx)
@@ -203,7 +215,7 @@ bool Client::IsAuthorized (unsigned int idx)
 	{
 		// buscamos primero a un administrador
 		if (AuthorizedProcess.GetCount () == 1)
-			if (AuthorizedProcess[0] == 0)
+			if (AuthorizedProcess.Index (0) == 0)
 				return true;
 
 		// buscamos idx dentro de la lista

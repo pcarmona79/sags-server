@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.hpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/06/17 00:21:00 $
+// $Revision: 1.8 $
+// $Date: 2004/06/17 08:13:23 $
 //
 
 #ifndef __MAIN_HPP__
@@ -41,7 +41,7 @@ struct user
 {
 	char name[CL_MAXNAME + 1];
 	char pass[PASSLEN + 1];
-	char procs[PROCSLEN +1];
+	char procs[PROCSLEN + 1];
 	char rndstr[HASHLEN + 1];
 	char hash[HASHLEN + 1];
 	
@@ -60,7 +60,7 @@ struct user
 			strncpy (name, n, CL_MAXNAME);
 		if (p != NULL)
 		{
-			for (i = 0; (i <= PASSLEN - 1) || (i <= strlen (p) - 1); ++i)
+			for (i = 0; (i <= PASSLEN - 1) && (i <= strlen (p) - 1); ++i)
 				pass[i] = p[i] ^ 0xAA;
 			if (i <= PASSLEN - 1)
 				pass[i] = '\0';

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/ProcTree.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/06/17 00:21:01 $
+// $Revision: 1.3 $
+// $Date: 2004/06/17 08:13:23 $
 //
 
 #include "ProcTree.hpp"
@@ -209,6 +209,11 @@ char *ProcTree::GetProcessInfo (unsigned int idx)
 
 	return ProcList[idx - 1]->GetInfo ();
 
+}
+
+bool ProcTree::IsProcess (unsigned int idx)
+{
+	return (idx >= 1 && idx <= ProcList.GetCount ());
 }
 
 // definimos el objeto

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Utils.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/06/17 00:21:01 $
+// $Revision: 1.3 $
+// $Date: 2004/06/17 08:13:23 $
 //
 
 #include <iostream>
@@ -174,7 +174,7 @@ void random_string (char *str, int size)
 
 	for (i = 0; i <= size - 1; ++i)
 	{
-		rndval = (int) (61 * rand () / (RAND_MAX + 1.0));
+		rndval = (int) trunc (61.0 * rand () / (RAND_MAX + 1.0));
 		
 		if (rndval >= 0 && rndval <= 9)
 			str[i] = (char) (rndval + 48);

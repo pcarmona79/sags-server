@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.14 $
-// $Date: 2004/06/17 00:21:00 $
+// $Revision: 1.15 $
+// $Date: 2004/06/17 08:13:23 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -273,8 +273,6 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 					// sacamos el timeout
 					Server.RemoveWatch (Cl);
 
-					// TODO: aquí hay que enviarle al cliente
-					//       la lista de procesos autorizados.
 					// agregamos al cliente los servidores autorizados
 					AddAuthorizedProcesses (Cl, usr);
 				}
@@ -368,6 +366,7 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 			  Cl->GetUsername ());
 		Cl->SetDrop (true);
 		Server.CloseConnection (Cl->ShowSocket (), 0, 0);
+		break;
 
 	default:
 		return -1;
@@ -457,7 +456,9 @@ void Main::AddAuthorizedProcesses (Client *Cl, struct user *usr)
 	for (i = 0; i <= np - 1; ++i)
 	{
 		idx = (int) strtol (pcs[i], (char **)NULL, 10);
-		Cl->SetAuthorizedProcess (idx);
+
+		if (ProcMaster.IsProcess (idx) || idx == 0)
+			Cl->SetAuthorizedProcess (idx);
 	}
 
 	for (i = np - 1; i >= 0; --i)
