@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.22 $
-// $Date: 2004/08/17 02:30:43 $
+// $Revision: 1.23 $
+// $Date: 2004/08/18 03:32:30 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -423,6 +423,11 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 			  Cl->GetUsername ());
 		Cl->SetDrop (true);
 		Server.CloseConnection (Cl->ShowSocket (), 0, 0);
+		break;
+
+	case Session::ChatTopicChange:
+
+		GeneralChannel.ChangeTopic (Cl, Pkt);
 		break;
 
 	case Session::ChatMessage:

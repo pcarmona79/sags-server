@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.hpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/08/13 00:55:57 $
+// $Revision: 1.5 $
+// $Date: 2004/08/18 03:32:30 $
 //
 
 #ifndef __CHANNEL_HPP__
@@ -30,11 +30,14 @@
 #include "Client.hpp"
 #include "List.hpp"
 #include "Packet.hpp"
+#include "Config.hpp"
 
 #define STATUS_NORMAL 0x000
 #define STATUS_AWAY   0x001
 #define STATUS_BUSY   0x002
 #define STATUS_ADMIN  0x100
+
+#define CH_MAXTOPIC 255
 
 struct channel_user
 {
@@ -63,14 +66,18 @@ class Channel
 {
 private:
 	List<struct channel_user> Users;
+	char topic[CH_MAXTOPIC + 1];
+	struct option *default_topic;
 
 public:
 	Channel ();
 	~Channel ();
 
+	void AddOptions (void);
 	void Start (void);
 
 	char *GetUserList (void);
+	char *GenerateTopicMessage (const char *from = NULL);
 	char *GenerateChannelMessage (const char *from, const char *msg);
 	char *ExtractHeader (const char *msg);
 	char *ExtractBody (const char *msg);
@@ -79,7 +86,7 @@ public:
 
 	void UserJoin (Client *Cl);
 	void UserLeave (Client *Cl);
-
+	void ChangeTopic (Client *Cl, Packet *Pkt);
 	int MessageChannel (Client *Cl, Packet *Pkt);
 	int MessagePrivate (Client *Cl, Packet *Pkt);
 };

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Program.cpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/08/13 00:55:57 $
+// $Revision: 1.7 $
+// $Date: 2004/08/18 03:32:30 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -166,6 +166,7 @@ int main (int argc, char **argv)
 	Server.AddOptions ();
 	Logs.AddOptions ();
 	Application.AddOptions ();
+	GeneralChannel.AddOptions ();
 
 	Logs.Start ();
 

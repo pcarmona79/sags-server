@@ -1,3 +1,26 @@
+2004-08-17  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Channel.hpp:
+	* src/Channel.cpp:
+		- Added GenerateTopicMessage().
+		- Now we send channel's topic to the users when they join to
+		the channel.
+		- Added ChangeTopic() to change the channel's topic only to
+		admin users.
+		- Added config option "DefaultTopic" on new group "Chat".
+		- Fixed bug which send Session::ChatUserLeave when a user not
+		really joins the channel (bad login or connection error).
+
+	* src/Program.cpp:
+		- GeneralChannel now also add its options.
+
+	* src/Main.cpp:
+		- Manages Session::ChatTopicChange packets.
+
+	* doc/sags.conf.example:
+		- Added new group "Chat" with config option "DefaultTopic".
+
+
 2004-08-16  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Channel.cpp:

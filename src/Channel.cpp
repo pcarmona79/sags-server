@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.6 $
-// $Date: 2004/08/17 02:30:42 $
+// $Revision: 1.7 $
+// $Date: 2004/08/18 03:32:30 $
 //
 
 #include "Channel.hpp"
@@ -29,7 +29,7 @@
 
 Channel::Channel ()
 {
-	
+	memset (topic, 0, CH_MAXTOPIC + 1);
 }
 
 Channel::~Channel ()
@@ -37,10 +37,22 @@ Channel::~Channel ()
 	
 }
 
+void Channel::AddOptions (void)
+{
+	default_topic = Config.Add (Conf::String, "Chat", "DefaultTopic",
+				    "Welcome to SAGS Service");
+}
+
 void Channel::Start (void)
 {
 	Logs.Add (Log::Chat | Log::Info,
 		  "Chat support for SAGS: 1 channel");
+
+	strncpy (topic, default_topic->string, CH_MAXTOPIC);
+
+	Logs.Add (Log::Chat | Log::Info,
+		  "Default channel's topic is \"%s\"",
+		  topic);
 }
 
 char *Channel::GetUserList (void)
@@ -63,6 +75,29 @@ char *Channel::GetUserList (void)
 
 	// no olvidar liberar
 	return usrlst;
+}
+
+char *Channel::GenerateTopicMessage (const char *from)
+{
+	char default_msg[] = "%sContent-Type: text/plain; charset=UTF-8\n\n%s";
+	char default_from[] = "From: %s\n";
+	char newfrom[CL_MAXNAME + 8];
+	char *msgtopic = NULL;
+	int len;
+
+	memset (newfrom, 0, CL_MAXNAME + 8);
+
+	if (from != NULL)
+		snprintf (newfrom, CL_MAXNAME + 8, default_from, from);
+
+	len = strlen (newfrom) + strlen (default_msg) - 4 + strlen (topic);
+	msgtopic = new char [len + 1];
+	memset (msgtopic, 0, len + 1);
+
+	snprintf (msgtopic, len + 1, default_msg, newfrom, topic);
+
+	// no olvidar liberar
+	return msgtopic;
 }
 
 char *Channel::GenerateChannelMessage (const char *from, const char *msg)
@@ -228,7 +263,7 @@ void Channel::UserJoin (Client *Cl)
 {
 	struct channel_user *newuser;
 	int i, max_list = Users.GetCount ();
-	char *users_list;
+	char *users_list, *msgtopic;
 
 	newuser = new struct channel_user (Cl->GetUsername (), Cl);
 
@@ -251,13 +286,19 @@ void Channel::UserJoin (Client *Cl)
 	Users << newuser;
 
 	// clientes que se conectan deben recibir la lista
-	// de usuarios conectados
+	// de usuarios conectados y el topic
+	msgtopic = GenerateTopicMessage ();
+	newuser->client->AddBuffer (Session::MainIndex, Session::ChatTopic,
+				    msgtopic);
+
 	users_list = GetUserList ();
 	newuser->client->AddBuffer (Session::MainIndex, Session::ChatUserList,
 				    users_list);
+
 	Application.Add (Owner::Client | Owner::Send, newuser->client->ShowSocket ());
 
 	delete[] users_list;
+	delete[] msgtopic;
 }
 
 void Channel::UserLeave (Client *Cl)
@@ -265,7 +306,8 @@ void Channel::UserLeave (Client *Cl)
 	int i, max_list;
 	struct channel_user deluser (Cl->GetUsername ());
 
-	Users.Remove (deluser);
+	if (Users.Remove (deluser) <= 0)
+		return;
 
 	Logs.Add (Log::Chat | Log::Info,
 		  "User \"%s\" leaves the general channel",
@@ -278,6 +320,44 @@ void Channel::UserLeave (Client *Cl)
 		Users[i]->client->AddBuffer (Session::MainIndex, Session::ChatLeave,
 					     deluser.name);
 		Application.Add (Owner::Client | Owner::Send, Users[i]->client->ShowSocket ());
+	}
+}
+
+void Channel::ChangeTopic (Client *Cl, Packet *Pkt)
+{
+	struct channel_user *topic_user, findusr (Cl->GetUsername ());
+	char *msgtopic = NULL, *body;
+	int i, max_list;
+
+	topic_user = Users.Find (findusr);
+	body = ExtractBody (Pkt->GetData ());
+
+	if (topic_user->status & STATUS_ADMIN && body != NULL)
+	{
+		memset (topic, 0, CH_MAXTOPIC + 1);
+		strncpy (topic, body, CH_MAXTOPIC);
+		delete[] body;
+
+		Logs.Add (Log::Chat | Log::Info,
+			  "User \"%s\" changes the channel's topic",
+			  Cl->GetUsername ());
+		Logs.Add (Log::Chat | Log::Debug,
+			  "New channel's topic is \"%s\"",
+			  topic);
+
+		// avisar del cambio a todos los usuarios
+		max_list = Users.GetCount ();
+		msgtopic = GenerateTopicMessage (Cl->GetUsername ());
+
+		for (i = 0; i <= max_list - 1; ++i)
+		{
+			Users[i]->client->AddBuffer (Session::MainIndex, Session::ChatTopic,
+						     msgtopic);
+			Application.Add (Owner::Client | Owner::Send,
+					 Users[i]->client->ShowSocket ());
+		}
+
+		delete[] msgtopic;
 	}
 }
 
