@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/08/07 21:25:31 $
+// $Revision: 1.4 $
+// $Date: 2004/08/07 22:34:58 $
 //
 
 #include "Channel.hpp"
@@ -56,6 +56,47 @@ char *Channel::GetUserList (void)
 
 	// no olvidar liberar
 	return usrlst;
+}
+
+char *Channel::GenerateMessage (const char *from, const char *to, const char *msg)
+{
+	char from_header[CL_MAXNAME + 8], to_header[CL_MAXNAME + 6], *message;
+	int len = 0;
+
+	memset (from_header, 0, CL_MAXNAME + 8);
+	memset (to_header, 0, CL_MAXNAME + 6);
+
+	if (from != NULL)
+	{
+		snprintf (from_header, CL_MAXNAME + 8, "From: %s\n", from);
+		len += strlen (from_header);
+	}
+
+	if (to != NULL)
+	{
+		snprintf (to_header, CL_MAXNAME + 6, "To: %s\n", to);
+		len += strlen (to_header);
+	}
+
+	if (msg != NULL)
+		len += strlen (msg) + 2;
+
+	message = new char [len + 1];
+	memset (message, 0, len + 1);
+
+	if (from != NULL)
+		strncat (message, from_header, strlen (from_header));
+	if (to != NULL)
+		strncat (message, to_header, strlen (to_header));
+	if (msg != NULL)
+	{
+		strncat (message, "\n", 1);
+		strncat (message, msg, strlen (msg));
+		strncat (message, "\n", 1);
+	}
+
+	// no olvidar liberar
+	return message;
 }
 
 void Channel::UserJoin (Client *Cl)
@@ -109,12 +150,24 @@ void Channel::UserLeave (Client *Cl)
 
 int Channel::MessageChannel (Client *Cl, Packet *Pkt)
 {
+	int i, max_list = Users.GetCount ();
+
+	if (Pkt->GetIndex () != Session::MainIndex)
+		return -1;
+
+	// replicamos el mensaje a todos los usuarios
+	for (i = 0; i <= max_list - 1; ++i)
+	{
+		Users[i]->client->Add (new Packet (*Pkt));
+		Application.Add (Owner::Client | Owner::Send, Users[i]->client->ShowSocket ());
+	}
+
 	return 0;
 }
 
 int Channel::MessagePrivate (Client *Cl, Packet *Pkt)
 {
-	return 0;
+	return -1;
 }
 
 // definimos el objeto

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.hpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/08/07 21:04:34 $
+// $Revision: 1.3 $
+// $Date: 2004/08/07 22:34:58 $
 //
 
 #ifndef __CHANNEL_HPP__
@@ -69,6 +69,7 @@ public:
 	~Channel ();
 
 	char *GetUserList (void);
+	char *GenerateMessage (const char *from, const char *to, const char *msg);
 
 	void UserJoin (Client *Cl);
 	void UserLeave (Client *Cl);
