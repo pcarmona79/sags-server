@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/04/13 22:00:19 $
+// $Revision: 1.2 $
+// $Date: 2004/04/14 18:11:19 $
 //
 
 #include <iostream>
@@ -88,6 +88,8 @@ void Main::SignalEvent (void)
 void Main::DataEvent (int owner, int fd)
 {
 	char buffer[PCKT_MAXDATA + 1];
+
+	Logs.Add (Log::Debug, "DataEvent: owner=0x%02X fd=%d", owner, fd);
 
 	switch (owner & Owner::Mask)
 	{
