@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.24 $
-// $Date: 2005/01/21 22:59:06 $
+// $Revision: 1.25 $
+// $Date: 2005/02/03 22:10:32 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -283,7 +283,7 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 					Server.RemoveWatch (Cl);
 
 					// agregamos al cliente los servidores autorizados
-					// y su modo de mantención
+					// y su modo de mantenimiento
 					AddAuthorizedProcesses (Cl, usr);
 
 					// ingresamos al usuario al canal general
@@ -447,61 +447,61 @@ int Main::ProtoSession (Client *Cl, Packet *Pkt)
 			return -1;
 		break;
 
-	case Session::MaintainceOn:
+	case Session::MaintenanceOn:
 
-		// cambiar a modo de mantención al proceso indicado
+		// cambiar a modo de mantenimiento al proceso indicado
 		// en DATA, sólo si es administrador
 		if (Cl->IsAuthorized (0))
 		{
 			Logs.Add (Log::Notice,
-				  "User \"%s\" is changing maintaince mode of process %d",
+				  "User \"%s\" is changing maintenance mode of process %d",
 				  Cl->GetUsername (), Pkt->GetIndex ());
-			if (ProcMaster.SetMaintainceMode (Pkt->GetIndex (), true))
+			if (ProcMaster.SetMaintenanceMode (Pkt->GetIndex (), true))
 			{
-				Cl->Add (new Packet (Error::Index, Error::MaintainceDenied));
+				Cl->Add (new Packet (Error::Index, Error::MaintenanceDenied));
 				Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 			}
 			else
 			{
 				// informamos a todos del cambio
 				Server.SendToAllClients (Pkt->GetIndex (),
-							 Session::MaintainceOn);
+							 Session::MaintenanceOn);
 			}
 		}
 		else
 		{
 			// enviamos error
-			Cl->Add (new Packet (Error::Index, Error::MaintainceDenied));
+			Cl->Add (new Packet (Error::Index, Error::MaintenanceDenied));
 			Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
 		break;
 
-	case Session::MaintainceOff:
+	case Session::MaintenanceOff:
 
-		// salir del modo de mantención del proceso indicado
+		// salir del modo de mantenimiento del proceso indicado
 		// en DATA, sólo si es administrador
 		if (Cl->IsAuthorized (0))
 		{
 			Logs.Add (Log::Notice,
-				  "User \"%s\" is changing maintaince mode of process %d",
+				  "User \"%s\" is changing maintenance mode of process %d",
 				  Cl->GetUsername (), Pkt->GetIndex ());
 
-			if (ProcMaster.SetMaintainceMode (Pkt->GetIndex (), false))
+			if (ProcMaster.SetMaintenanceMode (Pkt->GetIndex (), false))
 			{
-				Cl->Add (new Packet (Error::Index, Error::MaintainceDenied));
+				Cl->Add (new Packet (Error::Index, Error::MaintenanceDenied));
 				Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 			}
 			else
 			{
 				// informamos a todos del cambio
 				Server.SendToAllClients (Pkt->GetIndex (),
-							 Session::MaintainceOff);
+							 Session::MaintenanceOff);
 			}
 		}
 		else
 		{
 			// enviamos error
-			Cl->Add (new Packet (Error::Index, Error::MaintainceDenied));
+			Cl->Add (new Packet (Error::Index, Error::MaintenanceDenied));
 			Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
 		}
 		break;

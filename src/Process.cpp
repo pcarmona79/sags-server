@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.12 $
-// $Date: 2005/01/21 22:59:06 $
+// $Revision: 1.13 $
+// $Date: 2005/02/03 22:10:32 $
 //
 
 #include <iostream>
@@ -75,10 +75,10 @@ Process::Process (int idx, int fd)
 	memset (&last_start, 0, sizeof (last_start));
 	last_value_returned = 0;
 
-	maintaince_mode = NULL;
-	memset (&maintaince_last_start, 0, sizeof (maintaince_last_start));
-	memset (&maintaince_duration, 0, sizeof (maintaince_duration));
-	maintaince_count = 0;
+	maintenance_mode = NULL;
+	memset (&maintenance_last_start, 0, sizeof (maintenance_last_start));
+	memset (&maintenance_duration, 0, sizeof (maintenance_duration));
+	maintenance_count = 0;
 
 	if (index == 0)
 	{
@@ -143,7 +143,7 @@ void Process::GetOptions (void)
 	workdir = Config.Get (Conf::String, group, "WorkingDirectory", ".");
 	respawn = Config.Get (Conf::Boolean, group, "Respawn", 0);
 	historylength = Config.Get (Conf::Numeric, group, "HistoryLength", 10240);
-	maintaince_mode = Config.Get (Conf::Boolean, group, "MaintainceMode", 0);
+	maintenance_mode = Config.Get (Conf::Boolean, group, "MaintenanceMode", 0);
 
 	// guardamos estos valores para su posterior comprobación
 	strncpy (current_command, command->string, CONF_MAX_STRING);
@@ -335,8 +335,8 @@ int Process::Launch (void)
 			  "Launching new process %d with \"%s\" on directory \"%s\"",
 			  pid, command->string, workdir->string);
 
-		if (maintaince_mode->value)
-			strncpy (msg, "Process in maintaince: It will not be restarted", 50);
+		if (maintenance_mode->value)
+			strncpy (msg, "Process in maintenance: It will not be restarted", 50);
 		else
 		{
 			if (respawn->value)
@@ -348,8 +348,8 @@ int Process::Launch (void)
 		Logs.Add (Log::Process | Log::Info, msg);
 		dead = false;
 
-		// Fijamos el modo de mantención
-		SetMaintainceMode (maintaince_mode->value);
+		// Fijamos el modo de mantenimiento
+		SetMaintenanceMode (maintenance_mode->value);
 
 		// informar a los clientes que el proceso se inició
 		Server.SendToAllClients (index, Session::ProcessStart, msg);
@@ -359,11 +359,11 @@ int Process::Launch (void)
 		if (num_start == 1)
 			Server.SendToAllClients (index, Session::Authorized);
 
-		// informamos a los clientes de nuestro modo de mantención
-		if (maintaince_mode->value)
-			Server.SendToAllClients (index, Session::MaintainceOn);
+		// informamos a los clientes de nuestro modo de mantenimiento
+		if (maintenance_mode->value)
+			Server.SendToAllClients (index, Session::MaintenanceOn);
 		else
-			Server.SendToAllClients (index, Session::MaintainceOff);
+			Server.SendToAllClients (index, Session::MaintenanceOff);
 
 		// registrar con la aplicación
 		Application.Add (Owner::Process, pty);
@@ -576,7 +576,7 @@ void Process::Restart (void)
 	// reiniciamos sólo si por configuración
 	// se pide reiniciar y salvo que no estemos
 	// en mantenimiento
-	if (!maintaince_mode->value)
+	if (!maintenance_mode->value)
 	{
 		if (respawn->value)
 		{
@@ -587,7 +587,7 @@ void Process::Restart (void)
 	}
 	else
 		Logs.Add (Log::Process | Log::Notice,
-			  "Process in maintaince: It will not be restarted");
+			  "Process in maintenance: It will not be restarted");
 }
 
 char* Process::GetInfo (void)
@@ -603,18 +603,18 @@ char* Process::GetInfo (void)
 
 	// si se usa ctime(), m_laststart_buf quedará
 	// con una nueva linea al final
-	if (maintaince_last_start > 0)
-		strncpy (m_laststart_buf, ctime (&maintaince_last_start), 80);
+	if (maintenance_last_start > 0)
+		strncpy (m_laststart_buf, ctime (&maintenance_last_start), 80);
 	else
 		strncpy (m_laststart_buf, "Never\n", 80);
 
-	// no mostramos la duracion si estamos en mantención
-	if (maintaince_mode->value)
-		strncpy (m_duration_buf, "In maintaining", 80); // how does it say? :S
+	// no mostramos la duracion si estamos en mantenimiento
+	if (maintenance_mode->value)
+		strncpy (m_duration_buf, "In maintenance", 80);
 	else
-		snprintf (m_duration_buf, 81, "%d seconds", (int) maintaince_duration);
+		snprintf (m_duration_buf, 81, "%d seconds", (int) maintenance_duration);
 
-	snprintf (m_count_buf, 81, "%d", maintaince_count);
+	snprintf (m_count_buf, 81, "%d", maintenance_count);
 
 	info_length = strlen ("Name") + strlen (name->string) + 2 +
 		      strlen ("Description") + strlen (description->string) + 2 +
@@ -627,10 +627,10 @@ char* Process::GetInfo (void)
 		      strlen ("Starts") + strlen (numstartbuf) + 2 +
 		      strlen ("LastStart") + strlen (laststartbuf) + 2 +
 		      strlen ("LastValueReturned") + strlen (lastvaluebuf) + 2 +
-		      strlen ("MaintainceMode") + 3 + 2 +
-		      strlen ("MaintainceLastStart") + strlen (m_laststart_buf) + 2 +
-		      strlen ("MaintainceDuration") + strlen (m_duration_buf) + 2 +
-		      strlen ("MaintainceCount") + strlen (m_count_buf) + 2;
+		      strlen ("MaintenanceMode") + 3 + 2 +
+		      strlen ("MaintenanceLastStart") + strlen (m_laststart_buf) + 2 +
+		      strlen ("MaintenanceDuration") + strlen (m_duration_buf) + 2 +
+		      strlen ("MaintenanceCount") + strlen (m_count_buf) + 2;
 
 	process_info = new char [info_length + 1];
 	memset (process_info, 0, info_length + 1);
@@ -682,22 +682,22 @@ char* Process::GetInfo (void)
 	strncat (process_info, lastvaluebuf, strlen (lastvaluebuf));
 	strncat (process_info, "\n", 2);
 
-	strncat (process_info, "MaintainceMode=", 15);
-	if (maintaince_mode->value)
+	strncat (process_info, "MaintenanceMode=", 16);
+	if (maintenance_mode->value)
 		strncat (process_info, "on", 2);
 	else
 		strncat (process_info, "off", 3);
 	strncat (process_info, "\n", 2);
 
-	strncat (process_info, "MaintainceLastStart=", 20);
+	strncat (process_info, "MaintenanceLastStart=", 21);
 	strncat (process_info, m_laststart_buf, strlen (m_laststart_buf) - 1);
 	strncat (process_info, "\n", 2);
 
-	strncat (process_info, "MaintainceDuration=", 19);
+	strncat (process_info, "MaintenanceDuration=", 20);
 	strncat (process_info, m_duration_buf, strlen (m_duration_buf));
 	strncat (process_info, "\n", 2);
 
-	strncat (process_info, "MaintainceCount=", 16);
+	strncat (process_info, "MaintenanceCount=", 17);
 	strncat (process_info, m_count_buf, strlen (m_count_buf));
 	strncat (process_info, "\n\n", 2);
 
@@ -710,7 +710,7 @@ bool Process::IsRunning (void)
 	return !dead;
 }
 
-void Process::SetMaintainceMode (bool mode)
+void Process::SetMaintenanceMode (bool mode)
 {
 	time_t now;
 
@@ -718,26 +718,26 @@ void Process::SetMaintainceMode (bool mode)
 
 	if (mode)
 	{
-		if (!maintaince_mode->value)
+		if (!maintenance_mode->value)
 		{
-			maintaince_mode->value = 1;
-			maintaince_last_start = now;
-			++maintaince_count;
-			Logs.Add (Log::Process | Log::Info, "Maintaince mode is on");
+			maintenance_mode->value = 1;
+			maintenance_last_start = now;
+			++maintenance_count;
+			Logs.Add (Log::Process | Log::Info, "Maintenance mode is on");
 		}
 	}
 	else
 	{
-		if (maintaince_mode->value)
+		if (maintenance_mode->value)
 		{
-			maintaince_mode->value = 0;
-			maintaince_duration = now - maintaince_last_start;
-			Logs.Add (Log::Process | Log::Info, "Maintaince mode is off");
+			maintenance_mode->value = 0;
+			maintenance_duration = now - maintenance_last_start;
+			Logs.Add (Log::Process | Log::Info, "Maintenance mode is off");
 		}
 	}
 }
 
-bool Process::GetMaintainceMode (void)
+bool Process::GetMaintenanceMode (void)
 {
-	return (bool) maintaince_mode->value;
+	return (bool) maintenance_mode->value;
 }

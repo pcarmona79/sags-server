@@ -1,7 +1,5 @@
-# Configuration file for SAGS Server 0.4.x
-#
+# Configuration file for SAGS Server 0.5.x
 # All files must have full path.
-#
 # Comments start with "#"
 
 # Logging settings
@@ -23,7 +21,7 @@ UsersFile="/etc/sags/sags.users"
 [Chat]
 DefaultTopic="This is the default channel's topic"
 
-# Process to execute
+# Processes to execute
 [Process1]
 Type="quake2:27910"
 Command="/usr/bin/quake2 +set dedicated 1 +exec server1.cfg"

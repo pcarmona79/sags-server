@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Client.cpp,v $
-// $Revision: 1.13 $
-// $Date: 2005/01/21 22:59:06 $
+// $Revision: 1.14 $
+// $Date: 2005/02/03 22:10:32 $
 //
 
 #include <cstring>
@@ -208,22 +208,22 @@ void Client::SetAuthorizedProcess (unsigned int idx)
 		{
 			Add (new Packet (i, Session::Authorized));
 
-			// también enviamos el modo de mantención
-			if (ProcMaster.GetMaintainceMode (i))
-				Add (new Packet (i, Session::MaintainceOn));
+			// también enviamos el modo de mantenimiento
+			if (ProcMaster.GetMaintenanceMode (i))
+				Add (new Packet (i, Session::MaintenanceOn));
 			else
-				Add (new Packet (i, Session::MaintainceOff));
+				Add (new Packet (i, Session::MaintenanceOff));
 		}
 	}
 	else if (ProcMaster.IsProcess (idx))
 	{
 		Add (new Packet (idx, Session::Authorized));
 
-		// también enviamos el modo de mantención
-		if (ProcMaster.GetMaintainceMode (idx))
-			Add (new Packet (idx, Session::MaintainceOn));
+		// también enviamos el modo de mantenimiento
+		if (ProcMaster.GetMaintenanceMode (idx))
+			Add (new Packet (idx, Session::MaintenanceOn));
 		else
-			Add (new Packet (idx, Session::MaintainceOff));
+			Add (new Packet (idx, Session::MaintenanceOff));
 	}
 }
 

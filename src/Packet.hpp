@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.10 $
-// $Date: 2005/01/21 22:59:06 $
+// $Revision: 1.11 $
+// $Date: 2005/02/03 22:10:32 $
 //
 
 #ifndef __PACKET_HPP__
@@ -28,7 +28,7 @@
 
 #include <cstdlib>
 
-#define PCKT_VERSION "4"
+#define PCKT_VERSION "3"
 #define PCKT_MAXDATA 256
 
 namespace Session
@@ -68,8 +68,8 @@ namespace Session
 		ChatPrivAction  = 0x18,
 		ChatPrivNotice  = 0x19,
 
-		MaintainceOn    = 0x1A,
-		MaintainceOff   = 0x1B
+		MaintenanceOn   = 0x1A,
+		MaintenanceOff  = 0x1B
 	} Type;
 }
 
@@ -117,7 +117,7 @@ namespace Error
 		ProcessNotKilled     = 0x82,
 		ProcessNotLaunched   = 0x83,
 		ProcessNotRestarted  = 0x84,
-		MaintainceDenied     = 0x85,
+		MaintenanceDenied    = 0x85,
 		Generic              = 0xFF
 	} Type;
 }

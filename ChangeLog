@@ -15,17 +15,17 @@
 		changed	from Log::Critical to Log::Error.
 		- It's not necessary to check value returned by a died process.
 		It works well just checking time of death.
-		- Added new vars for controling the maintaince mode. This also
+		- Added new vars for controling the maintenance mode. This also
 		adds new infovars to send to users.
-		- New method to change the maintaince mode.
+		- New method to change the maintenance mode.
 
 	* src/ProcTree.hpp:
 	* src/ProcTree.cpp:
-		- New method to change the maintaince mode to a process.
+		- New method to change the maintenance mode to a process.
 
 	* src/Main.cpp:
-		- Now manages new packets Session::MaintainceOn and
-		Session::MaintainceOff.
+		- Now manages new packets Session::MaintenanceOn and
+		Session::MaintenanceOff.
 
 
 2005-01-17  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>

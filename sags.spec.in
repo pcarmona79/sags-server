@@ -38,7 +38,10 @@ make %{?_smp_mflags}
 %install
 make install DESTDIR=%{buildroot}
 mkdir -p %{buildroot}%{_mandir}/man1
-cp %{name}.1 %{name}-passwd.1 %{buildroot}%{_mandir}/man1
+install -m644 %{name}.1 %{buildroot}%{_mandir}/man1
+install -m644 %{name}-passwd.1 %{buildroot}%{_mandir}/man1
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}
+install -m644 doc/%{name}.conf.example %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
 rm -rf %{buildroot}%{_docdir}/%{name}
 
 %clean
@@ -48,12 +51,14 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog INSTALL NEWS README
 %doc doc/*.html doc/*.example
+%doc tools/%{name}chk
 
 %defattr(-,root,root)
 %{_bindir}/%{name}
 %{_bindir}/%{name}-passwd
 %{_mandir}/man1/%{name}.1*
 %{_mandir}/man1/%{name}-passwd.1*
+%config %{_sysconfdir}/%{name}/%{name}.conf
 
 %changelog
 * Sat Jan 15 2005 Pablo Carmona Amigo <pcarm@users.sourceforge.net>
