@@ -6,9 +6,9 @@ This version includes:
 1) Private messaging.
 2) Added a maintenance mode for processes. In this mode, the Respawn
 option is not considered so the process will not be restarted if it dies
-or is terminated. This allow to the administrator to change process's
+or is terminated. This allows to the administrator to change process's
 configurations.
-3) Network option "MaxClients" is now checked when program receices a
+3) Network option "MaxClients" is now checked when program receives a
 SIGHUP signal. This will disconnect all last clients which exceeds the
 MaxClients value.
 4) Improved version of sags-passwd permits better managing of SAGS users

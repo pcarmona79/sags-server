@@ -1,3 +1,13 @@
+2005-03-15  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* Preparing 0.5.1 version.
+
+	* sags.spec.in: Removed "Requires" entries.
+
+	* src/Config.cpp: Added #include <cerrno>.
+
+	* src/Utils.cpp: Added #include <cmath>.
+
 2005-03-02  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* Released 0.5.0 version.

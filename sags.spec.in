@@ -14,9 +14,6 @@ Source:		%{name}-%{version}.tar.gz
 BuildRoot:	/var/tmp/%{name}-%{version}
 Docdir:		%{_docdir}
 
-Requires: 	openssl >= 0.9.7a
-BuildRequires: 	openssl-devel >= 0.9.7a
-
 Distribution:	Any
 Packager:	Pablo Carmona Amigo <pcarm@users.sourceforge.net>
 
@@ -62,5 +59,8 @@ rm -rf %{buildroot}
 %config %{_sysconfdir}/%{name}/%{name}.conf
 
 %changelog
+* Wed Mar 16 2005 Pablo Carmona Amigo <pcarm@users.sourceforge.net>
+- Removed package dependencies
+
 * Sat Jan 15 2005 Pablo Carmona Amigo <pcarm@users.sourceforge.net>
 - Added .spec for RPM.

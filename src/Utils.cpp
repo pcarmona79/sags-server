@@ -19,12 +19,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Utils.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2005/01/17 23:13:02 $
+// $Revision: 1.5 $
+// $Date: 2005/03/16 21:33:33 $
 //
 
 #include <iostream>
 #include <cstring>
+#include <cmath>
 #include <openssl/md5.h>
 
 using namespace std;
