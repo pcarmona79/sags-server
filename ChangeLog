@@ -1,3 +1,9 @@
+2004-06-07  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* doc/sags.conf.example:
+		- Added text indicating usage of files with full path.
+
+
 2004-06-06  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/List.hpp:

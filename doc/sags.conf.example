@@ -1,8 +1,11 @@
 # Configuration file for SAGS Server 0.2.x
+#
+# All files must have full path.
+#
 # Comments start with "#"
 
 # Logging settings
-Logging.File "sags.log"
+Logging.File "/var/log/sags.log"
 Logging.Debug yes
 
 # Process to execute
@@ -15,7 +18,7 @@ Process.HistoryLength 10240
 # Network configurations
 Network.Port "47777"
 Network.MaxClients 2
-Network.CertificateFile "sags.pem"
+Network.CertificateFile "/etc/ssl/certs/sags.pem"
 
 # Main configurations
-Main.UsersFile "sags.users"
+Main.UsersFile "/etc/sags/sags.users"

@@ -27,42 +27,42 @@ Tipos de mensajes
 
 1. Mensajes de sesión
 
-   SessionConsoleInput    = 0x0001,
-   SessionConsoleOutput   = 0x0002,
-   SessionConsoleSuccess  = 0x0003,
-   SessionConsoleNeedLogs = 0x0004,
-   SessionConsoleLogs     = 0x0005,
+   SessionConsoleInput     0x0001
+   SessionConsoleOutput    0x0002
+   SessionConsoleSuccess   0x0003
+   SessionConsoleNeedLogs  0x0004
+   SessionConsoleLogs      0x0005
 
-   SessionProcessExits    = 0x0006,
-   SessionProcessStart    = 0x0007,
+   SessionProcessExits     0x0006
+   SessionProcessStart     0x0007
 
-   SessionDisconnect      = 0x000A,
-   SessionDrop            = 0x000B,
+   SessionDisconnect       0x000A
+   SessionDrop             0x000B
 
 2. Mensajes de autenticación
 
-   AuthUsername   = 0xFD00,
-   AuthRandomHash = 0xFD01,
-   AuthPassword   = 0xFD02,
-   AuthSuccessful = 0xFD03,
+   AuthUsername    0xFD00
+   AuthRandomHash  0xFD01
+   AuthPassword    0xFD02
+   AuthSuccessful  0xFD03
 
 3. Mensajes de sincronización
 
-   SyncHello   = 0xFE00,
-   SyncVersion = 0xFE01,
+   SyncHello    0xFE00
+   SyncVersion  0xFE01
 
 4. Mensajes de error
 
    Desconetan:
 
-   ErrorServerFull         = 0xFF00,
-   ErrorNotValidVersion    = 0xFF01,
-   ErrorLoginFailed        = 0xFF02,
-   ErrorAuthTimeout        = 0xFF03,
-   ErrorServerQuit         = 0xFF04,
+   ErrorServerFull          0xFF00
+   ErrorNotValidVersion     0xFF01
+   ErrorLoginFailed         0xFF02
+   ErrorAuthTimeout         0xFF03
+   ErrorServerQuit          0xFF04
 
    No desconectan:
 
-   ErrorBadProcess         = 0xFF80,
-   ErrorCantWriteToProcess = 0xFF81,
-   ErrorGeneric            = 0xFFFF
+   ErrorBadProcess          0xFF80
+   ErrorCantWriteToProcess  0xFF81
+   ErrorGeneric             0xFFFF
