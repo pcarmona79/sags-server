@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.hpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.4 $
+// $Date: 2004/06/20 19:17:00 $
 //
 
 #ifndef __PACKET_HPP__
@@ -150,6 +150,10 @@ public:
 
 	void SetData (const char *data);
 	char *GetData (void);
+
+	bool IsSync (void);
+	bool IsAuth (void);
+	bool IsSession (void);
 
 	bool operator== (const Packet &Pkt);
 };

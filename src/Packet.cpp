@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Packet.cpp,v $
-// $Revision: 1.4 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.5 $
+// $Date: 2004/06/20 19:17:00 $
 //
 
 #include <cstring>
@@ -132,6 +132,21 @@ void Packet::SetData (const char *data)
 char *Packet::GetData (void)
 {
 	return pkt_data;
+}
+
+bool Packet::IsSync (void)
+{
+	return (pkt_header.pkt_idx == Sync::Index);
+}
+
+bool Packet::IsAuth (void)
+{
+	return (pkt_header.pkt_idx == Auth::Index);
+}
+
+bool Packet::IsSession (void)
+{
+	return (pkt_header.pkt_idx <= Session::MaxIndex);
 }
 
 bool Packet::operator== (const Packet &Pkt)

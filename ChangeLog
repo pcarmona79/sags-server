@@ -1,3 +1,17 @@
+2004-06-20  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Packet.hpp:
+	* src/Packet.cpp:
+		- Added methods IsSync(), IsAuth() and IsSession() to identify
+		the packet's type.
+
+	* src/Client.cpp:
+		- SetAuthorizedProcess() was not sending any packet when the
+		user is an administrator. It have been fixed sending a packet
+		with index 0 and then sending a packet for each valid process
+		starting at index 1.
+
+
 2004-06-19  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Client.cpp:
