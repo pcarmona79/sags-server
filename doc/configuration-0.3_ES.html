@@ -71,13 +71,15 @@ generar&aacute; informaci&oacute;n de debugging (<span
 <h3><a class="mozTocH3" name="mozTocId887358"></a>Grupo Network<br>
 </h3>
 <p>Aqu&iacute; se configuran el puerto a usar por la aplicaci&oacute;n (<span
- style="font-family: monospace;">Port</span>) y n&uacute;mero
+ style="font-family: monospace;">Port</span>), el n&uacute;mero
 m&aacute;ximo de conexiones a aceptar (<span
- style="font-family: monospace;">MaxClients</span>).<br>
+ style="font-family: monospace;">MaxClients</span>) y el certificado
+SSL (<span style="font-family: monospace;">CertificateFile</span>).<br>
 </p>
 <pre style="color: rgb(0, 0, 255);">[Network]<br>Port=<span
- style="color: rgb(255, 0, 0);">"47777"</span><br>MaxClients=10<br><span
- style="color: rgb(0, 0, 0);">...</span><br></pre>
+ style="color: rgb(255, 0, 0);">"47777"</span><br>MaxClients=10<br>CertificateFile=<span
+ style="color: rgb(255, 0, 0);">"/usr/share/ssl/certs/sags.pem"</span><span
+ style="color: rgb(0, 0, 0);"></span><br></pre>
 <h4><a class="mozTocH4" name="mozTocId720189"></a>Certificado SSL
 sags.pem<br>
 </h4>
@@ -88,15 +90,8 @@ Core.<br>
 </p>
 <p>Cuando lo tenga listo agregue la ruta completa a la opci&oacute;n <span
  style="font-family: monospace;">CertificateFile</span> en el grupo <span
- style="font-family: monospace;">[Network]</span>.<br>
-</p>
-<pre><span style="color: rgb(0, 0, 255);">[Network]</span><br
- style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Port=<span
- style="color: rgb(255, 0, 0);">"47777"</span></span><br
- style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">MaxClients=10</span><br
- style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">CertificateFile=<span
- style="color: rgb(255, 0, 0);">"/usr/share/ssl/certs/sags.pem"</span></span><br></pre>
-<p>El servidor no se iniciar&aacute; si falta este archivo!<br>
+ style="font-family: monospace;">[Network]</span>. El servidor no se
+iniciar&aacute; si falta este archivo o es err&oacute;neo.<br>
 </p>
 <h3><a class="mozTocH3" name="mozTocId203590"></a>Grupo Main</h3>
 <p>En este grupo se indica el archivo que contiene la lista de usuarios.<br>
@@ -110,7 +105,37 @@ este software.<br>
 </p>
 <h4><a class="mozTocH4" name="mozTocId292710"></a>Archivo de usuarios
 sags.users</h4>
-<p><br>
+<p>El formato de este archivo es parecido al archivo del sistema
+/etc/passwd. Cada l&iacute;nea representa un usuario, su
+contrase&ntilde;a y una lista de procesos autorizados separados por
+comas (los administradores se indican poniendo s&oacute;lo un <span
+ style="font-family: monospace;">0</span> (cero) en su lista).<br>
+</p>
+<pre><span style="color: rgb(0, 0, 255);">pablo<span
+ style="color: rgb(0, 0, 0);">:</span>xxxxxxx<span
+ style="color: rgb(0, 0, 0);">:</span><span
+ style="color: rgb(255, 0, 0);">0</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">andres<span
+ style="color: rgb(0, 0, 0);">:</span>xxxxxx<span
+ style="color: rgb(0, 0, 0);">:</span><span
+ style="color: rgb(255, 0, 0);">1,3,5</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">francisco<span
+ style="color: rgb(0, 0, 0);">:</span>xxxxxx<span
+ style="color: rgb(0, 0, 0);">:</span><span
+ style="color: rgb(255, 0, 0);">2,3</span></span><br
+ style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">mauricio<span
+ style="color: rgb(0, 0, 0);">:</span>xxxxxx<span
+ style="color: rgb(0, 0, 0);">:</span><span
+ style="color: rgb(255, 0, 0);">1,2,3,4</span></span><br></pre>
+<p>En el ejemplo anterior, <span style="font-family: monospace;">pablo</span>
+es un administrador por lo que tiene acceso a todos los procesos, <span
+ style="font-family: monospace;">andres</span> s&oacute;lo puede
+acceder a los procesos 1, 3 y 5, <span style="font-family: monospace;">francisco</span>
+s&oacute;lo al 2 y al 3, y por &uacute;ltimo <span
+ style="font-family: monospace;">mauricio</span> accede a los procesos
+del 1 al 4. Si un &iacute;ndice de proceso no aparece para un usuario
+indica que no tiene acceso a &eacute;l y si intenta hacerlo ser&aacute;
+desconectado por el servidor.<br>
 </p>
 <h3><a class="mozTocH3" name="mozTocId824077"></a>Grupo Process<br>
 </h3>
@@ -156,7 +181,7 @@ implementaci&oacute;n de chat como t&oacute;pico para el canal.<br>
 </p>
 <pre><span style="color: rgb(0, 0, 255);">[Process1]</span><br
  style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Type=<span
- style="color: rgb(255, 0, 0);">"quake2"</span></span><br
+ style="color: rgb(255, 0, 0);">"quake2:27910"</span></span><br
  style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Command=<span
  style="color: rgb(255, 0, 0);">"/usr/bin/quake2 +set dedicated 1 +exec server1.cfg"</span></span><br
  style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Environment=<span
@@ -169,6 +194,11 @@ implementaci&oacute;n de chat como t&oacute;pico para el canal.<br>
  style="color: rgb(255, 0, 0);">"server1"</span></span><br
  style="color: rgb(0, 0, 255);"><span style="color: rgb(0, 0, 255);">Description=<span
  style="color: rgb(255, 0, 0);">"This is the Quake2 server N&ordm;1"</span></span><br></pre>
+<p>El ejemplo anterior es de un servidor de Quake II que se ejecuta en
+el puerto 27910. Este dato ser&aacute; usado por una futura
+versi&oacute;n del Cliente SAGS para solicitar datos al servidor de
+Quake II.<br>
+</p>
 <h2><a class="mozTocH2" name="mozTocId232419"></a>Ejecutando el servidor</h2>
 <p>Luego de configurar el programa puede probar su funcionamiento con
 el nuevo archivo de configuraci&oacute;n usando<br>
@@ -195,7 +225,8 @@ versi&oacute;n 0.3.x para poder administrar todos los procesos
 (seg&uacute;n los procesos autorizados para cada usuario).<br>
 </p>
 <hr style="width: 100%; height: 2px;">
-<p><span style="font-style: italic;">$Id: configuration-0.3_ES.html,v 1.2 2004/06/17 00:21:00 pcarm Exp $</span><br>
+<p><span style="font-style: italic;">$Id: configuration-0.3_ES.html,v
+1.2 2004/06/17 00:21:00 pcarm Exp $</span><br>
 </p>
 </body>
 </html>

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.hpp,v $
-// $Revision: 1.8 $
-// $Date: 2004/06/17 08:13:23 $
+// $Revision: 1.9 $
+// $Date: 2004/06/18 00:53:23 $
 //
 
 #ifndef __MAIN_HPP__
@@ -48,7 +48,6 @@ struct user
 	user (const char *n = NULL, const char *p = NULL, const char *pa = NULL)
 	{
 		unsigned int i;
-		char *md5hash = NULL, str[HASHLEN + PASSLEN + 1];
 
 		memset (name, 0, CL_MAXNAME + 1);
 		memset (pass, 0, PASSLEN + 1);
@@ -68,16 +67,21 @@ struct user
 		if (pa != NULL)
 			strncpy (procs, pa, PROCSLEN);
 
-		if (p != NULL)
-		{
-			random_string (rndstr, HASHLEN);
+		// la cadena aleatoria es calculada antes de enviarla
+		// al cliente, por lo que los hash se calcularán en
+		// update
+	}
 
-			snprintf (str, HASHLEN + PASSLEN + 1, "%s%s", rndstr, pass);
-			md5hash = md5_password_hash (str);
-			strncpy (hash, md5hash, HASHLEN);
+	void update (void)
+	{
+		char *md5hash = NULL, str[HASHLEN + PASSLEN + 1];
+		
+		random_string (rndstr, HASHLEN);
+		snprintf (str, HASHLEN + PASSLEN + 1, "%s%s", rndstr, pass);
+		md5hash = md5_password_hash (str);
+		strncpy (hash, md5hash, HASHLEN);
 
-			delete[] md5hash;
-		}
+		delete[] md5hash;
 	}
 
 	bool operator== (const struct user &usr)

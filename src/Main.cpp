@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.15 $
-// $Date: 2004/06/17 08:13:23 $
+// $Revision: 1.16 $
+// $Date: 2004/06/18 00:53:23 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -238,7 +238,11 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 				Cl->AddBuffer (Auth::Index, Auth::RandomHash, dumbstr);
 			}
 			else
+			{
+				// actualizamos la cadena aleatoria
+				usr->update ();
 				Cl->AddBuffer (Auth::Index, Auth::RandomHash, usr->rndstr);
+			}
 
 			Logs.Add (Log::Info,
 				  "Sending random string to user \"%s\"",
@@ -256,8 +260,8 @@ int Main::ProtoAuth (Client *Cl, Packet *Pkt)
 			{
 				int retval = strncmp (usr->hash, Pkt->GetData (),
 						      strlen (usr->hash));
-				Logs.Add (Log::Debug, "Checking \"%s\" <%d> \"%s\"",
-					  usr->hash, retval, Pkt->GetData ());
+				//Logs.Add (Log::Debug, "Checking \"%s\" <%d> \"%s\"",
+				//	  usr->hash, retval, Pkt->GetData ());
 
 				if (!retval)
 				{

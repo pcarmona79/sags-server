@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Protocol.cpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/06/16 00:52:49 $
+// $Revision: 1.6 $
+// $Date: 2004/06/18 00:53:23 $
 //
 
 #include <cstring>
@@ -94,10 +94,10 @@ int Protocol::SendPacket (Packet *Pkt)
 	struct pkt sent;
 	int bytes;
 
-	Logs.Add (Log::Client | Log::Debug,
-		  "Packet to send: IDX: %02X COM: %02X SEQ: %d LEN: %d DATA: \"%s\"",
-		  Pkt->GetIndex (), Pkt->GetCommand (), Pkt->GetSequence (),
-		  Pkt->GetLength (), Pkt->GetData ());
+	//Logs.Add (Log::Client | Log::Debug,
+	//	  "Packet to send: IDX: %02X COM: %02X SEQ: %d LEN: %d DATA: \"%s\"",
+	//	  Pkt->GetIndex (), Pkt->GetCommand (), Pkt->GetSequence (),
+	//	  Pkt->GetLength (), Pkt->GetData ());
 
 	sent.pkt_header = Pkt->GetHeader ();
 	strncpy (sent.pkt_data, Pkt->GetData (), Pkt->GetLength ());
@@ -133,10 +133,10 @@ Packet *Protocol::RecvPacket (int *len)
 
 	Pkt = new Packet (header);
 
-	Logs.Add (Log::Client | Log::Debug,
-		  "Packet received: IDX: %02X COM: %02X SEQ: %d LEN: %d DATA: \"%s\"",
-		  Pkt->GetIndex (), Pkt->GetCommand (), Pkt->GetSequence (),
-		  Pkt->GetLength (), Pkt->GetData ());
+	//Logs.Add (Log::Client | Log::Debug,
+	//	  "Packet received: IDX: %02X COM: %02X SEQ: %d LEN: %d DATA: \"%s\"",
+	//	  Pkt->GetIndex (), Pkt->GetCommand (), Pkt->GetSequence (),
+	//	  Pkt->GetLength (), Pkt->GetData ());
 
 	if (len != NULL)
 		*len = total;

@@ -7,6 +7,7 @@
 		- Added break instruction on ProtoSession()'s switch block.
 		- Uses new method IsProcess() of ProcTree class to add valid
 		processes to the client.
+		- The random string is updated before send it to the client.
 
 	* src/Utils.cpp:
 		- Fixed random_string() adding trunc() when converting random
@@ -16,12 +17,17 @@
 	* src/ProcTree.cpp:
 		- Added new method IsProcess() to check for a valid process
 		using the index value.
+		- Fixed bad if sentence in GetProcessInfo() which gives a
+		segmentation fault if the index is equal to zero.
 
 	* src/Client.cpp:
 		- SetAuthorizedProcess() method now send a Session::Authorized
 		packet to the client. Also, if the index is zero, send a packet
 		for each valid process.
 		- IsAuthorized() method now use Index() member of List class.
+
+	* doc/configuration-0.3_ES.html:
+		- Updated information.
 
 
 2004-06-16  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>

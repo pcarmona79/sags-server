@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/ProcTree.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/17 08:13:23 $
+// $Revision: 1.4 $
+// $Date: 2004/06/18 00:53:23 $
 //
 
 #include "ProcTree.hpp"
@@ -204,7 +204,7 @@ char *ProcTree::GetProcessInfo (unsigned int idx)
 	// TODO: con idx = 0 se debería entregar información
 	//       del servidor
 
-	if (idx < 1 && idx > ProcList.GetCount ())
+	if (idx < 1 || idx > ProcList.GetCount ())
 		return NULL;
 
 	return ProcList[idx - 1]->GetInfo ();
