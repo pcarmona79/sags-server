@@ -2,3 +2,4 @@
 
 SUBDIRS = src tools doc
 
+EXTRA_DIST = TODO

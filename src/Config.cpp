@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Config.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.3 $
+// $Date: 2004/06/07 02:22:58 $
 //
 
 #include <iostream>
@@ -38,7 +38,8 @@ using namespace std;
 
 Configuration::Configuration ()
 {
-
+	ConfigFile = NULL;
+	FileName = NULL;
 }
 
 Configuration::~Configuration ()
@@ -46,14 +47,27 @@ Configuration::~Configuration ()
 	
 }
 
-void Configuration::GetOptionsFromFile (ifstream& file)
+void Configuration::GetOptionsFromFile (ifstream *file, const char *filename)
 {
 	regex_t preg;
 	regmatch_t pmatch[5];
 	char line[CONF_MAX_LINE + 1], errmsg[101], *group, *name, *data;
 	int i, out, value;
 
-	// El archivo ya viene abierto
+	if (filename != NULL)
+		FileName = filename;
+
+	if (file != NULL)
+	{
+		// El archivo ya viene abierto
+		ConfigFile = file;
+	}
+	else
+	{
+		// reutilizar el archivo
+		if (ConfigFile != NULL)
+			ConfigFile->open (FileName);
+	}
 
 	// compilamos la expresión regular
 	out = regcomp (&preg, "^([^\\.]+)(\\.)([^ \t]+)(.+)$",
@@ -65,9 +79,9 @@ void Configuration::GetOptionsFromFile (ifstream& file)
 			  "Failed to compile regexp: %s", errmsg);
 	}
 
-	for (i = 1; !file.eof(); ++i)
+	for (i = 1; !ConfigFile->eof(); ++i)
 	{
-		file.getline (line, CONF_MAX_LINE);
+		ConfigFile->getline (line, CONF_MAX_LINE);
 		//Logs.Add (Log::Config | Log::Info, "%2d %s", i, line);
 
 		// comprobamos que la línea
@@ -196,12 +210,14 @@ void Configuration::GetOptionsFromFile (ifstream& file)
 		//cout << "all deleted." << endl;
 	}
 
-	file.close ();
+	ConfigFile->close ();
 	regfree (&preg);
 
 	// por ultimo reiniciamos Logs para que
 	// tome los nuevos valores
 	Logs.Start ();
+
+	Logs.Add (Log::Config | Log::Info, "Processed file \"%s\"", FileName);
 }
 
 struct option *Configuration::Add (Conf::OpType type, const char *group, const char *name, int val)

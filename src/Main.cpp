@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Main.cpp,v $
-// $Revision: 1.11 $
-// $Date: 2004/06/01 00:04:15 $
+// $Revision: 1.12 $
+// $Date: 2004/06/07 02:22:58 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <csignal>
 
 #include "Main.hpp"
 #include "Process.hpp"
@@ -58,25 +59,42 @@ void Main::AddOptions (void)
 	usersfile = Config.Add (Conf::String, "Main", "UsersFile", "sags.users");
 }
 
-void Main::SignalEvent (int sig)
+int Main::SignalEvent (int sig)
 {
-	// Esta función se llama cuando hay eventos que
-	// quieren que el programa termine. Se debe salir
-	// ordenadamente.
+	switch (sig)
+	{
+		case SIGHUP:
+			// releeemos los archivos de configuración y
+			// el archivo de usuarios
 
-	// detenemos el proceso hijo
-	Child.Kill ();
-	Child.WaitExit ();
+			Logs.Add (Log::Notice, "Reading configuration file");
+			Config.GetOptionsFromFile ();
 
-	// desconectamos a los clientes
-	Server.Shutdown ();
+			Logs.Add (Log::Notice, "Reading users file");
+			Application.LoadUsers ();
+			break;
 
-	// finalmente salimos
-	Logs.Add (Log::Notice, "Exiting");
+		case SIGTERM:
+		case SIGINT:
+			// Esta función se llama cuando hay eventos que
+			// quieren que el programa termine. Se debe salir
+			// ordenadamente.
 
-	// TODO: Esto debería ser reemplazado por un método Main::Exit ()
-	// que debiera ser virtual en SelectLoop
-	exit (sig);
+			// detenemos el proceso hijo
+			Child.Kill ();
+			Child.WaitExit ();
+
+			// desconectamos a los clientes
+			Server.Shutdown ();
+
+			// una salida distinta de cero terminará el programa
+			return sig;
+
+		default:
+			Logs.Add (Log::Warning, "Unhandled event %d", sig);
+	}
+
+	return 0;
 }
 
 void Main::DataEvent (int owner, int fd, bool writing)
@@ -282,6 +300,10 @@ void Main::LoadUsers (void)
 			  usersfile->string);
 		return;
 	}
+
+	// limpiamos la lista de usuarios
+	if (userslist.GetCount () > 0)
+		userslist.Clear ();
 
 	for (i = 1; !file.eof(); ++i)
 	{

@@ -138,6 +138,7 @@ target_alias = @target_alias@
 sags_docsdir = @PACKAGE_DOC_DIR@
 
 sags_docs_DATA = \
+		 protocol_ES.txt   \
 		 sags.conf.example
 
 

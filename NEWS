@@ -1,5 +1,14 @@
-New version 0.2.4
+New version 0.2.5
 -----------------
+
+This version includes:
+
+1) Manage SIGHUP signal to reload the configuration and users files.
+2) Improved exiting method when the program receives a signal.
+
+
+Version 0.2.4
+-------------
 
 This release contains the following changes:
 

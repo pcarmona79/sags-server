@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.hpp,v $
-// $Revision: 1.5 $
-// $Date: 2004/05/29 19:54:54 $
+// $Revision: 1.6 $
+// $Date: 2004/06/07 02:22:58 $
 //
 
 #ifndef __LOOP_HPP__
@@ -82,8 +82,8 @@ public:
 	virtual ~SelectLoop ();
 
 	void Init (void);
-	void Run (void);
-	virtual void SignalEvent (int sig = 0) = 0;
+	int Run (void);
+	virtual int SignalEvent (int sig = 0) = 0;
 	virtual void DataEvent (int owner, int fd, bool writing) = 0;
 	virtual void TimeoutEvent (void) = 0;
 	void Add (int owner, int fd);

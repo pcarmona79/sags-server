@@ -1,3 +1,41 @@
+2004-06-06  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/List.hpp:
+		- Added List<L>::Clear to empty the list.
+
+	* src/Loop.hpp:
+	* src/Loop.cpp:
+		- Added SIGHUP to signal handler.
+		- SignalEvent and Run now return integer value.
+
+	* src/Main.hpp:
+	* src/Main.cpp:
+		- Manage SIGHUP to reload the configuration and users files
+		files.
+		- SignalEvent now return integer value.
+
+	* src/Config.hpp:
+	* src/Config.cpp:
+		- Now stores the name of the configuration file.
+		- Inform name of configuration file used after processed it
+		completely.
+
+	* src/Log.cpp:
+		- "Critical" log option now shutdown the application using
+		exit() function after to call Application.SignalEvent.
+
+	* src/Program.cpp:
+		- Exit message informs value that will be returned by the
+		program.
+
+	* TODO:
+		- New file. Includes features to be added in next releases.
+	
+	* doc/protocol_ES.txt:
+		- New file. Includes spanish description of the network
+		protocol.
+
+
 2004-06-01  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Log.hpp: Deleted not used configuration option 'lines'.

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Program.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/04/24 20:13:43 $
+// $Revision: 1.4 $
+// $Date: 2004/06/07 02:22:58 $
 //
 
 #ifdef HAVE_CONFIG_H
@@ -45,7 +45,7 @@ int main (int argc, char **argv)
 	char *config_file = NULL, *path = NULL, *absolute_config_file = NULL;
 	ifstream configuration;
 	bool debug_mode = false;
-	int i;
+	int i, retval;
 	pid_t pid;
 
 	// revisamos la línea de comandos
@@ -168,7 +168,11 @@ int main (int argc, char **argv)
 	Application.AddOptions ();
 
 	Logs.Start ();
-	Config.GetOptionsFromFile (configuration);
+
+	if (absolute_config_file != NULL)
+		Config.GetOptionsFromFile (&configuration, absolute_config_file);
+	else
+		Config.GetOptionsFromFile (&configuration, config_file);
 
 	Logs.Add (Log::Info, "SAGS Server version %s", VERSION);
 
@@ -176,7 +180,10 @@ int main (int argc, char **argv)
 	Child.Start ();
 	Server.Start ();
 
-	Application.Run ();
+	retval = Application.Run ();
+
+	// si estamos aquí es que estamos saliendo
+	Logs.Add (Log::Notice, "Exiting with %d", retval);
 
 	if (config_file != NULL)
 		delete[] config_file;
@@ -185,5 +192,5 @@ int main (int argc, char **argv)
 	if (absolute_config_file != NULL)
 		delete[] absolute_config_file;
 
-	return 0;
+	return retval;
 }

@@ -19,12 +19,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/List.hpp,v $
-// $Revision: 1.1 $
-// $Date: 2004/05/19 02:53:43 $
+// $Revision: 1.2 $
+// $Date: 2004/06/07 02:22:58 $
 //
 
 #ifndef __LIST_HPP__
 #define __LIST_HPP__
+
+#include <cassert>
 
 // Plantilla Node
 
@@ -95,6 +97,7 @@ public:
 	L* Find (L& d);
 	unsigned int Remove (L& d, bool repeat = false);
 	L Index (unsigned int n);
+	void Clear (void);
 
 	void operator<< (const L& d);
 	void operator<< (L *d);
@@ -284,6 +287,22 @@ L List<L>::Index (unsigned int n)
 	}
 
 	return *Temp->Data;
+}
+
+template <class L>
+void List<L>::Clear (void)
+{
+	Node<L> *Temp = Last;
+
+	while (Last != NULL)
+	{
+		Temp = Last;
+		Last = Last->Prev;
+		delete Temp;
+		--Count;
+	}
+
+	assert (Count == 0);
 }
 
 template <class L>

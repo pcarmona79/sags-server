@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Loop.cpp,v $
-// $Revision: 1.7 $
-// $Date: 2004/06/01 02:36:56 $
+// $Revision: 1.8 $
+// $Date: 2004/06/07 02:22:58 $
 //
 
 #include <csignal>
@@ -52,6 +52,9 @@ void CatchSignal (int sig)
 		case SIGPIPE:
 			Logs.Add (Log::Notice, "CatchSignal: Received SIGPIPE");
 			return;
+		case SIGHUP:
+			Logs.Add (Log::Notice, "CatchSignal: Received SIGHUP");
+			break;
 		default:
 			;
 	}
@@ -121,6 +124,7 @@ void SelectLoop::Init (void)
 	sigaddset (&sigmask, SIGTERM);
 	sigaddset (&sigmask, SIGINT);
 	sigaddset (&sigmask, SIGPIPE);
+	sigaddset (&sigmask, SIGHUP);
 	sigprocmask (SIG_BLOCK, &sigmask, &original_sigmask);
 
 	act.sa_handler = CatchSignal;
@@ -128,20 +132,26 @@ void SelectLoop::Init (void)
 	sigaction (SIGTERM, &act, NULL);
 	sigaction (SIGINT, &act, NULL);
 	sigaction (SIGPIPE, &act, NULL);
+	sigaction (SIGHUP, &act, NULL);
 }
 
-void SelectLoop::Run (void)
+int SelectLoop::Run (void)
 {
 	struct fditem *list;
 	struct timespec *tmout;
-	int i, maximus, select_output;
+	int i, maximus, select_output, sg;
 	fd_set rd, wr;
 
 	while (1)
 	{
 		// atendemos las señales asesinas ;)
 		if (killer_signal)
-			SignalEvent (killer_signal);
+		{
+			sg = SignalEvent (killer_signal);
+			killer_signal = 0;
+			if (sg)
+				return sg;
+		}
 
 		rd = reading;
 		wr = writing;
@@ -188,6 +198,8 @@ void SelectLoop::Run (void)
 			}
 		}
 	}
+
+	return 0;
 }
 
 void SelectLoop::Add (int owner, int fd)
