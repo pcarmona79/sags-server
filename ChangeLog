@@ -1,3 +1,10 @@
+2004-06-01  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Log.hpp: Deleted not used configuration option 'lines'.
+	* src/Log.cpp, src/Process.cpp: Removed deletion of configuration
+	variables in the destructor.
+
+
 2004-05-31  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Log.cpp, src/Main.cpp, src/Process.cpp, src/Protocol.cpp: Fixed

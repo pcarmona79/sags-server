@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Log.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/01 00:04:14 $
+// $Revision: 1.4 $
+// $Date: 2004/06/03 02:46:24 $
 //
 
 #include <iostream>
@@ -45,8 +45,6 @@ Logging::Logging ()
 Logging::~Logging ()
 {
 	file.close ();
-	delete debug;
-	delete logfile;
 }
 
 void Logging::AddOptions (void)

@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Process.cpp,v $
-// $Revision: 1.3 $
-// $Date: 2004/06/01 00:04:15 $
+// $Revision: 1.4 $
+// $Date: 2004/06/03 02:46:24 $
 //
 
 #include <iostream>
@@ -80,11 +80,10 @@ Process::~Process ()
 		}
 	}
 
-	delete command;
-	delete environment;
-	delete workdir;
-	delete respawn;
-	delete historylength;
+	// los punteros a estructuras de configuración
+	// no deben borrarse ya que son eliminados al
+	// borrarse la lista de opciones de la clase
+	// Configuration.
 
 	// Liberar process_logs
 	delete[] process_logs;
