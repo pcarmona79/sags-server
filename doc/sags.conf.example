@@ -25,7 +25,7 @@ DefaultTopic="This is the default channel's topic"
 
 # Process to execute
 [Process1]
-Type="quake2"
+Type="quake2:27910"
 Command="/usr/bin/quake2 +set dedicated 1 +exec server1.cfg"
 Environment="PATH=/usr/bin:/bin"
 WorkingDirectory="/usr/share/games/quake2"
@@ -35,7 +35,7 @@ Name="server1"
 Description="This is the Quake2 server Nº1"
 
 [Process2]
-Type="quake2"
+Type="quake2:29000"
 Command="/usr/bin/quake2 +set dedicated 1 +exec server2.cfg"
 Environment="PATH=/usr/bin:/bin"
 WorkingDirectory="/usr/share/games/quake2"

@@ -1,3 +1,10 @@
+2004-08-18  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
+
+	* src/Network.cpp:
+		- Fixed bug on CloseConnection() which not sending
+		Error::ServerFull packets.
+
+
 2004-08-17  Pablo Carmona Amigo  <pcarm@users.sourceforge.net>
 
 	* src/Channel.hpp:

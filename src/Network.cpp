@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Network.cpp,v $
-// $Revision: 1.12 $
-// $Date: 2004/08/17 02:30:43 $
+// $Revision: 1.13 $
+// $Date: 2004/08/19 01:32:39 $
 //
 
 #include <iostream>
@@ -261,15 +261,6 @@ int Network::AcceptConnection (int sd)
 	// agregamos el cliente
 	Cl = AddClient (ssl_context, clsd, &address, sslen);
 
-	// hay que cerrar la conexión si se alcanza el límite
-	if (ClientList.GetCount () > (unsigned int) maxclients->value)
-	{
-		Logs.Add (Log::Network | Log::Warning,
-			  "Server is full. Closing connection");
-		CloseConnection (clsd, Error::Index, Error::ServerFull);
-		return -1;
-	}
-
 	// comprobamos que el cliente agregado sea bueno
 	if (Cl != NULL)
 		if (!Cl->IsGood ())
@@ -280,6 +271,15 @@ int Network::AcceptConnection (int sd)
 			DropClient (Cl);
 			return -1;
 		}
+
+	// hay que cerrar la conexión si se alcanza el límite
+	if (ClientList.GetCount () > (unsigned int) maxclients->value)
+	{
+		Logs.Add (Log::Network | Log::Warning,
+			  "Server is full. Closing connection");
+		CloseConnection (clsd, Error::Index, Error::ServerFull);
+		return -1;
+	}
 
 	// finalmente le damos CHECK_TIMEOUT segundos para la autentificación
 	AddWatch (Cl);
@@ -342,7 +342,7 @@ void Network::CloseConnection (int sd, unsigned int idx, unsigned int com)
 		strncpy (addr, Cl->ShowIP (), INET6_ADDRSTRLEN + 8);
 		RemoveWatch (Cl);
 		GeneralChannel.UserLeave (Cl);
-		if (idx != 0 && com != 0)
+		if (idx != 0 || com != 0)
 			Cl->Disconnect (idx, com); // no importa si falla
 	}
 
