@@ -8,6 +8,8 @@ sags_CXXFLAGS = \
 bin_PROGRAMS = sags
 
 sags_SOURCES = \
+	       Channel.cpp  \
+	       Channel.hpp  \
 	       Client.cpp   \
 	       Client.hpp   \
 	       Config.cpp   \

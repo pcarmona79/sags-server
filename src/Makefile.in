@@ -144,6 +144,8 @@ sags_CXXFLAGS = \
 bin_PROGRAMS = sags
 
 sags_SOURCES = \
+	       Channel.cpp  \
+	       Channel.hpp  \
 	       Client.cpp   \
 	       Client.hpp   \
 	       Config.cpp   \
@@ -177,12 +179,12 @@ CONFIG_CLEAN_FILES =
 bin_PROGRAMS = sags$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 
-am_sags_OBJECTS = sags-Client.$(OBJEXT) sags-Config.$(OBJEXT) \
-	sags-Log.$(OBJEXT) sags-Loop.$(OBJEXT) sags-Main.$(OBJEXT) \
-	sags-Network.$(OBJEXT) sags-Packet.$(OBJEXT) \
-	sags-Process.$(OBJEXT) sags-ProcTree.$(OBJEXT) \
-	sags-Program.$(OBJEXT) sags-Protocol.$(OBJEXT) \
-	sags-Utils.$(OBJEXT)
+am_sags_OBJECTS = sags-Channel.$(OBJEXT) sags-Client.$(OBJEXT) \
+	sags-Config.$(OBJEXT) sags-Log.$(OBJEXT) sags-Loop.$(OBJEXT) \
+	sags-Main.$(OBJEXT) sags-Network.$(OBJEXT) \
+	sags-Packet.$(OBJEXT) sags-Process.$(OBJEXT) \
+	sags-ProcTree.$(OBJEXT) sags-Program.$(OBJEXT) \
+	sags-Protocol.$(OBJEXT) sags-Utils.$(OBJEXT)
 sags_OBJECTS = $(am_sags_OBJECTS)
 sags_LDADD = $(LDADD)
 sags_DEPENDENCIES =
@@ -191,7 +193,8 @@ sags_LDFLAGS =
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/sags-Client.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/sags-Channel.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/sags-Client.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Config.Po ./$(DEPDIR)/sags-Log.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Loop.Po ./$(DEPDIR)/sags-Main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/sags-Network.Po \
@@ -268,6 +271,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Channel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Config.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sags-Log.Po@am__quote@
@@ -313,6 +317,39 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+sags-Channel.o: Channel.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-Channel.o -MD -MP -MF "$(DEPDIR)/sags-Channel.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o sags-Channel.o `test -f 'Channel.cpp' || echo '$(srcdir)/'`Channel.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/sags-Channel.Tpo" "$(DEPDIR)/sags-Channel.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/sags-Channel.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Channel.cpp' object='sags-Channel.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/sags-Channel.Po' tmpdepfile='$(DEPDIR)/sags-Channel.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -c -o sags-Channel.o `test -f 'Channel.cpp' || echo '$(srcdir)/'`Channel.cpp
+
+sags-Channel.obj: Channel.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-Channel.obj -MD -MP -MF "$(DEPDIR)/sags-Channel.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o sags-Channel.obj `if test -f 'Channel.cpp'; then $(CYGPATH_W) 'Channel.cpp'; else $(CYGPATH_W) '$(srcdir)/Channel.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/sags-Channel.Tpo" "$(DEPDIR)/sags-Channel.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/sags-Channel.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Channel.cpp' object='sags-Channel.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/sags-Channel.Po' tmpdepfile='$(DEPDIR)/sags-Channel.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -c -o sags-Channel.obj `if test -f 'Channel.cpp'; then $(CYGPATH_W) 'Channel.cpp'; else $(CYGPATH_W) '$(srcdir)/Channel.cpp'; fi`
+
+sags-Channel.lo: Channel.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-Channel.lo -MD -MP -MF "$(DEPDIR)/sags-Channel.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o sags-Channel.lo `test -f 'Channel.cpp' || echo '$(srcdir)/'`Channel.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/sags-Channel.Tpo" "$(DEPDIR)/sags-Channel.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/sags-Channel.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Channel.cpp' object='sags-Channel.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/sags-Channel.Plo' tmpdepfile='$(DEPDIR)/sags-Channel.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -c -o sags-Channel.lo `test -f 'Channel.cpp' || echo '$(srcdir)/'`Channel.cpp
 
 sags-Client.o: Client.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sags_CXXFLAGS) $(CXXFLAGS) -MT sags-Client.o -MD -MP -MF "$(DEPDIR)/sags-Client.Tpo" \
