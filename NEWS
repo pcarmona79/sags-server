@@ -1,5 +1,19 @@
-New version 0.3.2
+New version 0.4.0
 -----------------
+
+This new version include the following changes:
+
+1) Chat support. Implements a IRC like channel where all clients
+   connected can have a nice conversation.
+2) New version of network protocol to enables chat messages.
+3) Channel's topic management. Only admin users can change it.
+4) Accepts only one connection per username.
+5) Added new group "Chat" to configuration file. At this time, only
+   have the option "DefaultTopic".
+
+
+Version 0.3.2
+-------------
 
 This release includes:
 
