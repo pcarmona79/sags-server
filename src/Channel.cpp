@@ -19,8 +19,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 // $Source: /home/pablo/Desarrollo/sags-cvs/server/src/Channel.cpp,v $
-// $Revision: 1.2 $
-// $Date: 2004/08/07 21:04:34 $
+// $Revision: 1.3 $
+// $Date: 2004/08/07 21:25:31 $
 //
 
 #include "Channel.hpp"
@@ -71,12 +71,11 @@ void Channel::UserJoin (Client *Cl)
 		newuser->status |= STATUS_ADMIN;
 
 	// enviar aviso al resto de los usuarios conectados
-	// EL MENSAJE TAMBIEN LLEGA AL CLIENTE AGREGADO
 	for (i = 0; i <= max_list - 1; ++i)
 	{
 		Users[i]->client->AddBuffer (Session::MainIndex, Session::ChatJoin,
 					     newuser->name);
-		Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+		Application.Add (Owner::Client | Owner::Send, Users[i]->client->ShowSocket ());
 	}
 
 	Users << newuser;
@@ -86,6 +85,8 @@ void Channel::UserJoin (Client *Cl)
 	users_list = GetUserList ();
 	newuser->client->AddBuffer (Session::MainIndex, Session::ChatUserList,
 				    users_list);
+	Application.Add (Owner::Client | Owner::Send, newuser->client->ShowSocket ());
+
 	delete[] users_list;
 }
 
@@ -102,7 +103,7 @@ void Channel::UserLeave (Client *Cl)
 	{
 		Users[i]->client->AddBuffer (Session::MainIndex, Session::ChatLeave,
 					     deluser.name);
-		Application.Add (Owner::Client | Owner::Send, Cl->ShowSocket ());
+		Application.Add (Owner::Client | Owner::Send, Users[i]->client->ShowSocket ());
 	}
 }
 
