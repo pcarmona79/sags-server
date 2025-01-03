@@ -1,7 +1,7 @@
 //
 // SAGS - Secure Administrator of Game Servers
 // Copyright (C) 2004 Pablo Carmona Amigo
-// 
+//
 // This file is part of SAGS Server.
 //
 // SAGS Server is free software; you can redistribute it and/or modify
@@ -73,7 +73,7 @@ private:
 	List<Client> ClientList;
 	List<struct sditem> sdlist;
 	List<struct checkcl> checklist;
-	SSL_METHOD *ssl_method;
+	const SSL_METHOD *ssl_method;
 	SSL_CTX *ssl_context;
 	int current_maxclients;
 
@@ -104,7 +104,7 @@ public:
 
 	void SendToAllClients (unsigned int idx, unsigned int com, char *buf = NULL);
 	void SendProcessLogs (Client *Cl, unsigned int idx);
-	
+
 	void AddWatch (Client *Cl);
 	void RemoveWatch (Client *Cl);
 	void DropNotValidClients (void);

@@ -1,7 +1,7 @@
 //
 // SAGS - Secure Administrator of Game Servers
 // Copyright (C) 2004 Pablo Carmona Amigo
-// 
+//
 // This file is part of SAGS Server.
 //
 // SAGS Server is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <unistd.h>
 
 #include "Protocol.hpp"
 #include "Log.hpp"

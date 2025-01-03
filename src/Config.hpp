@@ -1,7 +1,7 @@
 //
 // SAGS - Secure Administrator of Game Servers
 // Copyright (C) 2004 Pablo Carmona Amigo
-// 
+//
 // This file is part of SAGS Server.
 //
 // SAGS Server is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 #define __CONFIG_HPP__
 
 #include <fstream>
+#include <cstring>
 #include "List.hpp"
 
 using namespace std;

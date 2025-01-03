@@ -1,0 +1,15 @@
+*~
+*.o
+Makefile
+.deps/
+.libs/
+autom4te.cache/
+config.h
+config.log
+config.status
+configure.lineno
+libtool
+sags.spec
+src/sags
+stamp-h1
+tools/sags-passwd

@@ -1,7 +1,7 @@
 //
 // SAGS - Secure Administrator of Game Servers
 // Copyright (C) 2004 Pablo Carmona Amigo
-// 
+//
 // This file is part of SAGS Server.
 //
 // SAGS Server is free software; you can redistribute it and/or modify
@@ -96,7 +96,7 @@ char **strsplit (const char *str, char delim, int elem, int *count)
 
 char *substring (const char *src, int from, int to)
 {
-	char *dest = (char) NULL;
+	char *dest = (char*) NULL;
 	int len_src, len_dest, i, step;
 
 	if ( src == NULL ) return NULL;
@@ -176,13 +176,13 @@ void random_string (char *str, int size)
 	for (i = 0; i <= size - 1; ++i)
 	{
 		rndval = (int) trunc (61.0 * rand () / (RAND_MAX + 1.0));
-		
+
 		if (rndval >= 0 && rndval <= 9)
 			str[i] = (char) (rndval + 48);
 		else if (rndval >= 10 && rndval <= 35)
 			str[i] = (char) (rndval + 55);
 		else if (rndval >= 36 && rndval <= 61)
-			str[i] = (char) (rndval + 61);	
+			str[i] = (char) (rndval + 61);
 		else
 			str[i] = '\0'; // ups!
 	}
