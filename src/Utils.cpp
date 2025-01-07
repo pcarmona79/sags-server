@@ -27,6 +27,7 @@
 #include <cstring>
 #include <cmath>
 #include <openssl/md5.h>
+#include <openssl/evp.h>
 
 using namespace std;
 
@@ -131,24 +132,44 @@ char *substring (const char *src, int from, int to)
 	return dest;
 }
 
+unsigned char* calculateMD5(unsigned char* buf, unsigned int bufsize) {
+	EVP_MD_CTX* mdctx;
+	unsigned char* md5digest;
+	unsigned int md5digestlen = EVP_MD_size(EVP_md5());
+
+	// MD5_Init
+	mdctx = EVP_MD_CTX_new();
+	EVP_DigestInit_ex(mdctx, EVP_md5(), NULL);
+
+	// MD5_Update
+	EVP_DigestUpdate(mdctx, buf, bufsize);
+
+	// MD5_Final
+	md5digest = (unsigned char*) OPENSSL_malloc(md5digestlen);
+	EVP_DigestFinal_ex(mdctx, md5digest, &md5digestlen);
+	EVP_MD_CTX_free(mdctx);
+
+	return md5digest;
+}
+
 char *md5_password_hash (const char *password)
 {
-	char *md5_password;
+	unsigned char *md5_password;
 	char *md5_password_hex;
 	char hexadecimal[3];
 	int i, tamano;
 
-	md5_password = new char [MD5_DIGEST_LENGTH + 1];
+	md5_password = new unsigned char [MD5_DIGEST_LENGTH + 1];
 	memset (md5_password, 0, MD5_DIGEST_LENGTH + 1);
 	md5_password_hex = new char [2 * MD5_DIGEST_LENGTH + 1];
 	memset (md5_password_hex, 0, 2 * MD5_DIGEST_LENGTH + 1);
 
 	tamano = strlen (password);
-	MD5 ((unsigned char *) password, tamano, (unsigned char *) md5_password);
+	md5_password = calculateMD5 ((unsigned char *) password, tamano);
 
 	for ( i = 0; i < MD5_DIGEST_LENGTH; ++i ) {
 		snprintf (hexadecimal, 3, "%.2x", *(md5_password + i));
-		strncat (md5_password_hex, hexadecimal, sizeof (hexadecimal));
+		strncat (md5_password_hex, hexadecimal, 3);
 	}
 
 	delete[] md5_password;

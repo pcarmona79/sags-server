@@ -1,7 +1,7 @@
 //
 // SAGS - Secure Administrator of Game Servers
 // Copyright (C) 2004 Pablo Carmona Amigo
-// 
+//
 // This file is part of SAGS Server.
 //
 // SAGS Server is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 
 char **strsplit (const char *str, char delim, int elem, int *count);
 char *substring (const char *src, int from, int to);
+unsigned char* calculateMD5(unsigned char* buf, unsigned int bufsize);
 char *md5_password_hash (const char *password);
 char *encode_password (const char *password);
 void random_string (char *str, int size);
